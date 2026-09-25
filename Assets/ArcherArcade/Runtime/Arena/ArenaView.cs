@@ -110,9 +110,10 @@ namespace ArcherArcade.Arena
                 t.transform.position = new Vector3(left + capW + (i + 0.5f) * tileW, top, 0f);
                 t.transform.localScale = new Vector3(tileW / midW * 1.01f, 1f, 1f);
             }
-            SpriteRenderer l = WorldSprites.Make(root, ArtLibrary.Props, "island_left", WorldSprites.Island + 1);
+            // Caps sit behind the middle tiles so the ink line on their inner edge is hidden under the tile.
+            SpriteRenderer l = WorldSprites.Make(root, ArtLibrary.Props, "island_left", WorldSprites.Island - 1);
             l.transform.position = new Vector3(left + capW + 0.02f, top, 0f);
-            SpriteRenderer r = WorldSprites.Make(root, ArtLibrary.Props, "island_right", WorldSprites.Island + 1);
+            SpriteRenderer r = WorldSprites.Make(root, ArtLibrary.Props, "island_right", WorldSprites.Island - 1);
             r.transform.position = new Vector3(right - capW - 0.02f, top, 0f);
 
             // Hanging rock underneath.

@@ -347,7 +347,8 @@
   }));
   add('scenery', 'rock', 6, () => ({ svg: P('M-40 0Q-44 -26 -18 -38Q10 -48 32 -30Q46 -16 40 0Z', '#A69FBA', { sh: rect(-60, -60, 30, 70), hi: rr(8, -36, 16, 5, 2.5) }), box: [-48, -50, 94, 54] }));
   add('scenery', 'cloud', 5, () => ({
-    svg: `<path d="${el(-40, 0, 36, 28)} ${el(0, -18, 46, 38)} ${el(44, 0, 34, 26)} ${rr(-76, -4, 150, 30, 15)}" fill="#FFFFFF"/>` +
+    // One path per puff: ellipses and the rounded base wind in opposite directions, so a single path would punch holes.
+    svg: [el(-40, 0, 36, 28), el(0, -18, 46, 38), el(44, 0, 34, 26), rr(-76, -4, 150, 30, 15)].map(d => `<path d="${d}" fill="#FFFFFF"/>`).join('') +
       `<path d="${rr(-70, 12, 138, 12, 6)}" fill="#D6ECFF"/>`,
     box: [-80, -60, 160, 88]
   }), { shade: 0 });

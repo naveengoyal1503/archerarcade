@@ -193,6 +193,7 @@ namespace ArcherArcade.UI
             _powerText.outlineWidth = 0.25f;
             _powerText.outlineColor = new Color32(0x2A, 0x23, 0x50, 0xFF);
             _aimLayer.gameObject.SetActive(false);
+            BuildFoeMarker(root);
             RefreshAll();
         }
 
@@ -721,6 +722,81 @@ namespace ArcherArcade.UI
                 if (_panelRing[s].enabled) _panelRing[s].color = new Color(Ring.r, Ring.g, Ring.b, 0.65f + Mathf.Sin(_t * 5f) * 0.35f);
 
             UpdateAim();
+            UpdateFoeMarker();
+        }
+
+        // ---------- off-screen opponent marker ----------
+
+        RectTransform _foeRt, _foeArrow;
+        Image _foeDisc, _foeFace;
+        TextMeshProUGUI _foeText;
+        int _foeFor = -1, _foeMeters = -1;
+
+        /// <summary>
+        /// Long duels (the opponent is off-screen while you aim): a pill at the screen edge with the opponent's face,
+        /// the distance in metres and a chevron, at the opponent's height.
+        /// </summary>
+        void BuildFoeMarker(RectTransform root)
+        {
+            _foeRt = UiKit.Rect(root, "FoeMarker");
+            _foeRt.sizeDelta = new Vector2(104f, 44f);
+            _foeRt.SetSiblingIndex(1);
+            Image bg = UiKit.Box(_foeRt, "Bg", new Color(Navy.r, Navy.g, Navy.b, 0.78f), 22f);
+            UiKit.Stretch(bg.rectTransform);
+            _foeDisc = UiKit.Disc(_foeRt, "Disc", Widgets.Red);
+            UiKit.At(_foeDisc.rectTransform, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(5f, 0f), new Vector2(34f, 34f));
+            _foeDisc.gameObject.AddComponent<Mask>().showMaskGraphic = true;
+            _foeFace = UiKit.Box(_foeDisc.transform, "Face", Color.white, 0f);
+            _foeFace.preserveAspect = true;
+            UiKit.Stretch(_foeFace.rectTransform, -2f, -1f, -2f, -5f);
+            _foeText = UiKit.Label(_foeRt, "", FontRole.Display, 15f, Color.white, TextAlignmentOptions.Center);
+            UiKit.Stretch((RectTransform)_foeText.transform, 40f, 0f, 16f, 0f);
+            TextMeshProUGUI chev = UiKit.Glyph(_foeRt, Icons.ChevronRight, 20f, Widgets.Gold);
+            _foeArrow = (RectTransform)chev.transform;
+            UiKit.At(_foeArrow, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(2f, 0f), new Vector2(20f, 24f));
+            _foeRt.gameObject.SetActive(false);
+            _foeFor = -1;
+            _foeMeters = -1;
+        }
+
+        void UpdateFoeMarker()
+        {
+            MatchState m = _r.M;
+            bool aiming = _r.Aiming || _r.AiTurnActive;
+            int side = m.CurrentSide;
+            int me = _r.Roster.VisibleOnSide(side), foe = _r.Roster.VisibleOnSide(1 - side);
+            Camera cam = _r.Rig != null ? _r.Rig.Camera : null;
+            if (!aiming || me < 0 || foe < 0 || cam == null || m.IsSolo)
+            {
+                if (_foeRt.gameObject.activeSelf) _foeRt.gameObject.SetActive(false);
+                return;
+            }
+            Archers.ArcherView v = _r.Roster.View(foe);
+            Vector3 vp = cam.WorldToViewportPoint(v.ChestWorld);
+            bool off = vp.x < -0.02f || vp.x > 1.02f;
+            if (_foeRt.gameObject.activeSelf != off) _foeRt.gameObject.SetActive(off);
+            if (!off) return;
+            if (_foeFor != foe)
+            {
+                _foeFor = foe;
+                Fighter f = m.GetFighter(foe);
+                _foeDisc.color = UiKit.Hex(ArcherLooks.Color(f.Def.Id));
+                _foeFace.sprite = ArtLibrary.Portrait(_r.Session.Looks[foe]);
+            }
+            int meters = Mathf.RoundToInt(Mathf.Abs(v.transform.position.x - _r.Roster.View(me).transform.position.x));
+            if (meters != _foeMeters)
+            {
+                _foeMeters = meters;
+                _foeText.text = Loc.F("meters", meters);
+            }
+            bool right = vp.x > 1f;
+            Rect area = Root.rect;
+            float y = Mathf.Clamp((vp.y - 0.5f) * area.height, -area.height * 0.5f + 150f, area.height * 0.5f - 130f);
+            float bob = Mathf.Sin(_t * 4f) * 4f;
+            _foeRt.anchoredPosition = new Vector2(right ? area.width * 0.5f - 64f + bob : -area.width * 0.5f + 64f - bob, y);
+            _foeArrow.localRotation = Quaternion.Euler(0f, 0f, right ? 0f : 180f);
+            _foeArrow.anchorMin = _foeArrow.anchorMax = new Vector2(right ? 1f : 0f, 0.5f);
+            _foeArrow.pivot = new Vector2(right ? 1f : 0f, 0.5f);
         }
 
         void UpdateAim()

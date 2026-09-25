@@ -1,3 +1,4 @@
+using System;
 using ArcherArcade.Core;
 using ArcherArcade.Logic;
 using ArcherArcade.UI;
@@ -68,7 +69,9 @@ namespace ArcherArcade.Arena
             switch (_kind)
             {
                 case PropKind.Wall:
-                    _main = WorldSprites.Sliced(_body, ArtLibrary.Props, h > 4f ? "stone_wall" : "wall", new Vector2(w + 0.06f, h + 0.08f), _order);
+                    // A wall hanging under a rope is the Rescue cage: the rope's view draws the cage + fox there.
+                    if (RopeAbove(m, index) < 0)
+                        _main = WorldSprites.Sliced(_body, ArtLibrary.Props, h > 4f ? "stone_wall" : "wall", new Vector2(w + 0.06f, h + 0.08f), _order);
                     break;
                 case PropKind.Crate:
                     _main = WorldSprites.Make(_body, ArtLibrary.Props, "crate", _order);
@@ -106,12 +109,16 @@ namespace ArcherArcade.Arena
                     _main.transform.localPosition = new Vector3(0f, -h * 0.5f, 0f);
                     break;
                 case PropKind.Rope:
+                {
                     _main = WorldSprites.Tiled(_body, ArtLibrary.Props, "rope", new Vector2(0.16f, h), _order);
+                    _cageWall = CageBelow(m, index);
+                    float cageH = _cageWall >= 0 ? (float)m.PropRestShape(_cageWall).HalfSize.Y * 2f * 1.15f : 1.3f;
                     _extra = WorldSprites.Make(transform, ArtLibrary.Props, "cage", _order + 2);
-                    WorldSprites.FitHeight(_extra, 1.3f);
+                    WorldSprites.FitHeight(_extra, cageH);
                     _extra2 = WorldSprites.Make(transform, ArtLibrary.Props, "fox", _order + 1);
-                    WorldSprites.FitHeight(_extra2, 0.78f);
+                    WorldSprites.FitHeight(_extra2, cageH * 0.6f);
                     break;
+                }
                 case PropKind.Shield:
                     bool boss = p.Spec.RotatingSlot >= 0;
                     _main = WorldSprites.Make(_body, ArtLibrary.Props, boss ? "shield_boss" : "shield_tall", _order);
@@ -257,6 +264,29 @@ namespace ArcherArcade.Arena
             if (cracked && _main.sprite != cracked) _main.sprite = cracked;
         }
 
+        int _cageWall = -1;
+
+        /// <summary>Index of a rope right above this wall (so the wall is a hanging cage), or −1.</summary>
+        public static int RopeAbove(MatchState m, int wall)
+        {
+            Shape w = m.PropRestShape(wall);
+            for (int i = 0; i < m.PropCount; i++)
+            {
+                if (m.GetProp(i).Kind != PropKind.Rope) continue;
+                Shape r = m.PropRestShape(i);
+                double ropeBottom = r.A.Y - r.HalfSize.Y, wallTop = w.A.Y + w.HalfSize.Y;
+                if (Math.Abs(r.A.X - w.A.X) < 0.3 && Math.Abs(ropeBottom - wallTop) < 0.35) return i;
+            }
+            return -1;
+        }
+
+        static int CageBelow(MatchState m, int rope)
+        {
+            for (int i = 0; i < m.PropCount; i++)
+                if (m.GetProp(i).Kind == PropKind.Wall && RopeAbove(m, i) == rope) return i;
+            return -1;
+        }
+
         void ShowRope(bool intact)
         {
             Shape s = RestShape;
@@ -264,10 +294,19 @@ namespace ArcherArcade.Arena
             _body.position = new Vector3((float)s.A.X, (top + bottom) * 0.5f, 0f);
             _main.size = new Vector2(0.16f, top - bottom);
             if (!intact) return;
-            if (_extra)
+            if (_extra && _extra.sprite)
             {
-                Vector3 b = _extra.sprite ? _extra.sprite.bounds.max : Vector3.zero;
-                _extra.transform.position = new Vector3((float)s.A.X, bottom - b.y * _extra.transform.localScale.y, 0f);
+                if (_cageWall >= 0)
+                {
+                    // Centre the cage picture on the cage collider.
+                    Vector3 c = WorldSprites.V(_m.PropRestShape(_cageWall).Center);
+                    _extra.transform.position = c - _extra.sprite.bounds.center * _extra.transform.localScale.y;
+                }
+                else
+                {
+                    Vector3 b = _extra.sprite.bounds.max;
+                    _extra.transform.position = new Vector3((float)s.A.X, bottom - b.y * _extra.transform.localScale.y, 0f);
+                }
             }
             PlaceFoxInCage();
         }
@@ -438,7 +477,7 @@ namespace ArcherArcade.Arena
             if (_kind == PropKind.Target || _kind == PropKind.Dummy || _kind == PropKind.Wall || _kind == PropKind.Crate || _kind == PropKind.TntCrate ||
                 _kind == PropKind.ExplosiveBarrel || _kind == PropKind.VineWall)
             {
-                if (!(_kind == PropKind.Target && _m.GetProp(_index).Spec.Motion.Kind == MotionKind.Swing))
+                if (_main && !(_kind == PropKind.Target && _m.GetProp(_index).Spec.Motion.Kind == MotionKind.Swing))
                     _main.transform.localRotation = Quaternion.Euler(0f, 0f, wob * (_kind == PropKind.Wall ? 0.3f : 1f));
             }
             if (_squash > 0f)

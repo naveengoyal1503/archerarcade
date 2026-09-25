@@ -419,6 +419,11 @@ namespace ArcherArcade.Match
                     if (Fx) Fx.Burst(S("leaf"), p, 8, 3f, 0.8f, new Color[] { Leaf, Mint }, 0.2f, 4f, 1f);
                     Audio?.Play(SoundId.HitWood, 0.9f, 0.9f);
                     break;
+                case PropKind.Wall when PropView.RopeAbove(M, e.Prop) >= 0:
+                    // The Rescue cage: metal bars.
+                    if (Fx) Fx.Burst(S("spark"), p, 6, 2.5f, 0.3f, new Color[] { Color.white, Gold }, 0.12f, 0f, 0f);
+                    Audio?.Play(SoundId.HitMetal, 0.8f, 1.2f);
+                    break;
                 case PropKind.Wall:
                     bool stone = M.PropRestShape(e.Prop).HalfSize.Y * 2.0 > 4.0;
                     Splinters(p, stone ? 0 : 6);
