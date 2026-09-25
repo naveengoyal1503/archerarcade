@@ -36,3 +36,8 @@ crashlytics-build.properties
 
 # Tool download caches (fonts etc.)
 /Tools/.cache/
+
+# Rig preview tool (dotnet)
+!/Tools/RigPreview/*.csproj
+/Tools/RigPreview/bin/
+/Tools/RigPreview/obj/
