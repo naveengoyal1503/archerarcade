@@ -25,6 +25,9 @@ namespace ArcherArcade.Feel
 
         public static bool SlowMoActive => _slowLeft > 0f;
 
+        /// <summary>Overall speed (1 in the game; PlayMode tests run matches faster).</summary>
+        public static float Speed = 1f;
+
         public static void Ensure(Transform parent)
         {
             if (_instance) return;
@@ -64,7 +67,7 @@ namespace ArcherArcade.Feel
 
         static void Apply()
         {
-            Time.timeScale = _paused ? 0f : _stopLeft > 0f ? 0f : _slowLeft > 0f ? _slowScale : 1f;
+            Time.timeScale = _paused ? 0f : _stopLeft > 0f ? 0f : (_slowLeft > 0f ? _slowScale : 1f) * Speed;
         }
 
         void Update()
@@ -94,6 +97,7 @@ namespace ArcherArcade.Feel
             _paused = false;
             _stopLeft = _slowLeft = 0f;
             _slowScale = 1f;
+            Speed = 1f;
         }
     }
 }

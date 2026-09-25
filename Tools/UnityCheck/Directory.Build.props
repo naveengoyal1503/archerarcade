@@ -6,6 +6,7 @@
       dotnet build Tools/UnityCheck/Game.Runtime        (player / Android defines)
       dotnet build Tools/UnityCheck/Game.RuntimeEditor  (UNITY_EDITOR defines)
       dotnet build Tools/UnityCheck/Game.Editor         (editor scripts)
+      dotnet build Tools/UnityCheck/Game.PlayModeTests  (PlayMode tests, with the Test Framework runtime)
   -->
   <PropertyGroup>
     <UnityRef Condition="'$(UnityRef)' == ''">/opt/unityref</UnityRef>

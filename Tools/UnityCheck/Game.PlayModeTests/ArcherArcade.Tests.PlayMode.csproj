@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ArcherArcade.Tests.PlayMode (runs in the editor's Test Runner). -->
+  <PropertyGroup>
+    <AssemblyName>ArcherArcade.Tests.PlayMode</AssemblyName>
+    <DefineConstants>$(EditorDefines)</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(GameAssets)/Tests/PlayMode/**/*.cs" />
+    <Reference Include="$(UnityPackages)/com.unity.ext.nunit/net40/unity-custom/nunit.framework.dll"><Private>false</Private></Reference>
+    <ProjectReference Include="../../LogicTests/Logic/Logic.csproj" />
+    <ProjectReference Include="../Game.RuntimeEditor/ArcherArcade.Runtime.csproj" />
+    <ProjectReference Include="../Pkg.TestRunner/UnityEngine.TestRunner.csproj" />
+    <ProjectReference Include="../Pkg.UGUI/UnityEngine.UI.csproj" />
+    <ProjectReference Include="../Pkg.TMP/Unity.TextMeshPro.csproj" />
+  </ItemGroup>
+</Project>

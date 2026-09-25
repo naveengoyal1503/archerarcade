@@ -42,7 +42,11 @@ namespace ArcherArcade.Match
         MatchBanner _banner;
         TutorialOverlay _tutorial;
         AiTurn _ai;
+        AiPlayer _autopilot;
         readonly TipDef _tipScratch = new TipDef();
+
+        /// <summary>PlayMode tests: the player's turns are played by a Hard computer archer.</summary>
+        public bool Autopilot;
 
         readonly List<MatchEvent> _shotEvents = new List<MatchEvent>(32);
         readonly List<MatchEvent> _turnEvents = new List<MatchEvent>(16);
@@ -208,6 +212,7 @@ namespace ArcherArcade.Match
             _drag.Cancelled = OnDragCancelled;
             _ghost[0] = _ghost[1] = null;
             _ai = null;
+            _autopilot = null;
             AbilityArmed = false;
             SelectedTip = ArrowTip.Normal;
             Arena.SetWind(M.Wind);
@@ -315,7 +320,7 @@ namespace ArcherArcade.Match
             UpdateLoops();
             _hud?.OnTurnStarted();
 
-            if (Session.IsHuman(side))
+            if (Session.IsHuman(side) && !Autopilot)
             {
                 if (Session.Mode == GameMode.TwoPlayer && _lastHumanSide >= 0 && _lastHumanSide != side)
                 {
@@ -348,7 +353,13 @@ namespace ArcherArcade.Match
         {
             _phase = Phase.Ai;
             _preview.ShowGhost(null, Color.white);
-            AiDecision d = Session.DecideAi();
+            AiDecision d;
+            if (Session.IsHuman(M.CurrentSide))
+            {
+                if (_autopilot == null) _autopilot = new AiPlayer(AiProfile.Hard(), M.DeriveSeed(99UL));
+                d = _autopilot.Decide(M);
+            }
+            else d = Session.DecideAi();
             _ai = new AiTurn(d);
             Fighter f = M.CurrentFighter;
             Roster.View(f.Index).SetArrowTip(d.Input.UseAbility ? ArrowTip.Normal : d.Input.Tip);
@@ -376,6 +387,14 @@ namespace ArcherArcade.Match
             _preview.Hide();
             var input = new ShotInput(angle, power, SelectedTip, AbilityArmed);
             Shoot(input, _drag.HeldSeconds);
+        }
+
+        /// <summary>Fires a shot for the current human turn (PlayMode tests, accessibility tools).</summary>
+        public bool ShootNow(ShotInput input)
+        {
+            if (_phase != Phase.Aim || Paused || Ui.HasModal) return false;
+            Shoot(input, 1f);
+            return _phase == Phase.Flight;
         }
 
         public void SelectTip(ArrowTip tip)

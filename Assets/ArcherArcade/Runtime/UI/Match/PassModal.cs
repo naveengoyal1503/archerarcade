@@ -67,7 +67,8 @@ namespace ArcherArcade.UI
             ServiceLocator.Audio?.Play(SoundId.TurnStart);
         }
 
-        void Ready()
+        /// <summary>"I'm ready" (also a tap anywhere).</summary>
+        public void Ready()
         {
             if (_done) return;
             _done = true;

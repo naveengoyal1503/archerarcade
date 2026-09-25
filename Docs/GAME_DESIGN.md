@@ -341,11 +341,13 @@ Badge wall (Badges screen) + pin up to 3 on the Home profile card. Unlock toast 
 - **Look**: bright cartoon, chunky 3D-looking buttons with a pressed pose, rounded glass cards, big readable
   numbers. Display font rounded (e.g. Fredoka), body Nunito. **Light theme** candy colors (confirmed by Naveen);
   **dark theme** deep purple + gold accent as in the Claude Design prototype (DESIGN_TOKENS §2).
-- World 1 art: parallax forest (4 layers), sun rays, drifting leaves, fireflies at dusk levels.
+- World 1 art: parallax forest (sky + 3 layers + floating far islands), sun rays, drifting leaves, wind streaks,
+  fireflies at dusk and night levels, stars and moon at night.
 - Characters: stylized, big heads (readable headshots), thick outlines, idle breathing, squash/stretch.
-  **2.5D** (confirmed by Naveen): low-poly 3D meshes with toon shading + outline, rigged with the bone names of
-  the Design character roster; the game is still played on a 2D side plane (Logic is 2D). The roster SVGs are
-  the reference for look and proportions.
+  **2.5D** (confirmed by Naveen): the Design roster's parts rendered with baked 3D volume shading ("vinyl toy":
+  highlight, rim light, ambient occlusion), depth-tinted back limbs and a soft ground shadow, assembled every
+  frame by the roster's own rig (same bone names and pivots) — see PROGRESS Decisions log. The game is played on a
+  2D side plane (Logic is 2D). Final art replaces parts by id.
 - Motion: UI pops 150–300 ms easeOutBack; screen transitions 250 ms; coin fly 600 ms; everything with unscaled time.
 - Match HUD (our own design, not copied): health bar + portrait for both sides, **ability/power bar**
   (charges over turns), wind gauge, turn timer, **arrow-tip bar** at the bottom (owned tips with ammo, locked tips

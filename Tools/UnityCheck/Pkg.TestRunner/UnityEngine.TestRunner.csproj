@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- com.unity.test-framework runtime part (UnityTest, UnitySetUp, LogAssert) for the PlayMode tests. -->
+  <PropertyGroup>
+    <AssemblyName>UnityEngine.TestRunner</AssemblyName>
+    <DefineConstants>$(EditorDefines);UNITY_TESTS_FRAMEWORK</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UnityPackages)/com.unity.test-framework/UnityEngine.TestRunner/**/*.cs" />
+    <Reference Include="$(UnityPackages)/com.unity.ext.nunit/net40/unity-custom/nunit.framework.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityData)/Managed/UnityEditor.dll"><Private>false</Private></Reference>
+  </ItemGroup>
+</Project>
