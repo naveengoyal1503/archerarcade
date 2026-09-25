@@ -40,6 +40,9 @@ namespace ArcherArcade.Logic
         /// <summary>Element marks shown on the rig until the match ends.</summary>
         public ElementMarks Marks;
 
+        /// <summary>Boss enrage reached (shoots twice per turn).</summary>
+        public bool Enraged;
+
         public Fighter(int index, FighterSpec spec, TipTable tips, DamageConfig damage, BoosterConfig boosters,
             MatchConfig rules)
         {

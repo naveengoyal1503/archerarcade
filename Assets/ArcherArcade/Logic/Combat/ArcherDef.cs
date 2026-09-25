@@ -7,6 +7,9 @@ namespace ArcherArcade.Logic
     public sealed class ArcherDef
     {
         public string Id = "ranger";
+
+        /// <summary>Display name (proper noun, same in every language), e.g. "Hunter Moss".</summary>
+        public string Name = "Ranger";
         public Element Element = Element.None;
         public int BaseHp = 100;
         public double BaseDamage = 25.0;
@@ -48,5 +51,22 @@ namespace ArcherArcade.Logic
 
         /// <summary>Shield Bearer: carries a wooden shield in front (added as a prop).</summary>
         public bool CarriesShield;
+
+        // Bosses (GAME_DESIGN §6.4).
+
+        /// <summary>Size of the archer's hit zones (the boss is bigger).</summary>
+        public double BodyScale = 1.0;
+
+        /// <summary>Has a weak spot on the chest (×2.5 when not covered).</summary>
+        public bool HasWeakSpot;
+
+        /// <summary>Two wooden shields that rotate every turn, leaving a different zone open each time.</summary>
+        public bool RotatingShields;
+
+        /// <summary>Grows a vine wall in front of the opponent at the start of every Nth own turn.</summary>
+        public int VineWallEveryTurns;
+
+        /// <summary>Shoots twice per turn once HP is at or below this share of max HP (0 = never).</summary>
+        public double EnrageBelow;
     }
 }

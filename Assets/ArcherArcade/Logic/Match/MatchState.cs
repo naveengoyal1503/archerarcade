@@ -42,20 +42,26 @@ namespace ArcherArcade.Logic
             for (int i = 0; i < _fighters.Length; i++)
                 _fighters[i] = new Fighter(i, setup.Fighters[i], setup.Tips, setup.Damage, setup.Boosters, setup.Rules);
 
-            // Level props, then a wooden shield for every Shield Bearer.
-            int shields = 0;
+            // Level props, then props that belong to archers: a Shield Bearer's shield, a boss's two rotating
+            // shields and its (hidden until grown) vine wall.
+            var extra = new List<PropSpec>();
             for (int i = 0; i < _fighters.Length; i++)
             {
-                if (_fighters[i].Def.CarriesShield) shields++;
+                Fighter f = _fighters[i];
+                if (f.Def.CarriesShield) extra.Add(ShieldFor(f, setup.PropRules));
+                if (f.Def.RotatingShields)
+                {
+                    extra.Add(BossShieldFor(f, 0, setup.PropRules));
+                    extra.Add(BossShieldFor(f, 1, setup.PropRules));
+                }
+                if (f.Def.VineWallEveryTurns > 0) extra.Add(VineWallFor(f, setup.PropRules));
             }
-            _props = new Prop[setup.Props.Count + shields];
+            _props = new Prop[setup.Props.Count + extra.Count];
             for (int i = 0; i < setup.Props.Count; i++) _props[i] = new Prop(i, setup.Props[i], setup.PropRules);
-            int next = setup.Props.Count;
-            for (int i = 0; i < _fighters.Length; i++)
+            for (int i = 0; i < extra.Count; i++)
             {
-                if (!_fighters[i].Def.CarriesShield) continue;
-                _props[next] = new Prop(next, ShieldFor(_fighters[i], setup.PropRules), setup.PropRules);
-                next++;
+                int index = setup.Props.Count + i;
+                _props[index] = new Prop(index, extra[i], setup.PropRules);
             }
 
             Winner = -1;
@@ -71,6 +77,41 @@ namespace ArcherArcade.Logic
                 Shape = Shape.Box(new Vec2(f.Facing * pc.ShieldForward, pc.ShieldCenterY), new Vec2(pc.ShieldHalfWidth, pc.ShieldHalfHeight)),
                 ShieldOwner = f.Index
             };
+        }
+
+        /// <summary>Boss shield: both start at pattern 0 (A covers the head, B the body).</summary>
+        static PropSpec BossShieldFor(Fighter f, int slot, PropConfig pc)
+        {
+            double s = f.Def.BodyScale;
+            double y = slot == 0 ? pc.BossShieldHeadY : pc.BossShieldBodyY;
+            return new PropSpec
+            {
+                Kind = PropKind.Shield,
+                Shape = Shape.Box(new Vec2(f.Facing * pc.BossShieldForward * s, y * s), new Vec2(pc.BossShieldHalfWidth * s, pc.BossShieldHalfHeight * s)),
+                ShieldOwner = f.Index,
+                RotatingSlot = slot
+            };
+        }
+
+        /// <summary>Vine wall shape relative to its base point (bottom centre); placed when it grows.</summary>
+        static PropSpec VineWallFor(Fighter f, PropConfig pc)
+        {
+            return new PropSpec
+            {
+                Kind = PropKind.VineWall,
+                Shape = Shape.Box(new Vec2(0.0, pc.VineWallHeight * 0.5), new Vec2(pc.VineWallHalfWidth, pc.VineWallHeight * 0.5)),
+                VineOwner = f.Index
+            };
+        }
+
+        /// <summary>
+        /// Ends the match because a level goal was reached or failed (targets, apples, rescue). Appends MatchOver to
+        /// the current events, so the shot that reached the goal keeps its events.
+        /// </summary>
+        public void EndByGoal(int winnerSide)
+        {
+            if (Phase == MatchPhase.Over) return;
+            EndMatch(winnerSide, _shot.Duration);
         }
 
         public MatchSetup Setup => _setup;
@@ -164,7 +205,7 @@ namespace ArcherArcade.Logic
             for (int side = 0; side < 2; side++)
             {
                 int f = ActiveFighter(side);
-                if (f >= 0) _world.AddFighter(f, _fighters[f].Feet, _setup.Body);
+                if (f >= 0) _world.AddFighter(_fighters[f], _setup.Body);
             }
             return _world;
         }
@@ -210,11 +251,29 @@ namespace ArcherArcade.Logic
                 Push(MatchEventKind.BoosterUsed, shooter.Index, shooter.Index, (int)BoosterKind.MultiArrow, 0.0, shooter.Feet, -1);
             }
 
-            Vec2 origin = shooter.BowPosition(cfg);
-            Vec2 velocity = Ballistics.LaunchVelocity(input.AngleDeg, input.Power, shooter.Facing, cfg, tip.SpeedScale);
             Vec2 accel = Ballistics.Acceleration(Wind, tip.GravityScale, cfg, tip.WindScale);
-            FlightSimulator.Simulate(origin, velocity, accel, tip.SplitCount, tip.SplitSpreadDeg, cfg, _setup.PropRules,
-                BuildWorld(), _setup.Arena, shooter.Index, Clock, _shot.Arrows, tip.LaunchCount, tip.LaunchSpreadDeg);
+            CollisionWorld world = BuildWorld();
+            AbilityDef used = input.UseAbility ? _setup.Abilities[shooter.Def.Ability] : null;
+            if (used != null && used.RainCount > 0)
+            {
+                // Rain of Leaves: arrows appear above the opponent and fall; aim does not matter.
+                int foe = ActiveFighter(1 - shooter.Side);
+                Vec2 above = foe >= 0 ? _fighters[foe].Feet : shooter.Feet + new Vec2(shooter.Facing * 20.0, 0.0);
+                Push(MatchEventKind.RainOfLeaves, foe, shooter.Index, used.RainCount, 0.0, above, -1);
+                for (int i = 0; i < used.RainCount; i++)
+                {
+                    double x = above.X + (i - (used.RainCount - 1) * 0.5) * used.RainSpacing;
+                    FlightSimulator.Simulate(new Vec2(x, above.Y + used.RainHeight), new Vec2(0.0, -used.RainSpeed), accel, 0, 0.0,
+                        cfg, _setup.PropRules, world, _setup.Arena, shooter.Index, Clock, _shot.Arrows);
+                }
+            }
+            else
+            {
+                Vec2 origin = shooter.BowPosition(cfg);
+                Vec2 velocity = Ballistics.LaunchVelocity(input.AngleDeg, input.Power, shooter.Facing, cfg, tip.SpeedScale);
+                FlightSimulator.Simulate(origin, velocity, accel, tip.SplitCount, tip.SplitSpreadDeg, cfg, _setup.PropRules,
+                    world, _setup.Arena, shooter.Index, Clock, _shot.Arrows, tip.LaunchCount, tip.LaunchSpreadDeg);
+            }
 
             _shooter = shooter;
             _tip = tip;
@@ -499,7 +558,7 @@ namespace ArcherArcade.Logic
                     int dmg = DetMath.RoundToInt(damage);
                     if (dmg < 1) dmg = 1;
                     Fighter target = _fighters[bestFighter];
-                    Vec2 at = _setup.Body.ZoneCenter(HitZone.Body, target.Feet);
+                    Vec2 at = _setup.Body.ZoneCenter(HitZone.Body, target);
                     Push(MatchEventKind.ChainHit, bestFighter, _shooter.Index, dmg, time, at, arrow);
                     ApplyDamage(target, dmg, time, at, arrow);
                     _chained.Add(bestFighter);
@@ -610,6 +669,19 @@ namespace ArcherArcade.Logic
                 case PropKind.Rope:
                     prop.Alive = false;
                     Push(MatchEventKind.RopeCut, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    break;
+
+                case PropKind.VineWall:
+                    prop.HitsLeft = explosive || (_tip != null && _tip.Element == Element.Fire) ? 0 : prop.HitsLeft - 1;
+                    if (prop.HitsLeft > 0)
+                    {
+                        Push(MatchEventKind.PropHit, -1, src, prop.HitsLeft, time, point, arrow, HitZone.None, i);
+                    }
+                    else
+                    {
+                        prop.Alive = false;
+                        Push(MatchEventKind.VineWallBroken, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    }
                     break;
 
                 case PropKind.Shield:
@@ -778,9 +850,9 @@ namespace ArcherArcade.Logic
         double DistanceToFighter(Fighter f, Vec2 point)
         {
             BodyConfig body = _setup.Body;
-            double d = body.ZoneShape(HitZone.Head, f.Feet).DistanceTo(point);
-            double b = body.ZoneShape(HitZone.Body, f.Feet).DistanceTo(point);
-            double l = body.ZoneShape(HitZone.Legs, f.Feet).DistanceTo(point);
+            double d = body.ZoneShape(HitZone.Head, f).DistanceTo(point);
+            double b = body.ZoneShape(HitZone.Body, f).DistanceTo(point);
+            double l = body.ZoneShape(HitZone.Legs, f).DistanceTo(point);
             if (b < d) d = b;
             if (l < d) d = l;
             return d;
@@ -831,6 +903,7 @@ namespace ArcherArcade.Logic
                 Wind = ArcherArcade.Logic.Wind.Roll(_setup.Wind, _rng);
                 MovePlatforms();
                 RaiseShields();
+                RotateShields();
                 UpdateStanding(false, 0.0);
 
                 Fighter f = _fighters[ActiveFighter(side)];
@@ -876,7 +949,17 @@ namespace ArcherArcade.Logic
                     f.HasBubble = true;
                     Push(MatchEventKind.BubbleCast, f.Index, f.Index, 0, 0.0, f.Feet, -1);
                 }
+                if (def.VineWallEveryTurns > 0 && f.OwnTurns % def.VineWallEveryTurns == 0) GrowVineWall(f);
                 _shotsLeft = def.ShotsPerTurn > 1 ? def.ShotsPerTurn : 1;
+                if (def.EnrageBelow > 0.0 && f.Hp <= f.MaxHp * def.EnrageBelow)
+                {
+                    if (!f.Enraged)
+                    {
+                        f.Enraged = true;
+                        Push(MatchEventKind.Enraged, f.Index, f.Index, 0, 0.0, f.Feet, -1);
+                    }
+                    if (_shotsLeft < 2) _shotsLeft = 2;
+                }
 
                 double stun = f.Status.ConsumeStun();
                 double time = _setup.Rules.TurnSeconds - stun;
@@ -900,6 +983,49 @@ namespace ArcherArcade.Logic
                 bool moved = offset.X != p.TurnOffset.X || offset.Y != p.TurnOffset.Y;
                 p.TurnOffset = offset;
                 if (moved && TurnNumber > 1) Push(MatchEventKind.PlatformMoved, -1, -1, 0, 0.0, PropRestShape(i).Center, -1, HitZone.None, i);
+            }
+        }
+
+        /// <summary>
+        /// Boss shields turn every turn through 3 patterns, leaving one opening each time:
+        /// 0 = head + body covered (legs open), 1 = body + legs covered (head open), 2 = head + legs covered
+        /// (body and the weak spot open).
+        /// </summary>
+        void RotateShields()
+        {
+            PropConfig pc = _setup.PropRules;
+            int pattern = (TurnNumber - 1) % 3;
+            bool any = false;
+            for (int i = 0; i < _props.Length; i++)
+            {
+                Prop p = _props[i];
+                if (p.Spec.RotatingSlot < 0 || !p.Alive) continue;
+                double scale = _fighters[p.Spec.ShieldOwner].Def.BodyScale;
+                double baseY = p.Spec.RotatingSlot == 0 ? pc.BossShieldHeadY : pc.BossShieldBodyY;
+                double y;
+                if (p.Spec.RotatingSlot == 0) y = pattern == 1 ? pc.BossShieldBodyY : pc.BossShieldHeadY;
+                else y = pattern == 0 ? pc.BossShieldBodyY : pc.BossShieldLegsY;
+                p.TurnOffset = new Vec2(0.0, (y - baseY) * scale);
+                any = true;
+            }
+            if (any) Push(MatchEventKind.ShieldsRotated, -1, -1, pattern, 0.0, Vec2.Zero, -1);
+        }
+
+        /// <summary>Boss move: a vine wall grows in front of the opponent (regrows if broken).</summary>
+        void GrowVineWall(Fighter owner)
+        {
+            int foe = ActiveFighter(1 - owner.Side);
+            if (foe < 0) return;
+            Fighter target = _fighters[foe];
+            PropConfig pc = _setup.PropRules;
+            for (int i = 0; i < _props.Length; i++)
+            {
+                Prop p = _props[i];
+                if (p.Kind != PropKind.VineWall || p.Spec.VineOwner != owner.Index) continue;
+                p.TurnOffset = new Vec2(target.Feet.X + target.Facing * pc.VineWallDistance, target.Feet.Y);
+                p.HitsLeft = pc.VineWallHits;
+                p.Alive = true;
+                Push(MatchEventKind.VineWallGrown, owner.Index, owner.Index, 0, 0.0, PropRestShape(i).Center, -1, HitZone.None, i);
             }
         }
 

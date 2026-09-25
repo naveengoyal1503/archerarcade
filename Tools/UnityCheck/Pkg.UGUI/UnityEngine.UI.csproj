@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>UnityEngine.UI</AssemblyName>
+    <DefineConstants>$(PlayerDefines)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UnityPackages)/com.unity.ugui/Runtime/UGUI/**/*.cs" />
+  </ItemGroup>
+</Project>

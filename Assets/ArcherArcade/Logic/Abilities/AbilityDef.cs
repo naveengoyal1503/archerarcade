@@ -15,5 +15,14 @@ namespace ArcherArcade.Logic
         public int LaunchCount = 1;
         public double LaunchSpreadDeg;
         public double DamageScale = 1.0;
+
+        /// <summary>
+        /// Rain from the sky (Rain of Leaves): this many arrows appear <see cref="RainHeight"/> above the opponent,
+        /// <see cref="RainSpacing"/> apart, falling at <see cref="RainSpeed"/>. Angle and power are ignored.
+        /// </summary>
+        public int RainCount;
+        public double RainSpacing = 1.2;
+        public double RainHeight = 14.0;
+        public double RainSpeed = 8.0;
     }
 }

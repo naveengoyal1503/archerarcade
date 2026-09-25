@@ -28,3 +28,8 @@ crashlytics-build.properties
 /Tools/LogicTests/obj/
 /Tools/LogicTests/**/bin/
 /Tools/LogicTests/**/obj/
+
+# Unity compile check (dotnet, against Unity's managed DLLs)
+!/Tools/UnityCheck/**/*.csproj
+/Tools/UnityCheck/**/bin/
+/Tools/UnityCheck/**/obj/

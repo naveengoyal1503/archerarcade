@@ -29,6 +29,12 @@ namespace ArcherArcade.Logic
         /// <summary>Fighter index carrying this shield (Shield only).</summary>
         public int ShieldOwner = -1;
 
+        /// <summary>Boss rotating shield: which of the two shields this is (0 or 1), −1 for a normal shield.</summary>
+        public int RotatingSlot = -1;
+
+        /// <summary>Fighter who grows this vine wall (VineWall only); it starts hidden.</summary>
+        public int VineOwner = -1;
+
         public static PropSpec Of(PropKind kind, Shape shape) => new PropSpec { Kind = kind, Shape = shape };
     }
 }

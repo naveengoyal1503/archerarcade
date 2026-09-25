@@ -27,5 +27,19 @@ namespace ArcherArcade.Logic
         public double ShieldCenterY = 0.72;
         public double ShieldHalfWidth = 0.12;
         public double ShieldHalfHeight = 0.72;
+
+        /// <summary>Boss rotating shields (sizes at body scale 1): forward offset, half size, slot heights.</summary>
+        public double BossShieldForward = 0.62;
+        public double BossShieldHalfWidth = 0.14;
+        public double BossShieldHalfHeight = 0.34;
+        public double BossShieldHeadY = 1.62;
+        public double BossShieldBodyY = 0.98;
+        public double BossShieldLegsY = 0.36;
+
+        /// <summary>Vine wall: distance in front of the opponent, size, hits to break.</summary>
+        public double VineWallDistance = 3.5;
+        public double VineWallHeight = 2.6;
+        public double VineWallHalfWidth = 0.3;
+        public int VineWallHits = 2;
     }
 }

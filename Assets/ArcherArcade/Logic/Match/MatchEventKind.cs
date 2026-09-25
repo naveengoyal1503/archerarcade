@@ -48,6 +48,13 @@ namespace ArcherArcade.Logic
         BubbleAbsorbed,
         BubblePopped,
         HelmetSaved,
-        Healed
+        Healed,
+
+        // Bosses (Phase 8)
+        ShieldsRotated,
+        VineWallGrown,
+        VineWallBroken,
+        Enraged,
+        RainOfLeaves
     }
 }

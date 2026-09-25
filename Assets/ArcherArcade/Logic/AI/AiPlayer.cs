@@ -95,7 +95,7 @@ namespace ArcherArcade.Logic
             ShotConfig cfg = match.Setup.Shot;
             CollisionWorld world = match.BuildWorld();
 
-            var req = AimRequest.Create(me.BowPosition(cfg), me.Facing, match.Setup.Body.ZoneCenter(wanted, foe.Feet), match.Wind,
+            var req = AimRequest.Create(me.BowPosition(cfg), me.Facing, match.Setup.Body.ZoneCenter(wanted, foe), match.Wind,
                 arrow.GravityScale);
             req.SpeedScale = arrow.SpeedScale;
             req.WindScale = arrow.WindScale;
@@ -108,7 +108,7 @@ namespace ArcherArcade.Logic
             }
 
             HitZone other = wanted == HitZone.Head ? HitZone.Body : HitZone.Head;
-            req.Target = match.Setup.Body.ZoneCenter(other, foe.Feet);
+            req.Target = match.Setup.Body.ZoneCenter(other, foe);
             if (AimSolver.SolveValidated(req, cfg, world, match.Setup.Arena, me.Index, foeIndex, HitZone.None, out sol))
             {
                 input = sol.ToInput();
@@ -116,7 +116,7 @@ namespace ArcherArcade.Logic
                 return true;
             }
 
-            req.Target = match.Setup.Body.ZoneCenter(wanted, foe.Feet);
+            req.Target = match.Setup.Body.ZoneCenter(wanted, foe);
             req.PreferHighArc = true;
             if (AimSolver.SolveValidated(req, cfg, world, match.Setup.Arena, me.Index, foeIndex, HitZone.None, out sol) ||
                 AimSolver.Solve(req, cfg, out sol))

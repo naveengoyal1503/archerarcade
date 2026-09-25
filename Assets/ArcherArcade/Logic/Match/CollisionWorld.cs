@@ -55,11 +55,12 @@ namespace ArcherArcade.Logic
         }
 
         /// <summary>Adds head, body and legs for a fighter (head first, so it wins exact ties).</summary>
-        public void AddFighter(int index, Vec2 feet, BodyConfig body)
+        public void AddFighter(Fighter f, BodyConfig body)
         {
-            Add(body.ZoneShape(HitZone.Head, feet), ColliderKind.Fighter, index, HitZone.Head);
-            Add(body.ZoneShape(HitZone.Body, feet), ColliderKind.Fighter, index, HitZone.Body);
-            Add(body.ZoneShape(HitZone.Legs, feet), ColliderKind.Fighter, index, HitZone.Legs);
+            if (f.Def.HasWeakSpot) Add(body.ZoneShape(HitZone.WeakSpot, f), ColliderKind.Fighter, f.Index, HitZone.WeakSpot);
+            Add(body.ZoneShape(HitZone.Head, f), ColliderKind.Fighter, f.Index, HitZone.Head);
+            Add(body.ZoneShape(HitZone.Body, f), ColliderKind.Fighter, f.Index, HitZone.Body);
+            Add(body.ZoneShape(HitZone.Legs, f), ColliderKind.Fighter, f.Index, HitZone.Legs);
         }
 
         /// <summary>

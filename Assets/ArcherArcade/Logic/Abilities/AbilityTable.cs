@@ -3,7 +3,7 @@ namespace ArcherArcade.Logic
     /// <summary>All abilities, indexed by <see cref="AbilityKind"/>. Starting values from GAME_DESIGN §4.</summary>
     public sealed class AbilityTable
     {
-        const int Count = 5;
+        const int Count = 7;
         readonly AbilityDef[] _defs = new AbilityDef[Count];
 
         public AbilityDef this[AbilityKind kind] => _defs[(int)kind];
@@ -49,6 +49,17 @@ namespace ArcherArcade.Logic
                     Tip = ArrowTip.Bomb, Element = Element.Bomb, Damage = 18, SplitCount = 3, SplitSpreadDeg = 8.0,
                     KnocksShields = true, AbilityArrow = true
                 }
+            });
+
+            // Captain Thorn: 5 thorn arrows in a ±3° steps fan, 40 % damage each (uses the picked tip).
+            t.Set(new AbilityDef { Kind = AbilityKind.ThornVolley, LaunchCount = 5, LaunchSpreadDeg = 3.0, DamageScale = 0.4 });
+
+            // Forest Warden: 3 leaf arrows fall on the opponent from above, 12 damage each, wind-free.
+            t.Set(new AbilityDef
+            {
+                Kind = AbilityKind.RainOfLeaves,
+                RainCount = 3, RainSpacing = 1.2, RainHeight = 14.0, RainSpeed = 8.0,
+                Arrow = new TipDef { Tip = ArrowTip.Normal, Element = Element.None, Damage = 12, WindScale = 0.0, AbilityArrow = true }
             });
             return t;
         }

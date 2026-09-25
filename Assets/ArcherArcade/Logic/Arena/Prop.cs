@@ -22,6 +22,11 @@ namespace ArcherArcade.Logic
             Index = index;
             Spec = spec;
             HitsLeft = spec.Hits > 0 ? spec.Hits : (spec.Kind == PropKind.Crate ? cfg.CrateHits : 1);
+            if (spec.Kind == PropKind.VineWall)
+            {
+                HitsLeft = cfg.VineWallHits;
+                Alive = false;
+            }
         }
 
         public PropKind Kind => Spec.Kind;
@@ -38,6 +43,7 @@ namespace ArcherArcade.Logic
                     case PropKind.TntCrate:
                     case PropKind.ExplosiveBarrel:
                     case PropKind.Target:
+                    case PropKind.VineWall:
                         return true;
                     default:
                         return false;

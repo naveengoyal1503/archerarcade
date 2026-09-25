@@ -125,19 +125,23 @@ and this file updated. The game must run after every phase.
 - [~] Loadout screen: archer, skin, trail, up to 3 special tips, boosters — rules done (`LoadoutRules`); screen is
       Runtime
 - [~] Tests: every ability's and tip's damage/area/status math, ammo limits, charge timing, injury stage per HP,
-      boosters apply once, every level winnable without boosters — all done except "every level winnable",
-      which needs the level data (Phase 8)
+      boosters apply once, every level winnable without boosters — "every level winnable" done in Phase 8
+      (`WinnabilityTests`)
 
 ## Phase 8 — Campaign World 1
-- [ ] Level data for levels 1–20 exactly as `LEVELS.md` (goals, opponents, distances, wind, props, par, rewards)
-- [ ] Goal types: Duel, Targets, Apple Shot, Gauntlet (HP carries), Rescue, Trick Shot, Boss
-- [ ] Stars + par rules (GAME_DESIGN §7.2), best stars/turns saved
-- [ ] Mini-boss Captain Thorn (Thorn Volley) and boss Forest Warden (rotating shields, Vine Wall, Rain of
-      Leaves, Enrage, weak-spot knot)
+- [x] Level data for levels 1–20 exactly as `LEVELS.md` (goals, opponents, distances, wind, props, par, rewards)
+      — `Logic/Campaign/WorldOne.cs`, checked row by row by `CampaignTests`
+- [x] Goal types: Duel, Targets, Apple Shot, Gauntlet (HP carries), Rescue, Trick Shot, Boss — `LevelRun`
+- [~] Stars + par rules (GAME_DESIGN §7.2), best stars/turns saved — `StarRules` done; saving comes with the
+      save system
+- [x] Mini-boss Captain Thorn (Thorn Volley) and boss Forest Warden (rotating shields, Vine Wall, Rain of
+      Leaves, Enrage, weak-spot knot) — Logic + `BossTests`; looks are Runtime
 - [ ] World map screen: path of 20 nodes, stars under nodes, chest nodes after 5/10/15/20, locked nodes shake
 - [ ] Tutorial (level 1) with hand-guided drag, skippable; "New!" cards once each (flags saved)
-- [ ] Losing flow: tips after 2 losses, Assist after 3 (no ★★★ with assist)
-- [ ] Level validation tests: every level solvable by the AI solver, rewards/unlocks match the table
+- [~] Losing flow: tips after 2 losses, Assist after 3 (no ★★★ with assist) — rules in `LossHelp`/`StarRules`;
+      screens are Runtime
+- [x] Level validation tests: every level solvable by the AI solver, rewards/unlocks match the table —
+      plus a perfect-aim bot with normal progression and no boosters wins every level (≥ 7/8 seeds)
 
 ## Phase 9 — 2-Player (same phone)
 - [ ] Setup screen: player names (default P1 / P2), archer + skin each, arena, best of 1/3/5, wind on/off,
@@ -228,4 +232,7 @@ and this file updated. The game must run after every phase.
 | 2026-09-25 | Moving targets follow a match clock that only advances with aiming time (`Tick`) and flight time, so release timing matters but stays deterministic. Replays / online must record the release clock (`ShotResult.Clock`) with each `ShotInput`. |
 | 2026-09-25 | Ability rules: Triple Shot fans the picked tip (one ammo, 60 % per arrow); Meteor, Storm Bolt and Cluster Bomb fire their own arrow (no ammo) whose damage is final (no archer-base scaling, no element bonus; upgrade level still scales it). Storm Bolt flies 25 % faster and ignores wind. Cluster bomblets split ±8°. The turn an ability is used does not count toward the next charge. Multi Arrow booster = Triple Shot fan on the first shot (60 %); it never stacks with Triple Shot. |
 | 2026-09-25 | Enemy rules: Twin Shooter gets 2 aimed shots per turn (timer resets for the 2nd); Healer Druid heals 10 at the start of every 2nd own turn (never above max); bubble casters cast at the start of every 3rd own turn; a bubble eats one arrow (no damage), Electric pops it and still hits; Iron Helmet turns the first headshot into a body hit (no headshot credit). Default enemy HP: Scout 70, Twin 80, Druid 90, Sniper 90, Bramble 120 (levels may override). |
+| 2026-09-25 | Campaign rules: duel stars = 1 for a win + 1 for ≥ 50 % HP + 1 for ≤ par turns (each condition adds a star); target-type levels allow 2 × par + 2 arrows; hitting a dummy fails the Apple Shot; cutting the rope (or knocking Moss out) wins the Rescue. Thorn Volley = 5 arrows ±3° at 40 %. Warden: body scale 1.35, shields rotate every turn through 3 openings (legs → head → body + knot), vine wall 2.6 m tall 3.5 m in front of the player every 3rd Warden turn (2 hits, fire burns it at once), Rain of Leaves = 3 arrows of 12 falling from 14 m, Enrage at ≤ 30 % HP. |
+| 2026-09-25 | Level fixes found by the validation tests: L10's TNT tower is 3 crates (5 hid Captain Thorn's body in a headwind); L12's roof/pad were moved so the hidden targets are reachable only by a bounce. With normal progression (one upgrade per 5 levels, tips unlocked so far) a perfect-aim player wins every level on ≥ 7/8 seeds; a level-1 Ranger with Normal arrows only wins L19/L20 on 5/8 — watch these two in playtests. |
+| 2026-09-25 | Unity compile check: `Tools/UnityCheck` compiles Runtime/Editor code (and uGUI, TextMeshPro, Input System 1.20.0) against Unity 6000.3.24f1's DLLs (`fetch_unity_refs.sh`), so cloud sessions catch compile errors before Naveen opens the project. |
 | 2026-09-25 | Cloud sessions have no Unity: Logic is compiled and tested with .NET 8 (`Tools/LogicTests`, same NUnit API). APKs and Unity-side checks happen on Naveen's PC. |

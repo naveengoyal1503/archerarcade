@@ -32,7 +32,7 @@ namespace ArcherArcade.Tests
             Fighter me = m.CurrentFighter;
             Fighter foe = m.GetFighter(m.ActiveFighter(1 - me.Side));
             TipDef arrow = m.BuildShotTip(me, tip, useAbility, me.MultiArrowLeft, new TipDef());
-            var req = AimRequest.Create(me.BowPosition(m.Setup.Shot), me.Facing, m.Setup.Body.ZoneCenter(zone, foe.Feet),
+            var req = AimRequest.Create(me.BowPosition(m.Setup.Shot), me.Facing, m.Setup.Body.ZoneCenter(zone, foe),
                 m.Wind, arrow.GravityScale);
             req.SpeedScale = arrow.SpeedScale;
             req.WindScale = arrow.WindScale;

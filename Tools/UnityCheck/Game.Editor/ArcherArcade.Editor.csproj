@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ArcherArcade.Editor (builders, batch entry points). -->
+  <PropertyGroup>
+    <AssemblyName>ArcherArcade.Editor</AssemblyName>
+    <DefineConstants>$(EditorDefines)</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(GameAssets)/Editor/**/*.cs" />
+    <Reference Include="$(UnityData)/Managed/UnityEditor.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityData)/Managed/UnityEngine/UnityEditor*.dll"><Private>false</Private></Reference>
+    <ProjectReference Include="../../LogicTests/Logic/Logic.csproj" />
+    <ProjectReference Include="../Game.RuntimeEditor/ArcherArcade.Runtime.csproj" />
+    <ProjectReference Include="../Pkg.UGUI/UnityEngine.UI.csproj" />
+    <ProjectReference Include="../Pkg.TMP/Unity.TextMeshPro.csproj" />
+    <ProjectReference Include="../Pkg.InputSystem/Unity.InputSystem.csproj" />
+  </ItemGroup>
+</Project>

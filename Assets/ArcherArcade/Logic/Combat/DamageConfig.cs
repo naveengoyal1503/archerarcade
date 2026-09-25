@@ -6,6 +6,7 @@ namespace ArcherArcade.Logic
         public double HeadMultiplier = 2.0;
         public double BodyMultiplier = 1.0;
         public double LegsMultiplier = 0.6;
+        public double WeakSpotMultiplier = 2.5;
 
         /// <summary>Tip damage values assume an archer with this base damage (Ranger, 25).</summary>
         public double ReferenceDamage = 25.0;
@@ -24,6 +25,7 @@ namespace ArcherArcade.Logic
                 case HitZone.Head: return HeadMultiplier;
                 case HitZone.Body: return BodyMultiplier;
                 case HitZone.Legs: return LegsMultiplier;
+                case HitZone.WeakSpot: return WeakSpotMultiplier;
                 default: return 0.0;
             }
         }

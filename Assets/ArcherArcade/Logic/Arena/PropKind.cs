@@ -34,6 +34,9 @@ namespace ArcherArcade.Logic
         Shield,
 
         /// <summary>Platform an archer stands on; moves between turns.</summary>
-        Platform
+        Platform,
+
+        /// <summary>Forest Warden's vine wall: grows in front of the opponent; 2 hits, fire or explosions burn it at once.</summary>
+        VineWall
     }
 }
