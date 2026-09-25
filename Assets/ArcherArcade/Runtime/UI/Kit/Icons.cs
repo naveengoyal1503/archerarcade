@@ -12,13 +12,17 @@ namespace ArcherArcade.UI
         public const string Air = "\uefd8";
         public const string ArrowBack = "\ue5c4";
         public const string ArrowForward = "\ue5c8";
+        public const string ArrowLeft = "\ue5de";
+        public const string ArrowRight = "\ue5df";
         public const string ArrowRightAlt = "\ue941";
         public const string ArrowUpward = "\ue5d8";
         public const string AutoAwesome = "\ue65f";
+        public const string AutoFixHigh = "\ue663";
         public const string BackHand = "\ue764";
         public const string BarChart = "\ue26b";
         public const string BatterySaver = "\uefde";
         public const string Bedtime = "\uf159";
+        public const string Block = "\uf08c";
         public const string Bolt = "\uea0b";
         public const string Bomb = "\uf568";
         public const string Brush = "\ue3ae";
@@ -26,6 +30,7 @@ namespace ArcherArcade.UI
         public const string Cached = "\ue86a";
         public const string CalendarMonth = "\uebcc";
         public const string CallSplit = "\ue0b6";
+        public const string Cancel = "\ue888";
         public const string CardGiftcard = "\ue8f6";
         public const string Celebration = "\uea65";
         public const string Check = "\ue668";
@@ -59,6 +64,7 @@ namespace ArcherArcade.UI
         public const string Help = "\ue8fd";
         public const string Home = "\ue9b2";
         public const string HourglassEmpty = "\ue88b";
+        public const string HourglassTop = "\uea5b";
         public const string Info = "\ue88e";
         public const string Inventory2 = "\ue1a1";
         public const string LightMode = "\ue518";
@@ -69,6 +75,7 @@ namespace ArcherArcade.UI
         public const string Map = "\ue55b";
         public const string MilitaryTech = "\uea3f";
         public const string MonetizationOn = "\ue263";
+        public const string Mood = "\uea22";
         public const string MotionPhotosOff = "\ue9c0";
         public const string MusicNote = "\ue405";
         public const string Nightlight = "\uf03d";
@@ -76,6 +83,8 @@ namespace ArcherArcade.UI
         public const string Palette = "\ue40a";
         public const string Pause = "\ue034";
         public const string Person = "\uf0d3";
+        public const string Pets = "\ue91d";
+        public const string PhoneAndroid = "\uf2db";
         public const string PlayArrow = "\ue037";
         public const string PrivacyTip = "\uf0dc";
         public const string Psychology = "\uea4a";
@@ -96,6 +105,7 @@ namespace ArcherArcade.UI
         public const string Straighten = "\ue41c";
         public const string SwapHoriz = "\ue8d4";
         public const string Swords = "\uf889";
+        public const string Sync = "\ue627";
         public const string Target = "\ue719";
         public const string Thunderstorm = "\uebdb";
         public const string Timer = "\ue425";
@@ -124,13 +134,17 @@ namespace ArcherArcade.UI
             { "air", Air },
             { "arrow_back", ArrowBack },
             { "arrow_forward", ArrowForward },
+            { "arrow_left", ArrowLeft },
+            { "arrow_right", ArrowRight },
             { "arrow_right_alt", ArrowRightAlt },
             { "arrow_upward", ArrowUpward },
             { "auto_awesome", AutoAwesome },
+            { "auto_fix_high", AutoFixHigh },
             { "back_hand", BackHand },
             { "bar_chart", BarChart },
             { "battery_saver", BatterySaver },
             { "bedtime", Bedtime },
+            { "block", Block },
             { "bolt", Bolt },
             { "bomb", Bomb },
             { "brush", Brush },
@@ -138,6 +152,7 @@ namespace ArcherArcade.UI
             { "cached", Cached },
             { "calendar_month", CalendarMonth },
             { "call_split", CallSplit },
+            { "cancel", Cancel },
             { "card_giftcard", CardGiftcard },
             { "celebration", Celebration },
             { "check", Check },
@@ -171,6 +186,7 @@ namespace ArcherArcade.UI
             { "help", Help },
             { "home", Home },
             { "hourglass_empty", HourglassEmpty },
+            { "hourglass_top", HourglassTop },
             { "info", Info },
             { "inventory_2", Inventory2 },
             { "light_mode", LightMode },
@@ -181,6 +197,7 @@ namespace ArcherArcade.UI
             { "map", Map },
             { "military_tech", MilitaryTech },
             { "monetization_on", MonetizationOn },
+            { "mood", Mood },
             { "motion_photos_off", MotionPhotosOff },
             { "music_note", MusicNote },
             { "nightlight", Nightlight },
@@ -188,6 +205,8 @@ namespace ArcherArcade.UI
             { "palette", Palette },
             { "pause", Pause },
             { "person", Person },
+            { "pets", Pets },
+            { "phone_android", PhoneAndroid },
             { "play_arrow", PlayArrow },
             { "privacy_tip", PrivacyTip },
             { "psychology", Psychology },
@@ -208,6 +227,7 @@ namespace ArcherArcade.UI
             { "straighten", Straighten },
             { "swap_horiz", SwapHoriz },
             { "swords", Swords },
+            { "sync", Sync },
             { "target", Target },
             { "thunderstorm", Thunderstorm },
             { "timer", Timer },

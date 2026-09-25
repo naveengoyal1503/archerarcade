@@ -4,6 +4,7 @@ namespace ArcherArcade.Logic
     /// Shot and flight tuning (GAME_DESIGN §3.1–3.2). Defaults are the design's starting values; the Runtime
     /// ScriptableObject config fills these fields so tuning never needs a code change.
     /// </summary>
+    [System.Serializable]
     public sealed class ShotConfig
     {
         public double MinSpeed = 12.0;

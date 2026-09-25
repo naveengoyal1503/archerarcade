@@ -62,7 +62,14 @@ ICONS = sorted(set("""
     savings science settings shield shuffle skull speed sports_score star storefront straighten swap_horiz swords
     target thunderstorm timer touch_app track_changes translate trending_up tune upgrade vibration visibility
     volume_off volume_up water_drop wb_sunny wb_twilight weight workspace_premium zoom_in
+    arrow_right arrow_left sync pets phone_android hourglass_top mood auto_fix_high block cancel
 """.split()))
+
+# Plain-text symbols the UI copy uses (from the design) mapped onto icon glyphs, so any label can contain them via
+# the TextMeshPro fallback: ❤ ✓ ✕ ▶ ▸ ◀ ⟲ ★ ☆ ← → ↑.
+ALIASES = {0x2764: "favorite", 0x2713: "check", 0x2715: "close", 0x25B6: "play_arrow", 0x25B8: "arrow_right",
+           0x25C0: "arrow_left", 0x27F2: "replay", 0x2605: "star", 0x2606: "star", 0x2190: "arrow_back",
+           0x2192: "arrow_forward", 0x2191: "arrow_upward"}
 
 
 def fetch():
@@ -112,10 +119,21 @@ def build_icons():
     s = subset.Subsetter(opts)
     s.populate(unicodes=[cps[n] for n in ICONS])
     s.subset(static)
+    add_aliases(static, cps)
     out = os.path.join(OUT, "Icons-Rounded.ttf")
     static.save(out)
     print("icons", len(ICONS), os.path.getsize(out) // 1024, "KB")
     write_icons_cs(cps)
+
+
+def add_aliases(font, cps):
+    for table in font["cmap"].tables:
+        if not table.isUnicode():
+            continue
+        for cp, name in ALIASES.items():
+            glyph = table.cmap.get(cps[name])
+            if glyph and (cp <= 0xFFFF or table.format in (12, 13)):
+                table.cmap[cp] = glyph
 
 
 def pascal(name):

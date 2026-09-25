@@ -1,6 +1,7 @@
 namespace ArcherArcade.Logic
 {
     /// <summary>Booster effects (GAME_DESIGN §5.1). Prices live in the economy config (Phase 11).</summary>
+    [System.Serializable]
     public sealed class BoosterConfig
     {
         public int ExtraHeartHp = 25;

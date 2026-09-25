@@ -5,6 +5,7 @@ namespace ArcherArcade.Logic
     /// scale 1. Big archers (the boss) scale every zone around the feet. The weak spot (boss chest knot) sits on
     /// the chest surface facing the opponent.
     /// </summary>
+    [System.Serializable]
     public sealed class BodyConfig
     {
         public Vec2 HeadCenter = new Vec2(0.0, 1.62);

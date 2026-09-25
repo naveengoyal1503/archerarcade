@@ -1,6 +1,7 @@
 namespace ArcherArcade.Logic
 {
     /// <summary>Damage tuning (GAME_DESIGN §3.3, §4, §5).</summary>
+    [System.Serializable]
     public sealed class DamageConfig
     {
         public double HeadMultiplier = 2.0;

@@ -1,6 +1,7 @@
 namespace ArcherArcade.Logic
 {
     /// <summary>2D vector in world units (1 unit ≈ 1 m, y up). Double precision for deterministic simulation.</summary>
+    [System.Serializable]
     public struct Vec2
     {
         public double X;

@@ -1,6 +1,7 @@
 namespace ArcherArcade.Logic
 {
     /// <summary>Turn rules (GAME_DESIGN §3.5).</summary>
+    [System.Serializable]
     public sealed class MatchConfig
     {
         public double TurnSeconds = 12.0;

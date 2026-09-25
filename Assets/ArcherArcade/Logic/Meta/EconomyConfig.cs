@@ -6,6 +6,7 @@ namespace ArcherArcade.Logic.Meta
     /// Every coin number in the game (GAME_DESIGN §8, §5.1). Coins are only ever earned, never bought. The UI shows
     /// these values; nothing else may hard-code a price or a reward.
     /// </summary>
+    [System.Serializable]
     public sealed class EconomyConfig
     {
         // Sources

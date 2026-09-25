@@ -1,6 +1,7 @@
 namespace ArcherArcade.Logic
 {
     /// <summary>Prop tuning (GAME_DESIGN §10).</summary>
+    [System.Serializable]
     public sealed class PropConfig
     {
         public int CrateHits = 2;
