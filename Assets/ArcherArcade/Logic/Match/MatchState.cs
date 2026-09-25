@@ -653,7 +653,7 @@ namespace ArcherArcade.Logic
                     break;
 
                 case PropKind.Target:
-                    prop.Alive = false;
+                    if (!prop.Spec.Durable) prop.Alive = false;
                     Push(MatchEventKind.TargetHit, -1, src, 0, time, point, arrow, HitZone.None, i);
                     break;
 
@@ -900,7 +900,7 @@ namespace ArcherArcade.Logic
             {
                 CurrentSide = side;
                 TurnNumber++;
-                Wind = ArcherArcade.Logic.Wind.Roll(_setup.Wind, _rng);
+                Wind = _setup.FixedWind ?? ArcherArcade.Logic.Wind.Roll(_setup.Wind, _rng);
                 MovePlatforms();
                 RaiseShields();
                 RotateShields();

@@ -44,6 +44,9 @@ namespace ArcherArcade.Logic.Campaign
         /// <summary>Arrows allowed on target-type goals (0 = 2 × par + 2).</summary>
         public int ArrowLimit;
 
+        /// <summary>Only this tip, with unlimited ammo (daily "Split only" / "Heavy only"), or null.</summary>
+        public ArrowTip? OnlyTip;
+
         /// <summary>Hint shown after 2 losses (string id).</summary>
         public string LossTip = "tip_aim_wind";
 

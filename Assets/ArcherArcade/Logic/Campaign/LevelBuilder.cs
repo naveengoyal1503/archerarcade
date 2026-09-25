@@ -23,6 +23,16 @@ namespace ArcherArcade.Logic.Campaign
             player.StandOnProp = arena.PlayerStandOnProp;
             player.StandOnTower = -1;
             if (level.ForcedTips != null) player.Tips = level.ForcedTips;
+            if (level.OnlyTip.HasValue)
+            {
+                ArrowTip only = level.OnlyTip.Value;
+                var unlimited = new TipDef();
+                unlimited.CopyFrom(setup.Tips[only]);
+                unlimited.Ammo = -1;
+                setup.Tips.Set(unlimited);
+                player.Tips = new[] { only };
+                player.NormalArrows = false;
+            }
             setup.Fighters.Add(player);
 
             for (int i = 0; i < level.Opponents.Length; i++)

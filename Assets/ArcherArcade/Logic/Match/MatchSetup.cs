@@ -16,6 +16,9 @@ namespace ArcherArcade.Logic
         public BoosterConfig Boosters = new BoosterConfig();
         public ArenaLayout Arena = new ArenaLayout();
         public WindRange Wind = WindRange.Calm;
+
+        /// <summary>Exact signed wind every turn instead of rolling (Training's wind slider), or null.</summary>
+        public int? FixedWind;
         public FirstTurnRule FirstTurn = FirstTurnRule.SideZero;
 
         /// <summary>

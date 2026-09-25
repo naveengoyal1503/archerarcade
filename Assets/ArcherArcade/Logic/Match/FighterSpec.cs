@@ -11,8 +11,11 @@ namespace ArcherArcade.Logic
         /// <summary>+1 faces right (player side), −1 faces left.</summary>
         public int Facing = 1;
 
-        /// <summary>Special tips picked in the Loadout (Normal is always available).</summary>
+        /// <summary>Special tips picked in the Loadout (Normal is always available unless NormalArrows is false).</summary>
         public ArrowTip[] Tips = new ArrowTip[0];
+
+        /// <summary>False for "Split only" / "Heavy only" daily twists.</summary>
+        public bool NormalArrows = true;
 
         /// <summary>2-Player handicap (0.7–1.3) and Extra Heart booster scale max HP.</summary>
         public double HpScale = 1.0;

@@ -54,7 +54,7 @@ namespace ArcherArcade.Logic
             if (MaxHp < 1) MaxHp = 1;
             Hp = MaxHp;
             Feet = spec.Feet;
-            Ammo[(int)ArrowTip.Normal] = -1;
+            Ammo[(int)ArrowTip.Normal] = spec.NormalArrows ? -1 : 0;
             for (int i = 0; spec.Tips != null && i < spec.Tips.Length; i++)
             {
                 ArrowTip tip = spec.Tips[i];

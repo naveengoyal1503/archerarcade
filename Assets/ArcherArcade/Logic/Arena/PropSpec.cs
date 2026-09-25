@@ -35,6 +35,9 @@ namespace ArcherArcade.Logic
         /// <summary>Fighter who grows this vine wall (VineWall only); it starts hidden.</summary>
         public int VineOwner = -1;
 
+        /// <summary>Target that stays up after a hit (Training Range boards).</summary>
+        public bool Durable;
+
         public static PropSpec Of(PropKind kind, Shape shape) => new PropSpec { Kind = kind, Shape = shape };
     }
 }

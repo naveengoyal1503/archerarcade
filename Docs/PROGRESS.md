@@ -147,22 +147,30 @@ and this file updated. The game must run after every phase.
 - [ ] Setup screen: player names (default P1 / P2), archer + skin each, arena, best of 1/3/5, wind on/off,
       preview length, handicap HP 70–130 %
 - [ ] Pass-and-play: "Pass the phone to P2" screen hides the previous aim; tap "I'm ready" to start the turn
-- [ ] Round flow + scoreboard, rematch, swap sides
-- [ ] Rewards: badge progress only (no coins)
-- [ ] PlayMode test: a full best-of-3 with scripted inputs finishes; Back works on every step
+- [~] Round flow + scoreboard, rematch, swap sides — `PvpSeries` (Logic, tested); screens are Runtime
+- [x] Rewards: badge progress only (no coins) — `Rewards.TwoPlayer`, `Profile.RecordMatchEnd`
+- [~] PlayMode test: a full best-of-3 with scripted inputs finishes; Back works on every step — the series flow
+      is covered by `ModesTests`; the PlayMode walk needs Unity
 
 ## Phase 10 — Other modes
-- [ ] Quick Duel: archer + difficulty + arena pickers, coin rewards (config)
-- [ ] Daily Challenge: date seed → template + twist, same level on every phone (test), streak, 7-day chest
-- [ ] Training Range: 10/20/30/40 m targets, wind slider, long preview, no timer, hit stats
+- [~] Quick Duel: archer + difficulty + arena pickers, coin rewards (config) — `QuickDuel`, `ArenaCatalog`,
+      `Rewards.QuickDuel`; pickers are Runtime
+- [~] Daily Challenge: date seed → template + twist, same level on every phone (test), streak, 7-day chest —
+      Logic + tests done (a year of dailies checked solvable); screen is Runtime
+- [~] Training Range: 10/20/30/40 m targets, wind slider, long preview, no timer, hit stats — `TrainingRange`
+      done; screen is Runtime
 
 ## Phase 11 — Meta: economy, upgrades, chests, badges, stats
-- [ ] `EconomyConfig` (all numbers from GAME_DESIGN §8); Wallet never negative (test)
-- [ ] Archer upgrades lvl 1–10 (cost curve, +4 % dmg / +4 HP per level), unlock rules (L5, 20 stars, boss)
-- [ ] Chests after levels 5/10/15/20: seeded contents, shake + open animation, coin fly
-- [ ] 22 badges × bronze/silver/gold (GAME_DESIGN §9), progress tracking, unlock toast, badge wall, pin 3 on Home
-- [ ] Stats screen: shots, accuracy, headshots, longest shot, wins/losses per mode, favourite archer, time played
-- [ ] Shop (coins only): skins and trails, preview before buying
+- [~] `EconomyConfig` (all numbers from GAME_DESIGN §8); Wallet never negative (test) — done in Logic; the
+      ScriptableObject wrapper comes with the Runtime
+- [x] Archer upgrades lvl 1–10 (cost curve, +4 % dmg / +4 HP per level), unlock rules (L5, 20 stars, boss)
+- [~] Chests after levels 5/10/15/20: seeded contents, shake + open animation, coin fly — contents + rules done;
+      animation is Runtime
+- [~] 22 badges × bronze/silver/gold (GAME_DESIGN §9), progress tracking, unlock toast, badge wall, pin 3 on Home
+      — catalog, tiers, rewards, pins, `StatsRecorder` done; toast + wall are Runtime
+- [~] Stats screen: shots, accuracy, headshots, longest shot, wins/losses per mode, favourite archer, time played
+      — all tracked in the save; screen is Runtime
+- [~] Shop (coins only): skins and trails, preview before buying — catalog + buy/equip rules done; screen Runtime
 
 ## Phase 12 — Screens and full UI polish
 - [ ] Every screen in SCREEN_INVENTORY built from the design (light + dark), with open/close animations
@@ -234,5 +242,7 @@ and this file updated. The game must run after every phase.
 | 2026-09-25 | Enemy rules: Twin Shooter gets 2 aimed shots per turn (timer resets for the 2nd); Healer Druid heals 10 at the start of every 2nd own turn (never above max); bubble casters cast at the start of every 3rd own turn; a bubble eats one arrow (no damage), Electric pops it and still hits; Iron Helmet turns the first headshot into a body hit (no headshot credit). Default enemy HP: Scout 70, Twin 80, Druid 90, Sniper 90, Bramble 120 (levels may override). |
 | 2026-09-25 | Campaign rules: duel stars = 1 for a win + 1 for ≥ 50 % HP + 1 for ≤ par turns (each condition adds a star); target-type levels allow 2 × par + 2 arrows; hitting a dummy fails the Apple Shot; cutting the rope (or knocking Moss out) wins the Rescue. Thorn Volley = 5 arrows ±3° at 40 %. Warden: body scale 1.35, shields rotate every turn through 3 openings (legs → head → body + knot), vine wall 2.6 m tall 3.5 m in front of the player every 3rd Warden turn (2 hits, fire burns it at once), Rain of Leaves = 3 arrows of 12 falling from 14 m, Enrage at ≤ 30 % HP. |
 | 2026-09-25 | Level fixes found by the validation tests: L10's TNT tower is 3 crates (5 hid Captain Thorn's body in a headwind); L12's roof/pad were moved so the hidden targets are reachable only by a bounce. With normal progression (one upgrade per 5 levels, tips unlocked so far) a perfect-aim player wins every level on ≥ 7/8 seeds; a level-1 Ranger with Normal arrows only wins L19/L20 on 5/8 — watch these two in playtests. |
+| 2026-09-25 | Meta rules: cosmetics = 2 skins per archer (default + Forest Cloak 300 / Ember Coat 450 / Neon Bolt from Thunderstruck silver / Blast Goggles 600) and trails Classic, Sparkle 200, Comet 400, Rainbow (7-day daily streak). Chest cosmetic chance 35 %, never something already owned. Campaign losses pay no coins (Quick Duel losses pay 3). Warden Slayer gold = 3★ on the boss. Daily twists: Strong Wind 3–5, Split only / Heavy only (unlimited, no Normal), One arrow at 35 m, Tiny targets, Night. Training board 0.6 m radius, bullseye within ±0.2 m of centre. Quick Duel opponent = a random hero (level 1/2/3 by difficulty). |
+| 2026-09-25 | Save = versioned JSON written by our own tiny JSON code in Logic (tested), read forgivingly: missing fields get defaults, bad values are clamped, garbage gives a fresh save, unknown fields are ignored. |
 | 2026-09-25 | Unity compile check: `Tools/UnityCheck` compiles Runtime/Editor code (and uGUI, TextMeshPro, Input System 1.20.0) against Unity 6000.3.24f1's DLLs (`fetch_unity_refs.sh`), so cloud sessions catch compile errors before Naveen opens the project. |
 | 2026-09-25 | Cloud sessions have no Unity: Logic is compiled and tested with .NET 8 (`Tools/LogicTests`, same NUnit API). APKs and Unity-side checks happen on Naveen's PC. |
