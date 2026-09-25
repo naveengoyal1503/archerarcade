@@ -41,3 +41,6 @@ crashlytics-build.properties
 !/Tools/RigPreview/*.csproj
 /Tools/RigPreview/bin/
 /Tools/RigPreview/obj/
+!/Tools/ScenePreview/*.csproj
+/Tools/ScenePreview/bin/
+/Tools/ScenePreview/obj/
