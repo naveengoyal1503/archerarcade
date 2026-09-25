@@ -85,4 +85,5 @@ Tools/        gen_sounds.py, build_fonts.py
 - Unity.exe: `E:\Unity\Editors\6000.3.24f1\Editor\Unity.exe` (C: is nearly full; keep caches on E:).
 - Batch (`-batchmode -projectPath <project root>`): `-quit -executeMethod ArcherArcade.EditorTools.Batch.BuildAll`,
   `-executeMethod ArcherArcade.EditorTools.Batch.Capture`, tests `-runTests -testPlatform EditMode|PlayMode`.
+- Logic tests without Unity (any OS, .NET 8): `dotnet test Tools/LogicTests/EditMode`.
 - Color space: decide in Phase 1 (Gamma if UI translucency must match CSS designs, like MindTap).
