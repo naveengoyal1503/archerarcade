@@ -69,19 +69,24 @@ and this file updated. The game must run after every phase.
 
 ## Phase 4 — Arena and props
 - [ ] `ArenaBuilder` from level data: ground, spawn points, parallax background (4 layers), lighting per time of day
-- [ ] Props: wooden wall, crate (2 hits), **crate tower** (crates knocked off one by one, topples), **TNT crate**
+- [~] Props: wooden wall, crate (2 hits), **crate tower** (crates knocked off one by one, topples), **TNT crate**
       (explodes, blows the tower apart), moving platform, bounce pad, swinging target, explosive barrel, wooden
-      shield, rope + cage; arenas on **floating islands** with knockback stumble near edges
-- [ ] Target types: static, swinging, moving; apple + friendly dummy
+      shield, rope + cage; arenas on **floating islands** with knockback stumble near edges — behaviour done in
+      Logic (`Logic/Arena`, `MatchState`); visuals wait for Unity
+- [~] Target types: static, swinging, moving; apple + friendly dummy — Logic done (moving ones follow the match
+      clock); visuals wait for Unity
 - [ ] World 1 art pass: forest day / dusk / night, fireflies, leaves
-- [ ] Tests: each prop's behaviour in Logic (hits, breaks, bounces, explosions)
+- [x] Tests: each prop's behaviour in Logic (hits, breaks, bounces, explosions) — `PropTests`, 21 tests
 
 ## Phase 5 — Computer opponent
-- [ ] `AiPlayer`: target zone choice, solver + difficulty noise, learning per miss, think time + aim animation
-- [ ] Profiles Easy / Medium / Hard / Boss in config (GAME_DESIGN §6.2)
-- [ ] Ability use rules per profile
-- [ ] Fairness tests: 1,000 simulated shots per profile, first-shot hit rates inside the §6.3 ranges
-- [ ] AI-vs-AI PlayMode test: 20 matches finish without hangs, both sides win sometimes
+- [~] `AiPlayer`: target zone choice, solver + difficulty noise, learning per miss, think time + aim animation —
+      Logic done (lobs over walls, gets past shields); the aim animation is Runtime
+- [x] Profiles Easy / Medium / Hard / Boss in config (GAME_DESIGN §6.2) — `AiProfile`; σ tuned, see Decisions
+- [~] Ability use rules per profile — stored in `AiProfile`; used once abilities exist (Phase 7)
+- [x] Fairness tests: 1,000 simulated shots per profile, first-shot hit rates inside the §6.3 ranges
+      (Easy ~20 %, Medium ~40 %, Hard ~65 %, Boss ~77 %)
+- [~] AI-vs-AI PlayMode test: 20 matches finish without hangs, both sides win sometimes — passes as a Logic
+      test (`AiTests`); the PlayMode version waits for Unity
 
 ## Phase 6 — Match flow and HUD
 - [ ] Match HUD: two HP bars + names + archer portraits, wind gauge, turn timer ring, ability button (charge
@@ -208,4 +213,8 @@ and this file updated. The game must run after every phase.
 | 2026-09-25 | Tip damage assumes the Ranger (25): damage = tip × (archer dmg / 25) × level × zone × element bonus. Bomb splash hits everyone near the impact **except** the arrow's direct target (direct hit = 20, near miss / bystander = 12); Bomb Archer passive splash adds to the tip's splash. Burn/poison refresh (keep the stronger), never stack. A stunned turn is never shorter than 4 s. |
 | 2026-09-25 | Naveen: light theme = candy; characters **2.5D**; placeholder art + audio for now; name + package final; derived tokens and Bomb splash rule approved. |
 | 2026-09-25 | 2.5D means: low-poly 3D character meshes with toon shading + outline (URP), rigged with the Design roster's bone names (hood, head, torso, cape, upper_arm_front…); injury looks = extra mesh parts + material swaps; gameplay stays on the 2D x/y plane (Logic unchanged); side camera with 3D lighting and parallax layers. Until final art, placeholder rigs built from primitives with the same bones. The roster SVGs are the look/proportion reference. |
+| 2026-09-25 | Phases 4–5 Logic done before Phase 3 (Runtime shot feel), because Phase 3 needs Unity and the cloud session has none. Phase 3 is next on Naveen's PC. |
+| 2026-09-25 | AI noise σ tuned to meet GAME_DESIGN §6.3 (first values made every profile ~20 points too accurate): Easy 12°/20 %, Medium 5.5°/9.5 %, Hard 2.8°/5 %, Boss 1.8°/3.5 %. GAME_DESIGN §6.2 updated. |
+| 2026-09-25 | Props rules: a tower crate is knocked off by any single hit (standalone crates need 2); any explosion touching a tower topples it and sets off its TNT; explosions (TNT, barrels) hurt every archer in range, the shooter too; a knocked-down shield is back up when its owner's second turn after the knock starts (the shooter gets one free shot); arrows stop at ropes; Bomb knockback 0.8 m, never pushes off an island (stops 0.4 m from the edge and stumbles). |
+| 2026-09-25 | Moving targets follow a match clock that only advances with aiming time (`Tick`) and flight time, so release timing matters but stays deterministic. Replays / online must record the release clock (`ShotResult.Clock`) with each `ShotInput`. |
 | 2026-09-25 | Cloud sessions have no Unity: Logic is compiled and tested with .NET 8 (`Tools/LogicTests`, same NUnit API). APKs and Unity-side checks happen on Naveen's PC. |

@@ -204,10 +204,13 @@ Boosters are never required: every level is tested to be winnable without them.
 ### 6.2 Difficulty profiles (config)
 | Profile | Angle σ | Power σ | Learn / miss | Head aim | Ability use | Think time |
 |---|---|---|---|---|---|---|
-| Easy | 6.0° | 10 % | −15 % | 0 % | never | 1.0–1.4 s |
-| Medium | 3.5° | 6 % | −35 % | 15 % | when charged, 50 % | 0.8–1.2 s |
-| Hard | 1.6° | 3 % | −50 % | 60 % | when charged | 0.6–1.0 s |
-| Boss | 1.2° | 2.5 % | −50 % | 70 % | always + boss moves | 0.6–0.9 s |
+| Easy | 12.0° | 20 % | −15 % | 0 % | never | 1.0–1.4 s |
+| Medium | 5.5° | 9.5 % | −35 % | 15 % | when charged, 50 % | 0.8–1.2 s |
+| Hard | 2.8° | 5 % | −50 % | 60 % | when charged | 0.6–1.0 s |
+| Boss | 1.8° | 3.5 % | −50 % | 70 % | always + boss moves | 0.6–0.9 s |
+
+Angle/power σ were tuned (2026-09-25) so the §6.3 fairness tests land mid-range; the first values (6.0/3.5/1.6/1.2°,
+10/6/3/2.5 %) made every profile too accurate (Easy 38 %, Medium 60 %, Hard 82 %, Boss 86 %).
 
 ### 6.3 Fairness targets (verified by EditMode tests, 1,000 simulated duels per profile)
 - First-shot hit rate on a 20 m target in wind 2: Easy 15–30 %, Medium 30–50 %, Hard 55–75 %, Boss 65–85 %.
