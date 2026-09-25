@@ -1,7 +1,7 @@
 namespace ArcherArcade.Logic
 {
     /// <summary>
-    /// One arrow's flight, from launch (or split) to where it stopped. Visuals rebuild the arc exactly with
+    /// One arrow's flight, from launch (or split / bounce) to where it stopped. Visuals rebuild the arc exactly with
     /// Ballistics.PositionAt(StartPosition, StartVelocity, Acceleration, t − StartTime).
     /// </summary>
     public struct ArrowPath
@@ -19,15 +19,22 @@ namespace ArcherArcade.Logic
         /// <summary>Fighter hit (Contact == Fighter), otherwise −1.</summary>
         public int HitFighter;
         public HitZone Zone;
+
+        /// <summary>Prop hit or bounced off (Contact == Prop or Bounce), otherwise −1.</summary>
+        public int HitProp;
         public int ColliderIndex;
 
-        /// <summary>Index of the arrow this one split from, −1 for a launched arrow.</summary>
+        /// <summary>Index of the arrow this one split or bounced from, −1 for a launched arrow.</summary>
         public int Parent;
 
         /// <summary>Remaining split count (0 = does not split).</summary>
         public int SplitCount;
 
-        public static ArrowPath Launch(Vec2 position, Vec2 velocity, Vec2 acceleration, double startTime, int parent, int splitCount)
+        /// <summary>Bounces so far in this arrow's chain.</summary>
+        public int BounceCount;
+
+        public static ArrowPath Launch(Vec2 position, Vec2 velocity, Vec2 acceleration, double startTime, int parent,
+            int splitCount, int bounceCount = 0)
         {
             return new ArrowPath
             {
@@ -41,9 +48,11 @@ namespace ArcherArcade.Logic
                 Contact = ContactKind.None,
                 HitFighter = -1,
                 Zone = HitZone.None,
+                HitProp = -1,
                 ColliderIndex = -1,
                 Parent = parent,
-                SplitCount = splitCount
+                SplitCount = splitCount,
+                BounceCount = bounceCount
             };
         }
     }

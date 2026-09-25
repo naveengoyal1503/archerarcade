@@ -22,5 +22,8 @@ namespace ArcherArcade.Logic
 
         /// <summary>Arrow index in ShotResult.Arrows, −1 if not from an arrow.</summary>
         public int Arrow;
+
+        /// <summary>Prop involved, −1 if none.</summary>
+        public int Prop;
     }
 }

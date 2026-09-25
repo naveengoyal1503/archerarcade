@@ -15,6 +15,9 @@ namespace ArcherArcade.Logic
         /// <summary>Search from the steepest angle down (lob) instead of flattest first.</summary>
         public bool PreferHighArc;
 
+        /// <summary>Match clock at release (places moving props during validation).</summary>
+        public double Clock;
+
         public static AimRequest Create(Vec2 origin, int facing, Vec2 target, double wind, double gravityScale = 1.0)
         {
             return new AimRequest

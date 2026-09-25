@@ -7,31 +7,41 @@ namespace ArcherArcade.Logic
     /// The whole match as a deterministic state machine (GAME_DESIGN §15). Runtime only renders it:
     /// it calls <see cref="ApplyShot"/> when a player releases and <see cref="Tick"/> while a player is aiming,
     /// then plays <see cref="Events"/> and <see cref="LastShot"/>. Nothing here reads the clock, the frame rate
-    /// or UnityEngine; all randomness comes from the seeded <see cref="Rng"/>.
+    /// or UnityEngine; all randomness comes from the seeded <see cref="Rng"/>. The match clock (<see cref="Clock"/>)
+    /// only advances through Tick and shot flight time, so moving targets are deterministic too.
     /// </summary>
     public sealed class MatchState
     {
         readonly MatchSetup _setup;
         readonly Fighter[] _fighters;
+        readonly Prop[] _props;
         readonly Rng _rng;
+        readonly bool _solo;
         readonly CollisionWorld _world = new CollisionWorld();
         readonly ShotResult _shot = new ShotResult();
         readonly List<MatchEvent> _events = new List<MatchEvent>(32);
+        readonly Queue<int> _explosions = new Queue<int>();
         int[] _order = new int[16];
+
+        // Shot being resolved.
+        Fighter _shooter;
+        TipDef _tip;
 
         public MatchState(MatchSetup setup)
         {
             if (setup == null) throw new ArgumentNullException(nameof(setup));
-            if (!HasFighter(setup, 0) || !HasFighter(setup, 1))
-                throw new ArgumentException("A match needs at least one fighter on side 0 and on side 1.");
+            if (!HasFighter(setup, 0)) throw new ArgumentException("A match needs at least one fighter on side 0.");
 
             _setup = setup;
             _rng = new Rng(setup.Seed);
+            _solo = !HasFighter(setup, 1);
             _fighters = new Fighter[setup.Fighters.Count];
             for (int i = 0; i < _fighters.Length; i++) _fighters[i] = new Fighter(i, setup.Fighters[i], setup.Tips, setup.Damage);
+            _props = new Prop[setup.Props.Count];
+            for (int i = 0; i < _props.Length; i++) _props[i] = new Prop(i, setup.Props[i], setup.PropRules);
 
             Winner = -1;
-            int first = setup.FirstTurn == FirstTurnRule.CoinFlip ? _rng.NextInt(2) : 0;
+            int first = setup.FirstTurn == FirstTurnRule.CoinFlip && !_solo ? _rng.NextInt(2) : 0;
             BeginTurn(first);
         }
 
@@ -52,10 +62,19 @@ namespace ArcherArcade.Logic
         /// <summary>Winning side, −1 while playing.</summary>
         public int Winner { get; private set; }
 
+        /// <summary>Match clock in seconds: aiming time (Tick) plus flight time of every shot.</summary>
+        public double Clock { get; private set; }
+
+        /// <summary>No opponent side: every turn is side 0's (target / apple / trick-shot levels).</summary>
+        public bool IsSolo => _solo;
+
         public int FighterCount => _fighters.Length;
         public Fighter GetFighter(int index) => _fighters[index];
 
-        /// <summary>Fighter currently standing for a side, −1 if the side is out.</summary>
+        public int PropCount => _props.Length;
+        public Prop GetProp(int index) => _props[index];
+
+        /// <summary>Fighter currently standing for a side, −1 if the side is out (or empty).</summary>
         public int ActiveFighter(int side)
         {
             for (int i = 0; i < _fighters.Length; i++)
@@ -75,11 +94,42 @@ namespace ArcherArcade.Logic
         /// <summary>Seed for other deterministic systems of this match (AI noise, visuals) without touching ours.</summary>
         public ulong DeriveSeed(ulong salt) => _setup.Seed * 0x9E3779B97F4A7C15UL ^ (salt + 0x632BE59BD9B4E019UL);
 
-        /// <summary>Rebuilds the colliders for the fighters currently standing (also used by the AI).</summary>
+        /// <summary>Prop shape at rest this turn (tower settling, platform position, shield on its owner), before motion.</summary>
+        public Shape PropRestShape(int index)
+        {
+            Prop p = _props[index];
+            Shape s = p.Spec.Shape;
+            if (p.Kind == PropKind.Shield && p.Spec.ShieldOwner >= 0) s = s.Translated(_fighters[p.Spec.ShieldOwner].Feet);
+            return s.Translated(p.StackOffset + p.TurnOffset);
+        }
+
+        /// <summary>Prop shape at a given match clock (moving targets).</summary>
+        public Shape PropShapeAt(int index, double clock) => _props[index].Spec.Motion.Apply(PropRestShape(index), clock);
+
+        /// <summary>Is this prop solid right now?</summary>
+        public bool PropPresent(int index)
+        {
+            Prop p = _props[index];
+            if (!p.Alive) return false;
+            if (p.Kind == PropKind.Shield)
+            {
+                if (p.ShieldDown) return false;
+                int owner = p.Spec.ShieldOwner;
+                if (owner >= 0 && (!_fighters[owner].IsAlive || ActiveFighter(_fighters[owner].Side) != owner)) return false;
+            }
+            return true;
+        }
+
+        /// <summary>Rebuilds the colliders for what is standing now (also used by the AI and level validation).</summary>
         public CollisionWorld BuildWorld()
         {
             _world.Clear();
             _world.AddArena(_setup.Arena);
+            for (int i = 0; i < _props.Length; i++)
+            {
+                if (!PropPresent(i)) continue;
+                _world.AddProp(i, PropRestShape(i), _props[i].Spec.Motion, _props[i].Kind == PropKind.BouncePad, Clock);
+            }
             for (int side = 0; side < 2; side++)
             {
                 int f = ActiveFighter(side);
@@ -111,6 +161,7 @@ namespace ArcherArcade.Logic
             _shot.Accepted = true;
             _shot.Shooter = shooter.Index;
             _shot.Wind = Wind;
+            _shot.Clock = Clock;
 
             if (shooter.Ammo[(int)input.Tip] > 0) shooter.Ammo[(int)input.Tip]--;
 
@@ -118,19 +169,29 @@ namespace ArcherArcade.Logic
             Vec2 origin = shooter.BowPosition(cfg);
             Vec2 velocity = Ballistics.LaunchVelocity(input.AngleDeg, input.Power, shooter.Facing, cfg);
             Vec2 accel = Ballistics.Acceleration(Wind, tip.GravityScale, cfg);
-            FlightSimulator.Simulate(origin, velocity, accel, tip.SplitCount, tip.SplitSpreadDeg, cfg, BuildWorld(),
-                _setup.Arena, shooter.Index, _shot.Arrows);
+            FlightSimulator.Simulate(origin, velocity, accel, tip.SplitCount, tip.SplitSpreadDeg, cfg, _setup.PropRules,
+                BuildWorld(), _setup.Arena, shooter.Index, Clock, _shot.Arrows);
 
-            ResolveArrows(shooter, tip);
+            _shooter = shooter;
+            _tip = tip;
+            ResolveArrows();
+            _shooter = null;
+            _tip = null;
+            Clock += _shot.Duration;
 
-            if (!SideStanding(1 - shooter.Side))
+            int foeSide = 1 - shooter.Side;
+            if (!_solo && !SideStanding(foeSide))
             {
                 EndMatch(shooter.Side, _shot.Duration);
+            }
+            else if (!SideStanding(shooter.Side))
+            {
+                EndMatch(foeSide, _shot.Duration);
             }
             else
             {
                 shooter.Status.EndTurn();
-                BeginTurn(1 - CurrentSide);
+                BeginTurn(NextSide());
             }
             return _shot;
         }
@@ -142,14 +203,18 @@ namespace ArcherArcade.Logic
             return _shot;
         }
 
-        void ResolveArrows(Fighter shooter, TipDef tip)
+        void ResolveArrows()
         {
             List<ArrowPath> arrows = _shot.Arrows;
             int n = arrows.Count;
             if (_order.Length < n) _order = new int[n * 2];
 
             // Resolve in landing order (ties by index) so knockouts happen on the right arrow.
-            for (int i = 0; i < n; i++) _order[i] = i;
+            for (int i = 0; i < n; i++)
+            {
+                _order[i] = i;
+                if (arrows[i].EndTime > _shot.Duration) _shot.Duration = arrows[i].EndTime;
+            }
             for (int i = 1; i < n; i++)
             {
                 int cur = _order[i];
@@ -162,115 +227,403 @@ namespace ArcherArcade.Logic
                 _order[j + 1] = cur;
             }
 
-            int standingFoe = ActiveFighter(1 - shooter.Side);
+            int standingFoe = ActiveFighter(1 - _shooter.Side);
             for (int k = 0; k < n; k++)
             {
                 int ai = _order[k];
-                ArrowPath path = arrows[ai];
-                if (path.EndTime > _shot.Duration) _shot.Duration = path.EndTime;
-                ResolveArrow(ai, path, shooter, tip);
+                ResolveArrow(ai, arrows[ai]);
             }
 
-            int nowFoe = ActiveFighter(1 - shooter.Side);
+            SettleTowers();
+            UpdateStanding(true, _shot.Duration);
+
+            int nowFoe = ActiveFighter(1 - _shooter.Side);
             if (nowFoe >= 0 && nowFoe != standingFoe)
-                Push(MatchEventKind.FighterEntered, nowFoe, shooter.Index, 0, _shot.Duration, _fighters[nowFoe].Feet, tip.Tip, -1);
+                Push(MatchEventKind.FighterEntered, nowFoe, _shooter.Index, 0, _shot.Duration, _fighters[nowFoe].Feet, -1);
         }
 
-        void ResolveArrow(int arrow, ArrowPath path, Fighter shooter, TipDef tip)
+        void ResolveArrow(int arrow, ArrowPath path)
         {
-            DamageConfig dc = _setup.Damage;
+            Fighter shooter = _shooter;
+            TipDef tip = _tip;
             ArcherDef def = shooter.Def;
+            DamageConfig dc = _setup.Damage;
+            double time = path.EndTime;
+            Vec2 point = path.EndPosition;
             double splashDamage = tip.SplashDamage + def.PassiveSplashDamage;
             double splashRadius = tip.SplashRadius > def.PassiveSplashRadius ? tip.SplashRadius : def.PassiveSplashRadius;
-            int directTarget = -1;
+            bool explosive = splashDamage > 0.0 && splashRadius > 0.0;
+            double chainFraction = tip.ChainFraction > def.PassiveChainFraction ? tip.ChainFraction : def.PassiveChainFraction;
+            double chainRadius = tip.ChainRadius > def.PassiveChainRadius ? tip.ChainRadius : def.PassiveChainRadius;
+            int directFighter = -1;
+            int directProp = -1;
+
+            if (path.Contact == ContactKind.Bounce)
+            {
+                Push(MatchEventKind.Bounce, -1, shooter.Index, 0, time, point, arrow, HitZone.None, path.HitProp);
+                return;
+            }
 
             if (path.Contact == ContactKind.Fighter && _fighters[path.HitFighter].IsAlive)
             {
                 Fighter target = _fighters[path.HitFighter];
-                directTarget = target.Index;
+                directFighter = target.Index;
                 int dmg = Damage.Compute(tip.Damage, def, shooter.Level, dc.ZoneMultiplier(path.Zone), tip.Element, dc);
-                Push(MatchEventKind.Hit, target.Index, shooter.Index, dmg, path.EndTime, path.EndPosition, tip.Tip, arrow, path.Zone);
-                ApplyDamage(target, dmg, shooter.Index, path.EndTime, path.EndPosition, tip.Tip, arrow);
-                if (target.IsAlive) ApplyStatuses(target, shooter, tip, path.EndTime, path.EndPosition, arrow);
-
-                double chainFraction = tip.ChainFraction > def.PassiveChainFraction ? tip.ChainFraction : def.PassiveChainFraction;
-                double chainRadius = tip.ChainRadius > def.PassiveChainRadius ? tip.ChainRadius : def.PassiveChainRadius;
-                if (chainFraction > 0.0 && dmg > 0) Chain(target, shooter, dmg, chainFraction, chainRadius, path, tip, arrow);
+                Push(MatchEventKind.Hit, target.Index, shooter.Index, dmg, time, point, arrow, path.Zone);
+                ApplyDamage(target, dmg, time, point, arrow);
+                if (target.IsAlive)
+                {
+                    ApplyStatuses(target, time, point, arrow);
+                    if (tip.Knockback) Knockback(target, path.EndVelocity.X, time, arrow);
+                }
+                if (chainFraction > 0.0) Chain(point, directFighter, -1, dmg * chainFraction, chainRadius, time, arrow);
+            }
+            else if (path.Contact == ContactKind.Prop && _props[path.HitProp].Alive)
+            {
+                directProp = path.HitProp;
+                HitProp(_props[directProp], explosive, tip.KnocksShields, true, time, point, arrow);
+                if (chainFraction > 0.0)
+                {
+                    double bodyDamage = Damage.Compute(tip.Damage, def, shooter.Level, dc.BodyMultiplier, tip.Element, dc);
+                    Chain(point, -1, directProp, bodyDamage * chainFraction, chainRadius, time, arrow);
+                }
             }
             else
             {
-                Push(MatchEventKind.Miss, -1, shooter.Index, 0, path.EndTime, path.EndPosition, tip.Tip, arrow);
+                Push(MatchEventKind.Miss, -1, shooter.Index, 0, time, point, arrow);
             }
 
-            if (splashDamage > 0.0 && splashRadius > 0.0)
-                Splash(shooter, directTarget, splashDamage, splashRadius, path, tip, arrow);
+            if (explosive) Splash(point, directFighter, directProp, splashDamage, splashRadius, time, arrow);
+            ProcessExplosions(time, arrow);
         }
 
-        void ApplyStatuses(Fighter target, Fighter shooter, TipDef tip, double time, Vec2 point, int arrow)
+        void ApplyStatuses(Fighter target, double time, Vec2 point, int arrow)
         {
-            ArcherDef def = shooter.Def;
+            TipDef tip = _tip;
+            ArcherDef def = _shooter.Def;
+            int src = _shooter.Index;
             int burnPer = tip.BurnPerTurn > def.PassiveBurnPerTurn ? tip.BurnPerTurn : def.PassiveBurnPerTurn;
             int burnTurns = tip.BurnTurns > def.PassiveBurnTurns ? tip.BurnTurns : def.PassiveBurnTurns;
             if (burnPer > 0 && burnTurns > 0)
             {
                 target.Status.AddBurn(burnPer, burnTurns);
-                Push(MatchEventKind.BurnApplied, target.Index, shooter.Index, burnPer, time, point, tip.Tip, arrow);
+                Push(MatchEventKind.BurnApplied, target.Index, src, burnPer, time, point, arrow);
             }
             if (tip.PoisonPerTurn > 0 && tip.PoisonTurns > 0)
             {
                 target.Status.AddPoison(tip.PoisonPerTurn, tip.PoisonTurns);
-                Push(MatchEventKind.PoisonApplied, target.Index, shooter.Index, tip.PoisonPerTurn, time, point, tip.Tip, arrow);
+                Push(MatchEventKind.PoisonApplied, target.Index, src, tip.PoisonPerTurn, time, point, arrow);
             }
             if (tip.StunSeconds > 0.0)
             {
                 target.Status.AddStun(tip.StunSeconds);
-                Push(MatchEventKind.Stunned, target.Index, shooter.Index, DetMath.RoundToInt(tip.StunSeconds), time, point, tip.Tip, arrow);
+                Push(MatchEventKind.Stunned, target.Index, src, DetMath.RoundToInt(tip.StunSeconds), time, point, arrow);
             }
             if (tip.FreezeDrawSlow > 0.0)
             {
                 target.Status.AddFreeze(tip.FreezeDrawSlow);
-                Push(MatchEventKind.Frozen, target.Index, shooter.Index, DetMath.RoundToInt(tip.FreezeDrawSlow * 100.0), time, point, tip.Tip, arrow);
+                Push(MatchEventKind.Frozen, target.Index, src, DetMath.RoundToInt(tip.FreezeDrawSlow * 100.0), time, point, arrow);
             }
         }
 
-        void Chain(Fighter from, Fighter shooter, int damage, double fraction, double radius, ArrowPath path, TipDef tip, int arrow)
+        /// <summary>Sparks jump to the nearest other foe or breakable prop within the radius (foes win ties).</summary>
+        void Chain(Vec2 from, int skipFighter, int skipProp, double damage, double radius, double time, int arrow)
         {
-            int best = -1;
-            double bestDist = double.MaxValue;
-            Vec2 center = _setup.Body.ZoneCenter(HitZone.Body, from.Feet);
-            for (int side = 0; side < 2; side++)
+            int bestFighter = -1;
+            int bestProp = -1;
+            double best = double.MaxValue;
+            int foe = ActiveFighter(1 - _shooter.Side);
+            if (foe >= 0 && foe != skipFighter)
             {
-                if (side == shooter.Side) continue;
-                int f = ActiveFighter(side);
-                if (f < 0 || f == from.Index) continue;
-                double d = DistanceToFighter(_fighters[f], center);
-                if (d <= radius && d < bestDist)
+                double d = DistanceToFighter(_fighters[foe], from);
+                if (d <= radius)
                 {
-                    best = f;
-                    bestDist = d;
+                    bestFighter = foe;
+                    best = d;
                 }
             }
-            if (best < 0) return;
-            int dmg = DetMath.RoundToInt(damage * fraction);
-            if (dmg < 1) dmg = 1;
-            Fighter target = _fighters[best];
-            Push(MatchEventKind.ChainHit, best, shooter.Index, dmg, path.EndTime, center, tip.Tip, arrow);
-            ApplyDamage(target, dmg, shooter.Index, path.EndTime, center, tip.Tip, arrow);
+            double clock = Clock + time;
+            for (int i = 0; i < _props.Length; i++)
+            {
+                if (i == skipProp || !PropPresent(i) || !_props[i].IsBreakable) continue;
+                double d = PropShapeAt(i, clock).DistanceTo(from);
+                if (d <= radius && d < best)
+                {
+                    bestFighter = -1;
+                    bestProp = i;
+                    best = d;
+                }
+            }
+
+            if (bestFighter >= 0)
+            {
+                int dmg = DetMath.RoundToInt(damage);
+                if (dmg < 1) dmg = 1;
+                Fighter target = _fighters[bestFighter];
+                Vec2 at = _setup.Body.ZoneCenter(HitZone.Body, target.Feet);
+                Push(MatchEventKind.ChainHit, bestFighter, _shooter.Index, dmg, time, at, arrow);
+                ApplyDamage(target, dmg, time, at, arrow);
+            }
+            else if (bestProp >= 0)
+            {
+                Vec2 at = PropShapeAt(bestProp, clock).Center;
+                Push(MatchEventKind.ChainHit, -1, _shooter.Index, 0, time, at, arrow, HitZone.None, bestProp);
+                HitProp(_props[bestProp], false, false, false, time, at, arrow);
+            }
         }
 
-        void Splash(Fighter shooter, int directTarget, double damage, double radius, ArrowPath path, TipDef tip, int arrow)
+        /// <summary>Bomb blast: foes near the impact (not the one hit directly) take splash; props get an explosive hit.</summary>
+        void Splash(Vec2 point, int directFighter, int directProp, double damage, double radius, double time, int arrow)
         {
             DamageConfig dc = _setup.Damage;
-            for (int side = 0; side < 2; side++)
+            int foe = ActiveFighter(1 - _shooter.Side);
+            if (foe >= 0 && foe != directFighter && DistanceToFighter(_fighters[foe], point) <= radius)
             {
-                if (side == shooter.Side) continue;
-                int f = ActiveFighter(side);
-                if (f < 0 || f == directTarget) continue;
-                Fighter target = _fighters[f];
-                if (DistanceToFighter(target, path.EndPosition) > radius) continue;
-                int dmg = Damage.Compute(damage, shooter.Def, shooter.Level, 1.0, tip.Element, dc);
-                Push(MatchEventKind.SplashHit, f, shooter.Index, dmg, path.EndTime, path.EndPosition, tip.Tip, arrow);
-                ApplyDamage(target, dmg, shooter.Index, path.EndTime, path.EndPosition, tip.Tip, arrow);
+                int dmg = Damage.Compute(damage, _shooter.Def, _shooter.Level, 1.0, _tip.Element, dc);
+                Push(MatchEventKind.SplashHit, foe, _shooter.Index, dmg, time, point, arrow);
+                ApplyDamage(_fighters[foe], dmg, time, point, arrow);
+            }
+            HitPropsInRadius(point, radius, directProp, time, arrow);
+        }
+
+        void HitPropsInRadius(Vec2 point, double radius, int skipProp, double time, int arrow)
+        {
+            double clock = Clock + time;
+            for (int i = 0; i < _props.Length; i++)
+            {
+                if (i == skipProp || !PropPresent(i)) continue;
+                if (PropShapeAt(i, clock).DistanceTo(point) > radius) continue;
+                HitProp(_props[i], true, true, false, time, point, arrow);
+            }
+        }
+
+        /// <summary>
+        /// One hit on a prop. <paramref name="direct"/> = the arrow itself (walls and pads only react to that).
+        /// Explosive hits break crates at once and topple towers.
+        /// </summary>
+        void HitProp(Prop prop, bool explosive, bool knocksShields, bool direct, double time, Vec2 point, int arrow)
+        {
+            if (!prop.Alive) return;
+            int src = _shooter.Index;
+            int i = prop.Index;
+            switch (prop.Kind)
+            {
+                case PropKind.Wall:
+                case PropKind.Platform:
+                case PropKind.BouncePad:
+                    if (direct) Push(MatchEventKind.PropHit, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    break;
+
+                case PropKind.Crate:
+                    if (prop.Spec.Tower >= 0)
+                    {
+                        if (explosive)
+                        {
+                            Topple(prop.Spec.Tower, time, point, arrow);
+                        }
+                        else
+                        {
+                            prop.Alive = false;
+                            Push(MatchEventKind.CrateKnockedOff, -1, src, 0, time, point, arrow, HitZone.None, i);
+                        }
+                        break;
+                    }
+                    prop.HitsLeft = explosive ? 0 : prop.HitsLeft - 1;
+                    if (prop.HitsLeft > 0)
+                    {
+                        Push(MatchEventKind.PropHit, -1, src, prop.HitsLeft, time, point, arrow, HitZone.None, i);
+                    }
+                    else
+                    {
+                        prop.Alive = false;
+                        Push(MatchEventKind.CrateBroken, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    }
+                    break;
+
+                case PropKind.TntCrate:
+                case PropKind.ExplosiveBarrel:
+                    QueueExplosion(prop);
+                    break;
+
+                case PropKind.Target:
+                    prop.Alive = false;
+                    Push(MatchEventKind.TargetHit, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    break;
+
+                case PropKind.Apple:
+                    prop.Alive = false;
+                    Push(MatchEventKind.AppleHit, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    break;
+
+                case PropKind.Dummy:
+                    Push(MatchEventKind.DummyHit, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    break;
+
+                case PropKind.Rope:
+                    prop.Alive = false;
+                    Push(MatchEventKind.RopeCut, -1, src, 0, time, point, arrow, HitZone.None, i);
+                    break;
+
+                case PropKind.Shield:
+                    if (explosive || knocksShields)
+                    {
+                        prop.ShieldDownTurn = TurnNumber;
+                        Push(MatchEventKind.ShieldKnockedDown, prop.Spec.ShieldOwner, src, 0, time, point, arrow, HitZone.None, i);
+                    }
+                    else
+                    {
+                        Push(MatchEventKind.ShieldBlocked, prop.Spec.ShieldOwner, src, 0, time, point, arrow, HitZone.None, i);
+                    }
+                    break;
+            }
+        }
+
+        void QueueExplosion(Prop prop)
+        {
+            if (!prop.Alive) return;
+            prop.Alive = false;
+            _explosions.Enqueue(prop.Index);
+        }
+
+        /// <summary>Knocks a whole tower apart; TNT inside goes off.</summary>
+        void Topple(int tower, double time, Vec2 point, int arrow)
+        {
+            bool any = false;
+            for (int i = 0; i < _props.Length; i++)
+            {
+                Prop p = _props[i];
+                if (!p.Alive || p.Spec.Tower != tower) continue;
+                any = true;
+                if (p.Kind == PropKind.TntCrate) QueueExplosion(p);
+                else p.Alive = false;
+            }
+            if (any) Push(MatchEventKind.TowerToppled, -1, _shooter.Index, tower, time, point, arrow);
+        }
+
+        void ProcessExplosions(double time, int arrow)
+        {
+            PropConfig pc = _setup.PropRules;
+            while (_explosions.Count > 0)
+            {
+                Prop p = _props[_explosions.Dequeue()];
+                bool tnt = p.Kind == PropKind.TntCrate;
+                int damage = tnt ? pc.TntDamage : pc.BarrelDamage;
+                double radius = tnt ? pc.TntRadius : pc.BarrelRadius;
+                Vec2 center = PropShapeAt(p.Index, Clock + time).Center;
+                Push(MatchEventKind.Explosion, -1, _shooter.Index, damage, time, center, arrow, HitZone.None, p.Index);
+                if (p.Spec.Tower >= 0) Topple(p.Spec.Tower, time, center, arrow);
+
+                for (int side = 0; side < 2; side++)
+                {
+                    int f = ActiveFighter(side);
+                    if (f < 0 || DistanceToFighter(_fighters[f], center) > radius) continue;
+                    Push(MatchEventKind.ExplosionHit, f, _shooter.Index, damage, time, center, arrow, HitZone.None, p.Index);
+                    ApplyDamage(_fighters[f], damage, time, center, arrow);
+                }
+                HitPropsInRadius(center, radius, p.Index, time, arrow);
+            }
+        }
+
+        /// <summary>Bomb knockback: slide along the island away from the hit; at the edge the archer stumbles.</summary>
+        void Knockback(Fighter target, double arrowVelocityX, double time, int arrow)
+        {
+            if (target.Spec.StandOnProp >= 0 || target.Spec.StandOnTower >= 0) return;
+            PropConfig pc = _setup.PropRules;
+            double dir = arrowVelocityX > 0.0 ? 1.0 : (arrowVelocityX < 0.0 ? -1.0 : -target.Facing);
+            double x = target.Feet.X + dir * pc.KnockbackMeters;
+            bool stumble = false;
+            double left, right, top;
+            if (GroundUnder(target.Feet.X, target.Feet.Y, out left, out right, out top))
+            {
+                double min = left + pc.EdgeMargin;
+                double max = right - pc.EdgeMargin;
+                if (x < min) { x = min; stumble = true; }
+                if (x > max) { x = max; stumble = true; }
+            }
+            int cm = DetMath.RoundToInt(Math.Abs(x - target.Feet.X) * 100.0);
+            target.Feet = new Vec2(x, target.Feet.Y);
+            Push(MatchEventKind.Knockback, target.Index, _shooter.Index, cm, time, target.Feet, arrow);
+            if (stumble) Push(MatchEventKind.Stumble, target.Index, _shooter.Index, 0, time, target.Feet, arrow);
+        }
+
+        /// <summary>Island (ground box) whose top is at or just below the feet and spans x.</summary>
+        bool GroundUnder(double x, double feetY, out double left, out double right, out double top)
+        {
+            left = right = top = 0.0;
+            bool found = false;
+            double bestGap = double.MaxValue;
+            List<Shape> grounds = _setup.Arena.Grounds;
+            for (int i = 0; i < grounds.Count; i++)
+            {
+                Shape g = grounds[i];
+                if (x < g.A.X - g.HalfSize.X || x > g.A.X + g.HalfSize.X) continue;
+                double gTop = g.A.Y + g.HalfSize.Y;
+                double gap = feetY - gTop;
+                if (gap < -0.05 || gap >= bestGap) continue;
+                bestGap = gap;
+                left = g.A.X - g.HalfSize.X;
+                right = g.A.X + g.HalfSize.X;
+                top = gTop;
+                found = true;
+            }
+            return found;
+        }
+
+        /// <summary>Crates above a knocked-off crate drop down to fill the gap.</summary>
+        void SettleTowers()
+        {
+            for (int i = 0; i < _props.Length; i++)
+            {
+                Prop p = _props[i];
+                if (!p.Alive || p.Spec.Tower < 0) continue;
+                int rank = 0;
+                for (int j = 0; j < _props.Length; j++)
+                {
+                    Prop q = _props[j];
+                    if (q.Alive && q.Spec.Tower == p.Spec.Tower && q.Spec.StackIndex < p.Spec.StackIndex) rank++;
+                }
+                double size = p.Spec.Shape.HalfSize.Y * 2.0;
+                p.StackOffset = new Vec2(0.0, (rank - p.Spec.StackIndex) * size);
+            }
+        }
+
+        /// <summary>Archers on towers and platforms follow what they stand on.</summary>
+        void UpdateStanding(bool emitDrops, double time)
+        {
+            for (int i = 0; i < _fighters.Length; i++)
+            {
+                Fighter f = _fighters[i];
+                if (!f.IsAlive) continue;
+                if (f.Spec.StandOnTower >= 0)
+                {
+                    double top = double.MinValue;
+                    for (int j = 0; j < _props.Length; j++)
+                    {
+                        Prop p = _props[j];
+                        if (!p.Alive || p.Spec.Tower != f.Spec.StandOnTower) continue;
+                        Shape s = PropRestShape(j);
+                        double t = s.A.Y + s.HalfSize.Y;
+                        if (t > top) top = t;
+                    }
+                    if (top == double.MinValue)
+                    {
+                        double left, right, groundTop;
+                        top = GroundUnder(f.Feet.X, f.Feet.Y, out left, out right, out groundTop) ? groundTop : f.Feet.Y;
+                    }
+                    if (top < f.Feet.Y - 1e-9)
+                    {
+                        int cm = DetMath.RoundToInt((f.Feet.Y - top) * 100.0);
+                        f.Feet = new Vec2(f.Feet.X, top);
+                        if (emitDrops) Push(MatchEventKind.FighterDropped, i, _shooter != null ? _shooter.Index : -1, cm, time, f.Feet, -1);
+                    }
+                }
+                else if (f.Spec.StandOnProp >= 0)
+                {
+                    int pi = f.Spec.StandOnProp;
+                    Shape rest = _props[pi].Spec.Shape;
+                    Shape now = PropRestShape(pi);
+                    f.Feet = new Vec2(f.Spec.Feet.X + (now.A.X - rest.A.X), now.A.Y + now.HalfSize.Y);
+                }
             }
         }
 
@@ -285,7 +638,7 @@ namespace ArcherArcade.Logic
             return d;
         }
 
-        void ApplyDamage(Fighter target, int amount, int source, double time, Vec2 point, ArrowTip tip, int arrow)
+        void ApplyDamage(Fighter target, int amount, double time, Vec2 point, int arrow)
         {
             if (amount <= 0 || !target.IsAlive) return;
             target.Hp -= amount;
@@ -293,29 +646,32 @@ namespace ArcherArcade.Logic
             {
                 target.Hp = 0;
                 target.Status = default;
-                Push(MatchEventKind.Knockout, target.Index, source, 0, time, point, tip, arrow);
+                Push(MatchEventKind.Knockout, target.Index, _shooter != null ? _shooter.Index : -1, 0, time, point, arrow);
             }
         }
 
         // ------------------------------------------------------------------ turns
 
         /// <summary>
-        /// Advances the turn timer while a player is aiming. Returns true if the turn timed out (the turn passes
-        /// without a shot). Do not call while an arrow is flying or the game is paused.
+        /// Advances the turn timer (and the match clock) while a player is aiming. Returns true if the turn timed
+        /// out (the turn passes without a shot). Do not call while an arrow is flying or the game is paused.
         /// </summary>
         public bool Tick(double dt)
         {
             _events.Clear();
             if (Phase != MatchPhase.Aiming || dt <= 0.0) return false;
+            Clock += dt;
             TurnTimeLeft -= dt;
             if (TurnTimeLeft > 0.0) return false;
             TurnTimeLeft = 0.0;
             Fighter f = CurrentFighter;
-            Push(MatchEventKind.TurnTimedOut, f.Index, -1, 0, 0.0, f.Feet, ArrowTip.Normal, -1);
+            Push(MatchEventKind.TurnTimedOut, f.Index, -1, 0, 0.0, f.Feet, -1);
             f.Status.EndTurn();
-            BeginTurn(1 - CurrentSide);
+            BeginTurn(NextSide());
             return true;
         }
+
+        int NextSide() => _solo ? 0 : 1 - CurrentSide;
 
         void BeginTurn(int side)
         {
@@ -324,19 +680,22 @@ namespace ArcherArcade.Logic
                 CurrentSide = side;
                 TurnNumber++;
                 Wind = ArcherArcade.Logic.Wind.Roll(_setup.Wind, _rng);
+                MovePlatforms();
+                RaiseShields();
+                UpdateStanding(false, 0.0);
 
                 Fighter f = _fighters[ActiveFighter(side)];
                 int burn, poison;
                 f.Status.TickTurnStart(out burn, out poison);
                 if (burn > 0)
                 {
-                    Push(MatchEventKind.BurnDamage, f.Index, -1, burn, 0.0, f.Feet, ArrowTip.Fire, -1);
-                    ApplyDamage(f, burn, -1, 0.0, f.Feet, ArrowTip.Fire, -1);
+                    Push(MatchEventKind.BurnDamage, f.Index, -1, burn, 0.0, f.Feet, -1, HitZone.None, -1, ArrowTip.Fire);
+                    ApplyDamage(f, burn, 0.0, f.Feet, -1);
                 }
                 if (poison > 0 && f.IsAlive)
                 {
-                    Push(MatchEventKind.PoisonDamage, f.Index, -1, poison, 0.0, f.Feet, ArrowTip.Poison, -1);
-                    ApplyDamage(f, poison, -1, 0.0, f.Feet, ArrowTip.Poison, -1);
+                    Push(MatchEventKind.PoisonDamage, f.Index, -1, poison, 0.0, f.Feet, -1, HitZone.None, -1, ArrowTip.Poison);
+                    ApplyDamage(f, poison, 0.0, f.Feet, -1);
                 }
 
                 if (!f.IsAlive)
@@ -348,7 +707,7 @@ namespace ArcherArcade.Logic
                     }
                     // Gauntlet: the next archer of this side steps in and takes this turn.
                     int next = ActiveFighter(side);
-                    Push(MatchEventKind.FighterEntered, next, -1, 0, 0.0, _fighters[next].Feet, ArrowTip.Normal, -1);
+                    Push(MatchEventKind.FighterEntered, next, -1, 0, 0.0, _fighters[next].Feet, -1);
                     TurnNumber--;
                     continue;
                 }
@@ -357,9 +716,36 @@ namespace ArcherArcade.Logic
                 double time = _setup.Rules.TurnSeconds - stun;
                 TurnTimeLeft = time < _setup.Rules.MinTurnSeconds ? _setup.Rules.MinTurnSeconds : time;
                 Phase = MatchPhase.Aiming;
-                Push(MatchEventKind.WindChanged, f.Index, -1, Wind, 0.0, f.Feet, ArrowTip.Normal, -1);
-                Push(MatchEventKind.TurnStarted, f.Index, -1, side, 0.0, f.Feet, ArrowTip.Normal, -1);
+                Push(MatchEventKind.WindChanged, f.Index, -1, Wind, 0.0, f.Feet, -1);
+                Push(MatchEventKind.TurnStarted, f.Index, -1, side, 0.0, f.Feet, -1);
                 return;
+            }
+        }
+
+        /// <summary>Moving platforms step along their path once per turn (turn 1 = offset A).</summary>
+        void MovePlatforms()
+        {
+            for (int i = 0; i < _props.Length; i++)
+            {
+                Prop p = _props[i];
+                if (!p.Alive || p.Spec.TurnCycle <= 0) continue;
+                double k = PropMotion.Triangle((double)(TurnNumber - 1) / p.Spec.TurnCycle);
+                Vec2 offset = Vec2.Lerp(p.Spec.TurnOffsetA, p.Spec.TurnOffsetB, k);
+                bool moved = offset.X != p.TurnOffset.X || offset.Y != p.TurnOffset.Y;
+                p.TurnOffset = offset;
+                if (moved && TurnNumber > 1) Push(MatchEventKind.PlatformMoved, -1, -1, 0, 0.0, PropRestShape(i).Center, -1, HitZone.None, i);
+            }
+        }
+
+        void RaiseShields()
+        {
+            for (int i = 0; i < _props.Length; i++)
+            {
+                Prop p = _props[i];
+                if (!p.Alive || !p.ShieldDown) continue;
+                if (TurnNumber <= p.ShieldDownTurn + _setup.PropRules.ShieldDownTurns) continue;
+                p.ShieldDownTurn = 0;
+                Push(MatchEventKind.ShieldRaised, p.Spec.ShieldOwner, -1, 0, 0.0, PropRestShape(i).Center, -1, HitZone.None, i);
             }
         }
 
@@ -368,7 +754,7 @@ namespace ArcherArcade.Logic
             Phase = MatchPhase.Over;
             Winner = winnerSide;
             TurnTimeLeft = 0.0;
-            Push(MatchEventKind.MatchOver, -1, -1, winnerSide, time, Vec2.Zero, ArrowTip.Normal, -1);
+            Push(MatchEventKind.MatchOver, -1, -1, winnerSide, time, Vec2.Zero, -1);
         }
 
         bool SideStanding(int side) => ActiveFighter(side) >= 0;
@@ -382,8 +768,8 @@ namespace ArcherArcade.Logic
             return false;
         }
 
-        void Push(MatchEventKind kind, int fighter, int source, int amount, double time, Vec2 point, ArrowTip tip,
-            int arrow, HitZone zone = HitZone.None)
+        void Push(MatchEventKind kind, int fighter, int source, int amount, double time, Vec2 point, int arrow,
+            HitZone zone = HitZone.None, int prop = -1, ArrowTip? tip = null)
         {
             _events.Add(new MatchEvent
             {
@@ -394,8 +780,9 @@ namespace ArcherArcade.Logic
                 Amount = amount,
                 Time = time,
                 Point = point,
-                Tip = tip,
-                Arrow = arrow
+                Tip = tip ?? (_tip != null ? _tip.Tip : ArrowTip.Normal),
+                Arrow = arrow,
+                Prop = prop
             });
         }
 
@@ -410,22 +797,37 @@ namespace ArcherArcade.Logic
             h = Mix(h, (ulong)TurnNumber);
             h = Mix(h, unchecked((ulong)Winner));
             h = Mix(h, unchecked((ulong)Wind));
-            h = Mix(h, unchecked((ulong)BitConverter.DoubleToInt64Bits(TurnTimeLeft)));
+            h = MixDouble(h, TurnTimeLeft);
+            h = MixDouble(h, Clock);
             h = Mix(h, _rng.State);
             for (int i = 0; i < _fighters.Length; i++)
             {
                 Fighter f = _fighters[i];
                 h = Mix(h, (ulong)f.Hp);
+                h = MixDouble(h, f.Feet.X);
+                h = MixDouble(h, f.Feet.Y);
                 h = Mix(h, (ulong)f.Status.BurnPerTurn);
                 h = Mix(h, (ulong)f.Status.BurnTurns);
                 h = Mix(h, (ulong)f.Status.PoisonPerTurn);
                 h = Mix(h, (ulong)f.Status.PoisonTurns);
-                h = Mix(h, unchecked((ulong)BitConverter.DoubleToInt64Bits(f.Status.PendingStunSeconds)));
-                h = Mix(h, unchecked((ulong)BitConverter.DoubleToInt64Bits(f.Status.PendingDrawSlow)));
+                h = MixDouble(h, f.Status.PendingStunSeconds);
+                h = MixDouble(h, f.Status.PendingDrawSlow);
                 for (int a = 0; a < f.Ammo.Length; a++) h = Mix(h, unchecked((ulong)f.Ammo[a]));
+            }
+            for (int i = 0; i < _props.Length; i++)
+            {
+                Prop p = _props[i];
+                h = Mix(h, p.Alive ? 1UL : 0UL);
+                h = Mix(h, unchecked((ulong)p.HitsLeft));
+                h = Mix(h, (ulong)p.ShieldDownTurn);
+                h = MixDouble(h, p.StackOffset.Y);
+                h = MixDouble(h, p.TurnOffset.X);
+                h = MixDouble(h, p.TurnOffset.Y);
             }
             return h;
         }
+
+        static ulong MixDouble(ulong h, double v) => Mix(h, unchecked((ulong)BitConverter.DoubleToInt64Bits(v)));
 
         static ulong Mix(ulong h, ulong v)
         {

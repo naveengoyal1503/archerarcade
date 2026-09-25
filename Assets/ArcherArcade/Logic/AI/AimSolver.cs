@@ -13,7 +13,7 @@ namespace ArcherArcade.Logic
         /// <summary>Solves for the point only (no obstacles).</summary>
         public static bool Solve(in AimRequest request, ShotConfig cfg, out AimSolution solution)
         {
-            return SolveInternal(request, cfg, null, null, -1, -1, HitZone.None, out solution);
+            return SolveInternal(request, cfg, null, null, -1, ColliderKind.Fighter, -1, HitZone.None, out solution);
         }
 
         /// <summary>
@@ -24,11 +24,18 @@ namespace ArcherArcade.Logic
         public static bool SolveValidated(in AimRequest request, ShotConfig cfg, CollisionWorld world, ArenaLayout arena,
             int shooter, int targetFighter, HitZone zone, out AimSolution solution)
         {
-            return SolveInternal(request, cfg, world, arena, shooter, targetFighter, zone, out solution);
+            return SolveInternal(request, cfg, world, arena, shooter, ColliderKind.Fighter, targetFighter, zone, out solution);
+        }
+
+        /// <summary>Like SolveValidated, but the first thing touched must be prop <paramref name="targetProp"/>.</summary>
+        public static bool SolveValidatedProp(in AimRequest request, ShotConfig cfg, CollisionWorld world, ArenaLayout arena,
+            int shooter, int targetProp, out AimSolution solution)
+        {
+            return SolveInternal(request, cfg, world, arena, shooter, ColliderKind.Prop, targetProp, HitZone.None, out solution);
         }
 
         static bool SolveInternal(in AimRequest r, ShotConfig cfg, CollisionWorld world, ArenaLayout arena, int shooter,
-            int targetFighter, HitZone zone, out AimSolution solution)
+            ColliderKind targetKind, int targetOwner, HitZone zone, out AimSolution solution)
         {
             solution = default;
             double step = r.AngleStepDeg > 0.0 ? r.AngleStepDeg : 0.5;
@@ -40,7 +47,7 @@ namespace ArcherArcade.Logic
                 double angle = r.PreferHighArc ? cfg.MaxAngleDeg - i * step : cfg.MinAngleDeg + i * step;
                 double power, time;
                 if (!SolvePowerForAngle(r, cfg, acc, angle, out power, out time)) continue;
-                if (world != null && !Validate(r, cfg, acc, angle, power, world, arena, shooter, targetFighter, zone)) continue;
+                if (world != null && !Validate(r, cfg, acc, angle, power, world, arena, shooter, targetKind, targetOwner, zone)) continue;
                 solution = new AimSolution { AngleDeg = angle, Power = power, FlightTime = time };
                 return true;
             }
@@ -105,25 +112,29 @@ namespace ArcherArcade.Logic
             return double.NegativeInfinity;
         }
 
+        /// <summary>Flies the real (straight-line, no bounce) shot and checks what it touches first.</summary>
         static bool Validate(in AimRequest r, ShotConfig cfg, Vec2 acc, double angle, double power, CollisionWorld world,
-            ArenaLayout arena, int shooter, int targetFighter, HitZone zone)
+            ArenaLayout arena, int shooter, ColliderKind targetKind, int targetOwner, HitZone zone)
         {
             Vec2 pos = r.Origin;
             Vec2 vel = Ballistics.LaunchVelocity(angle, power, r.Facing, cfg);
             double dt = cfg.StepSeconds;
             int maxSteps = (int)(cfg.MaxFlightSeconds * cfg.SimHz);
+            double time = 0.0;
             for (int s = 0; s < maxSteps; s++)
             {
                 Vec2 next = pos;
                 Vec2 nextVel = vel;
                 Ballistics.Step(ref next, ref nextVel, acc, dt);
+                if (world.HasMotion) world.SetTime(r.Clock + time);
                 double t;
                 int ci;
                 if (world.SweepFirst(pos, next, shooter, out t, out ci))
                 {
                     ArenaCollider c = world.Colliders[ci];
-                    return c.Kind == ColliderKind.Fighter && c.Owner == targetFighter && (zone == HitZone.None || c.Zone == zone);
+                    return c.Kind == targetKind && c.Owner == targetOwner && !c.Bounces && (zone == HitZone.None || c.Zone == zone);
                 }
+                time += dt;
                 pos = next;
                 vel = nextVel;
                 if (arena != null && (pos.Y < arena.KillY || pos.X < arena.MinX || pos.X > arena.MaxX)) return false;

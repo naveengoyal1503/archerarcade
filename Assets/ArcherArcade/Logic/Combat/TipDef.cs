@@ -34,5 +34,11 @@ namespace ArcherArcade.Logic
 
         /// <summary>Pops shield bubbles instantly (Electric).</summary>
         public bool PopsBubbles;
+
+        /// <summary>Knocks wooden shields down (Heavy, Bomb).</summary>
+        public bool KnocksShields;
+
+        /// <summary>Pushes the archer it hits back (Bomb).</summary>
+        public bool Knockback;
     }
 }

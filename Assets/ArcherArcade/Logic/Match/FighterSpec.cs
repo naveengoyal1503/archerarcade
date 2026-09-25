@@ -17,5 +17,11 @@ namespace ArcherArcade.Logic
         /// <summary>2-Player handicap (0.7–1.3) and Extra Heart booster scale max HP.</summary>
         public double HpScale = 1.0;
         public int BonusHp;
+
+        /// <summary>Stands on this prop (moving platform), −1 = on the ground at Feet.</summary>
+        public int StandOnProp = -1;
+
+        /// <summary>Stands on top of this crate tower (Tower Sniper), −1 = none. Drops when crates are knocked off.</summary>
+        public int StandOnTower = -1;
     }
 }

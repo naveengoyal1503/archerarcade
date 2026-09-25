@@ -44,6 +44,29 @@ namespace ArcherArcade.Logic
         /// <summary>Center point (for aiming and effect placement).</summary>
         public Vec2 Center => Kind == ShapeKind.Capsule ? Vec2.Lerp(A, B, 0.5) : A;
 
+        /// <summary>
+        /// Outward surface normal at a contact point on (or near) the shape. Boxes use the face the point is
+        /// closest to (relative to the half size); round shapes use the direction from the nearest axis point.
+        /// </summary>
+        public Vec2 NormalAt(Vec2 p)
+        {
+            if (Kind == ShapeKind.Box)
+            {
+                double dx = p.X - A.X;
+                double dy = p.Y - A.Y;
+                double nx = HalfSize.X > 0.0 ? System.Math.Abs(dx) / HalfSize.X : 0.0;
+                double ny = HalfSize.Y > 0.0 ? System.Math.Abs(dy) / HalfSize.Y : 0.0;
+                if (nx > ny) return new Vec2(dx >= 0.0 ? 1.0 : -1.0, 0.0);
+                return new Vec2(0.0, dy >= 0.0 ? 1.0 : -1.0);
+            }
+            Vec2 ab = B - A;
+            double lenSq = ab.LengthSq;
+            double k = lenSq <= 0.0 ? 0.0 : DetMath.Clamp01(Vec2.Dot(p - A, ab) / lenSq);
+            Vec2 d = p - (A + ab * k);
+            double len = d.Length;
+            return len <= 1e-12 ? new Vec2(0.0, 1.0) : d * (1.0 / len);
+        }
+
         /// <summary>Distance from a point to the shape's surface (0 inside).</summary>
         public double DistanceTo(Vec2 p)
         {

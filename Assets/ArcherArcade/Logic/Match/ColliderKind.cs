@@ -4,6 +4,7 @@ namespace ArcherArcade.Logic
     {
         Ground,
         Wall,
-        Fighter
+        Fighter,
+        Prop
     }
 }

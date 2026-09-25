@@ -9,6 +9,9 @@ namespace ArcherArcade.Logic
         public int Hp;
         public StatusEffects Status;
 
+        /// <summary>Where the archer stands now (moves with platforms, towers and knockback).</summary>
+        public Vec2 Feet;
+
         /// <summary>Ammo per tip (index = (int)ArrowTip); −1 = unlimited, 0 = none.</summary>
         public readonly int[] Ammo = new int[TipTable.Count];
 
@@ -20,6 +23,7 @@ namespace ArcherArcade.Logic
             MaxHp = DetMath.RoundToInt(baseHp * spec.HpScale) + spec.BonusHp;
             if (MaxHp < 1) MaxHp = 1;
             Hp = MaxHp;
+            Feet = spec.Feet;
             Ammo[(int)ArrowTip.Normal] = -1;
             for (int i = 0; spec.Tips != null && i < spec.Tips.Length; i++)
             {
@@ -32,7 +36,6 @@ namespace ArcherArcade.Logic
         public ArcherDef Def => Spec.Def;
         public int Side => Spec.Side;
         public int Level => Spec.Level;
-        public Vec2 Feet => Spec.Feet;
         public int Facing => Spec.Facing;
         public bool IsAlive => Hp > 0;
         public double HpFraction => (double)Hp / MaxHp;

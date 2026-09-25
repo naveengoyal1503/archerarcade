@@ -17,6 +17,26 @@ namespace ArcherArcade.Logic
         Knockout,
         FighterEntered,
         TurnTimedOut,
-        MatchOver
+        MatchOver,
+
+        // Props (Phase 4)
+        PropHit,
+        CrateBroken,
+        CrateKnockedOff,
+        TowerToppled,
+        Explosion,
+        ExplosionHit,
+        Bounce,
+        TargetHit,
+        AppleHit,
+        DummyHit,
+        RopeCut,
+        ShieldBlocked,
+        ShieldKnockedDown,
+        ShieldRaised,
+        PlatformMoved,
+        FighterDropped,
+        Knockback,
+        Stumble
     }
 }

@@ -40,6 +40,42 @@ namespace ArcherArcade.Tests
             return sol.ToInput(tip);
         }
 
+        /// <summary>Exact shot from the current fighter that first touches prop <paramref name="prop"/>.</summary>
+        public static ShotInput AimAtProp(MatchState m, int prop, ArrowTip tip = ArrowTip.Normal, bool highArc = false)
+        {
+            Fighter me = m.CurrentFighter;
+            var req = AimRequest.Create(me.BowPosition(m.Setup.Shot), me.Facing, m.PropShapeAt(prop, m.Clock).Center, m.Wind,
+                m.Setup.Tips[tip].GravityScale);
+            req.Clock = m.Clock;
+            req.PreferHighArc = highArc;
+            AimSolution sol;
+            bool ok = AimSolver.SolveValidatedProp(req, m.Setup.Shot, m.BuildWorld(), m.Setup.Arena, me.Index, prop, out sol);
+            NUnit.Framework.Assert.IsTrue(ok, "solver found no shot at prop " + prop);
+            return sol.ToInput(tip);
+        }
+
+        /// <summary>Shot through a point, ignoring what is in the way.</summary>
+        public static ShotInput AimAtPoint(MatchState m, Vec2 point, ArrowTip tip = ArrowTip.Normal, bool highArc = false)
+        {
+            Fighter me = m.CurrentFighter;
+            var req = AimRequest.Create(me.BowPosition(m.Setup.Shot), me.Facing, point, m.Wind, m.Setup.Tips[tip].GravityScale);
+            req.PreferHighArc = highArc;
+            AimSolution sol;
+            NUnit.Framework.Assert.IsTrue(AimSolver.Solve(req, m.Setup.Shot, out sol), "no shot through " + point);
+            return sol.ToInput(tip);
+        }
+
+        /// <summary>Solo level: just the player at x = 0 on an island (targets, apples, trick shots).</summary>
+        public static MatchSetup Solo(double width = 40.0, ArrowTip[] tips = null)
+        {
+            var s = new MatchSetup { Seed = 1UL };
+            s.Arena.Grounds.Add(Shape.BoxFromTop(0, 0, 6, 2));
+            s.Arena.MinX = -30;
+            s.Arena.MaxX = width + 30;
+            s.Fighters.Add(new FighterSpec { Def = ArcherTable.Ranger(), Side = 0, Feet = new Vec2(0, 0), Facing = 1, Tips = tips ?? new ArrowTip[0] });
+            return s;
+        }
+
         /// <summary>A shot that clearly flies over everything into the void.</summary>
         public static ShotInput Miss() => new ShotInput(80, 0.0);
     }

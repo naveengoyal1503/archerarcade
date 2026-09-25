@@ -13,6 +13,9 @@ namespace ArcherArcade.Logic
         public int Shooter = -1;
         public ShotInput Input;
         public int Wind;
+
+        /// <summary>Match clock at release (moving targets are placed with it).</summary>
+        public double Clock;
         public readonly List<ArrowPath> Arrows = new List<ArrowPath>(8);
 
         /// <summary>Latest time any arrow of this shot stops (length of the flight animation).</summary>
@@ -25,6 +28,7 @@ namespace ArcherArcade.Logic
             Shooter = -1;
             Input = default;
             Wind = 0;
+            Clock = 0.0;
             Arrows.Clear();
             Duration = 0.0;
         }

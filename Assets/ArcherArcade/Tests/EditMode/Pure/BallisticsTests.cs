@@ -58,7 +58,7 @@ namespace ArcherArcade.Tests
             world.AddArena(arena);
             var paths = new System.Collections.Generic.List<ArrowPath>();
             FlightSimulator.Simulate(new Vec2(0, 0), Ballistics.LaunchVelocity(angle, power, 1, cfg),
-                Ballistics.Acceleration(wind, gravityScale, cfg), 0, 0, cfg, world, arena, -1, paths);
+                Ballistics.Acceleration(wind, gravityScale, cfg), 0, 0, cfg, null, world, arena, -1, 0.0, paths);
             Assert.AreEqual(ContactKind.Ground, paths[0].Contact);
             return paths[0].EndPosition.X;
         }
