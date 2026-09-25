@@ -33,3 +33,6 @@ crashlytics-build.properties
 !/Tools/UnityCheck/**/*.csproj
 /Tools/UnityCheck/**/bin/
 /Tools/UnityCheck/**/obj/
+
+# Tool download caches (fonts etc.)
+/Tools/.cache/
