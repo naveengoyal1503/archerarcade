@@ -1,0 +1,62 @@
+# Archer Arcade — Start Here (handoff for a new chat)
+
+Written 2026-09-25 at the end of the planning chat. Read this first, then the files it points to.
+
+## What we are building
+Archer Arcade: a **landscape** Android archery duel game in **Unity 6000.3 LTS** (URP, C#). Pull back to aim,
+arrows fly in an arc with gravity and wind, headshots, elemental arrow tips with big impact effects (lightning
+from the sky, fireballs, bomb blasts, ice, poison), opponents that look more hurt as HP drops (cartoon, no
+blood), crate towers + TNT on floating islands. Play vs the computer (campaign + quick duel) or **2 players on
+one phone** (pass-and-play). Premium UI like MindTap. **Free forever** — no ads, no purchases, coins only earned.
+"In loving memory of Maa ❤️" in Settings and Credits.
+
+## Source of truth (already written — do not contradict)
+| File | What |
+|---|---|
+| `CLAUDE.md` | rules, tech, folder structure, conventions, commands |
+| `Docs/GAME_DESIGN.md` | every rule and number (shot, impact effects, injury looks, archers, enemies, 8 arrow tips, boosters, AI, modes, economy, 22 badges, audio, UI, save data) |
+| `Docs/LEVELS.md` | World 1 levels 1–20 in full (goal, enemy, distance, wind, props, par, rewards, tip unlocks), daily challenge, worlds 2–5 outline |
+| `Docs/PROGRESS.md` | the checklist, Phases 0–15 + open questions + decisions log — work through it in order |
+| `Docs/ROADMAP.md` | v1.0 scope; 1.1 / 1.2 / 1.3 / 2.0 (online) later |
+| `Docs/SCREEN_INVENTORY.md` | 34 screens/states |
+| `Docs/DESIGN_TOKENS.md` | structure + sound/haptic ids; colors/fonts/sizes come from the Claude Design prototype |
+
+## Decisions already made
+- Landscape only (confirmed by Naveen), reference 844 × 390 dp. Package `com.naveencodes.archerarcade`.
+- v1.0 scope is deliberately small: 1 world (Whispering Forest, 20 levels, mini-boss L10, boss Forest Warden L20),
+  4 archers (Ranger, Fire, Electric, Bomb), 8 arrow tips, 7 enemy types, AI Easy/Medium/Hard/Boss, same-phone
+  2-player, daily challenge, training, boosters (coins only, never required), chests, 22 badges.
+- Multiplayer v1 = same phone. Online only in 2.0. No INTERNET permission until then. Match logic is pure C#,
+  deterministic and input-driven (shot = angle, power, tip, ability) so online can be added later.
+- A reference stickman archery game was shown ONLY to explain features. Never copy its UI, layout or art.
+- Characters are being designed in Claude Design as SVG with separate named parts + pivots (for 2D skeletal
+  animation). Until they arrive, use geometric stand-ins with the same rig bones.
+
+## Current status
+- Phase 0: docs done. **Pending:** Claude Design prototype (screens + characters), Naveen approves the look,
+  export into `Design/`, fill DESIGN_TOKENS, answer the open questions in PROGRESS.md.
+- No Unity project yet. Phase 1 starts after the design is approved (or with stand-ins if Naveen says start now).
+
+## Open questions (ask Naveen if still open)
+1. Style: candy / NaveenCodes dark + gold / **mix** (dark theme = NaveenCodes dark+gold, light = candy) — recommended: mix.
+2. Art: 2D cartoon sprites or 2.5D 3D-looking characters?
+3. Final art/music from Naveen, or generated/placeholder replaced later by id?
+4. Name "Archer Arcade" and package final?
+
+## Reuse from MindTap (C:\Users\navee\Desktop\NaveenCodes\apps\Arrow)
+Same Unity install `E:\Unity\Editors\6000.3.24f1` (C: is nearly full — keep caches on E:), adb in
+`...\Editor\Data\PlaybackEngines\AndroidPlayer\SDK\platform-tools\adb.exe` (Git Bash needs `MSYS_NO_PATHCONV=1`),
+batch build/test pattern (`Batch.FailOnCompileErrors`, `-runTests`), tween utility, SafeArea, UIManager router +
+back stack + pause, SaveSystem (.tmp/.bak), AudioManager + `Tools/gen_sounds.py`, HapticsManager, DisplayRate
+(90/120 Hz + battery saver + thermal fallback), Hinglish strings table, `Features.cs` release switches.
+Lessons learned there:
+- Never leave `Time.timeScale = 0` without a pausing screen (MindTap's blank-board bug); heal it in UIManager.
+- PlayMode tests must wait in real time (`WaitForSecondsRealtime`) or they hang when a popup pauses.
+- Modals/sheets must re-apply the current light/dark theme when opened.
+- Big boards: cap intro stagger so the board never looks empty.
+- Build AABs only when Naveen asks; day to day build the APK and install on his phone (Nothing A059, 120 Hz) when told.
+
+## How Naveen works
+- Speaks Hinglish; reply in simple Hinglish. Keep him updated in short lines; suggest the next step at the end.
+- "install kar" = install the APK on his phone; "aab bna" = build release AABs.
+- Never suggest ads/monetization. Always keep the Maa tribute.
