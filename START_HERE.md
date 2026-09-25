@@ -33,15 +33,16 @@ one phone** (pass-and-play). Premium UI like MindTap. **Free forever** — no ad
   animation). Until they arrive, use geometric stand-ins with the same rig bones.
 
 ## Current status
-- Phase 0: docs done. **Pending:** Claude Design prototype (screens + characters), Naveen approves the look,
-  export into `Design/`, fill DESIGN_TOKENS, answer the open questions in PROGRESS.md.
-- No Unity project yet. Phase 1 starts after the design is approved (or with stand-ins if Naveen says start now).
+- See `Docs/PROGRESS.md` for the live checklist. Phase 0 done (design exported, tokens filled, questions answered).
+- Code lives in `Assets/ArcherArcade/`. Pure C# Logic is built and tested without Unity:
+  `dotnet test Tools/LogicTests/EditMode`. The Unity project itself has not been opened yet: Unity-side items
+  (packages, scenes, UI kit, APK) wait for Naveen's PC.
 
-## Open questions (ask Naveen if still open)
-1. Style: candy / NaveenCodes dark + gold / **mix** (dark theme = NaveenCodes dark+gold, light = candy) — recommended: mix.
-2. Art: 2D cartoon sprites or 2.5D 3D-looking characters?
-3. Final art/music from Naveen, or generated/placeholder replaced later by id?
-4. Name "Archer Arcade" and package final?
+## Open questions — answered 2026-09-25
+1. Style: light theme = candy colors (dark = prototype purple + gold).
+2. Art: **2.5D** (3D toon characters, 2D gameplay plane).
+3. Placeholder art/music now, replaced later by id.
+4. Name "Archer Arcade" + package `com.naveencodes.archerarcade`: final.
 
 ## Reuse from MindTap (C:\Users\navee\Desktop\NaveenCodes\apps\Arrow)
 Same Unity install `E:\Unity\Editors\6000.3.24f1` (C: is nearly full — keep caches on E:), adb in

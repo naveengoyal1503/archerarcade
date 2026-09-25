@@ -17,11 +17,11 @@ and this file updated. The game must run after every phase.
 - [x] Claude Design prototype: key screens (Home, Mode select, World map, Archer select, Loadout, Match HUD,
       Pass-the-phone, Victory/Defeat, Badges, Settings) in landscape, light + dark (`Design/`, 14 edge states,
       character roster with rig pivots)
-- [ ] Naveen approves the look (style decision: candy / NaveenCodes dark+gold / mix)
+- [x] Naveen approves the look (style decision: candy / NaveenCodes dark+gold / mix) — light = candy, characters 2.5D
 - [x] Export the design into `Design/`, fill `DESIGN_TOKENS.md` with real values, map every screen in
       SCREEN_INVENTORY to a design frame (a few values marked *(proposed)* need Naveen's OK; 8 screens have no
-      frame yet, marked "—")
-- [ ] Open questions answered (see "Open questions" below)
+      frame yet, marked "—"; *(derived)* values approved by Naveen)
+- [x] Open questions answered (see "Open questions" below)
 
 ## Phase 1 — Project setup, tokens, fonts, themes
 - [~] Unity 6000.3 LTS project (URP), landscape only, IL2CPP ARM64, AAB, min API 25, package
@@ -186,12 +186,12 @@ and this file updated. The game must run after every phase.
 
 ---
 
-## Open questions (answer before or during Phase 1)
-1. Style: candy colors (brief) / NaveenCodes dark + gold / **mix** (dark theme = NaveenCodes, light = candy)?
-2. Art: 2D cartoon sprites (faster, lighter) or 2.5D 3D-looking characters (more premium, more work)?
-3. Characters: will Naveen supply art/music, or do we generate everything (procedural/simple art + synthesized
-   placeholder audio, replaced later by id)?
-4. Name check: "Archer Arcade" final? Package `com.naveencodes.archerarcade` OK?
+## Open questions (answered by Naveen 2026-09-25)
+1. Style → **light theme candy colors**. Dark theme stays the prototype's purple + gold (not asked to change).
+2. Art → **2.5D** (3D-looking characters).
+3. Art/music → **placeholder now** (generated), replaced later by id.
+4. Name "Archer Arcade" + package `com.naveencodes.archerarcade` → **final**.
+5. Derived token values (glow colors, bigger targets 56 dp, camera 0.35 / 0.5 s) and the Bomb splash rule → **OK**.
 
 ## Decisions log
 | Date | Decision |
@@ -206,4 +206,6 @@ and this file updated. The game must run after every phase.
 | 2026-09-25 | Logic uses `double` + own `DetMath` trig (polynomial, only +−×÷ and sqrt) so shots are bit-identical on every device (needed for 2.0 online). |
 | 2026-09-25 | Tuning lives in plain Logic config classes (`ShotConfig`, `DamageConfig`, `TipTable`, `MatchConfig`, `BodyConfig`) with the GAME_DESIGN defaults; Runtime ScriptableObjects will fill them. |
 | 2026-09-25 | Tip damage assumes the Ranger (25): damage = tip × (archer dmg / 25) × level × zone × element bonus. Bomb splash hits everyone near the impact **except** the arrow's direct target (direct hit = 20, near miss / bystander = 12); Bomb Archer passive splash adds to the tip's splash. Burn/poison refresh (keep the stronger), never stack. A stunned turn is never shorter than 4 s. |
+| 2026-09-25 | Naveen: light theme = candy; characters **2.5D**; placeholder art + audio for now; name + package final; derived tokens and Bomb splash rule approved. |
+| 2026-09-25 | 2.5D means: low-poly 3D character meshes with toon shading + outline (URP), rigged with the Design roster's bone names (hood, head, torso, cape, upper_arm_front…); injury looks = extra mesh parts + material swaps; gameplay stays on the 2D x/y plane (Logic unchanged); side camera with 3D lighting and parallax layers. Until final art, placeholder rigs built from primitives with the same bones. The roster SVGs are the look/proportion reference. |
 | 2026-09-25 | Cloud sessions have no Unity: Logic is compiled and tested with .NET 8 (`Tools/LogicTests`, same NUnit API). APKs and Unity-side checks happen on Naveen's PC. |

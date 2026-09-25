@@ -1,8 +1,8 @@
 # Archer Arcade — Design Tokens
 
 Status: **filled from the Claude Design prototype** in `Design/Archer Arcade.dc.html` (exported 2026-09-25).
-Every size is dp at the 844 × 390 landscape reference. Values marked *(proposed)* are not in the prototype; they
-were derived from it and need Naveen's OK before they are treated as final. Code must not invent other values.
+Every size is dp at the 844 × 390 landscape reference. Values marked *(derived)* are not in the prototype; they
+were derived from it and approved by Naveen on 2026-09-25. Code must not invent other values.
 
 ## 1. Colors — light theme (`Component.LIGHT` in the prototype)
 | Token | Value | Use |
@@ -29,7 +29,7 @@ were derived from it and need Naveen's OK before they are treated as final. Code
 | hill | `#2F7A4C` |
 
 Page/backdrop behind the phone frame: `#15122E`. Dark theme = deep purple + gold accent (`#FFD23F`), light =
-candy sky. (This is the "mix" direction; see PROGRESS open question 1.)
+candy sky (light = candy confirmed by Naveen 2026-09-25).
 
 ## 2.1 3D button styles (face / edge; theme-independent)
 | Style | Face | Edge (shadow) | Text | Used for |
@@ -58,8 +58,8 @@ candy sky. (This is the "mix" direction; see PROGRESS open question 1.)
 
 ## 3. Element colors (VFX + chips, always paired with an icon)
 Archer colors come from the prototype; tip-only elements (Ice, Poison, Split/Heavy) reuse the prototype's archer
-swatches for the same element. Glow = *(proposed)* lighter tint.
-| Element | Main | Glow *(proposed)* | Icon |
+swatches for the same element. Glow = *(derived)* lighter tint.
+| Element | Main | Glow *(derived)* | Icon |
 |---|---|---|---|
 | Normal (Ranger) | `#2ED3A0` (arrow chip: white) | `#FFFFFF` | ➵ / 🏹 |
 | Fire | `#FF8A3D` | `#FFD2A6` | 🔥 |
@@ -110,7 +110,7 @@ Display **Fredoka** (500/600/700), body **Nunito** (600/700/800/900). Both OFL.
 | screen side padding | 18 |
 | header height | 58 (back 44×44, title, coin pill right) |
 | home top bar | top 14, height 48 |
-| min touch target | 44 (bigger-targets setting: *(proposed)* 56) |
+| min touch target | 44 (bigger-targets setting: *(derived)* 56) |
 | match ground line | y 316 of 390; archers at x 120 / 724 (right-handed) |
 | left-handed | HUD buttons mirrored (see Design state 06) |
 
@@ -128,7 +128,7 @@ Display **Fredoka** (500/600/700), body **Nunito** (600/700/800/900). Both OFL.
 | hit-stop head / body / legs | 70 / 45 / 30 ms (GAME_DESIGN §3.3) |
 | shake head / body | 8 / 5 dp |
 | knockout slow-mo | 0.25× for 0.8 s real time |
-| camera follow / return | *(proposed)* 0.35 s smooth / 0.5 s easeInOut |
+| camera follow / return | *(derived)* 0.35 s smooth / 0.5 s easeInOut |
 
 ## 8. Sound ids
 `sfx_bow_draw`, `sfx_bow_creak_loop`, `sfx_release`, `sfx_whoosh`, `sfx_hit_wood`, `sfx_hit_stone`, `sfx_hit_metal`,

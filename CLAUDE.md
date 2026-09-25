@@ -26,7 +26,7 @@ NaveenCodes by Maa Labs™. The game includes "In loving memory of Maa ❤️" (
 - Existing saves must never break: save fields are only ever added, with defaults.
 
 ## Tech
-- Unity **6000.3 LTS**, URP, **landscape** only, Android AAB (IL2CPP, ARM64), package `com.naveencodes.archerarcade`.
+- Unity **6000.3 LTS**, URP, **landscape** only, **2.5D** (3D toon characters, gameplay on a 2D side plane), Android AAB (IL2CPP, ARM64), package `com.naveencodes.archerarcade`.
 - Reference resolution **844 × 390** (landscape), CanvasScaler match 0.5. All sizes in DESIGN_TOKENS are dp at
   this resolution. Safe area: a `SafeArea` component wraps every UI root.
 - TextMeshPro for all text. New Input System for touch. Own tween utility (`ArcherArcade.Tweening`), no DOTween.
