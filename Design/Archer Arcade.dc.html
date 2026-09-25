@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap">
+<style>
+body{margin:0;background:#15122e}
+a{color:#6D4AFF}a:hover{color:#E83E8C}
+button{font-family:Nunito,sans-serif}
+@keyframes aaBreath{0%,100%{transform:translateY(0) scaleY(1)}50%{transform:translateY(-3px) scaleY(1.02)}}
+@keyframes aaPop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.15);opacity:1}100%{transform:scale(1);opacity:1}}
+@keyframes aaFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes aaConfetti{0%{transform:translateY(-30px) rotate(0)}100%{transform:translateY(430px) rotate(600deg)}}
+@keyframes aaLoad{from{width:0}to{width:100%}}
+@keyframes aaPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes aaIn{from{opacity:0;transform:scale(.97)}to{opacity:1;transform:none}}
+</style>
+</helmet>
+<div style="display:flex;align-items:center;justify-content:center;min-height:{{ minH }};font-family:Nunito,sans-serif">
+<div style="zoom:{{ scale }};width:904px;height:450px;flex:none;border-radius:58px;background:#0c0b14;padding:30px;box-sizing:border-box;box-shadow:0 0 0 2px #2b2940,0 30px 80px rgba(0,0,0,.5);position:relative">
+<div style="position:absolute;left:11px;top:219px;width:11px;height:11px;border-radius:50%;background:#22212f"></div>
+<div style="width:844px;height:390px;border-radius:26px;overflow:hidden;position:relative;--bg:{{ t.bg }};--bg2:{{ t.bg2 }};--card:{{ t.card }};--solid:{{ t.solid }};--line:{{ t.line }};--ink:{{ t.ink }};--ink2:{{ t.ink2 }};--track:{{ t.track }};--sh:{{ t.sh }};--hill:{{ t.hill }};background:linear-gradient(180deg,var(--bg,#CDEBFF),var(--bg2,#FFF1DC));color:var(--ink,#2A2350)">
+
+<sc-if value="{{ showHeader }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:0;left:0;right:0;height:58px;display:flex;align-items:center;gap:12px;padding:0 18px;z-index:5">
+<button onClick="{{ back }}" style="width:44px;height:44px;border:none;border-radius:14px;background:#6D4AFF;color:#fff;font:700 22px Fredoka,sans-serif;box-shadow:0 4px 0 #4A2BD1;cursor:pointer;flex:none" style-active="transform:translateY(3px);box-shadow:0 1px 0 #4A2BD1">←</button>
+<div style="font:700 25px Fredoka,sans-serif;color:var(--ink)">{{ title }}</div>
+<div style="font:700 13px Nunito,sans-serif;color:var(--ink2)">{{ subtitle }}</div>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:6px;height:36px;padding:0 14px 0 8px;border-radius:18px;background:var(--card);border:1.5px solid var(--line);font:700 17px Fredoka,sans-serif;color:var(--ink)"><span style="font-size:18px">🪙</span>{{ coinsFmt }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSplash }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ goHome }}" style="position:absolute;inset:0;background:radial-gradient(circle at 50% 40%,#8E6BFF,#5536D6 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;cursor:pointer;color:#fff">
+<div style="width:96px;height:96px;border-radius:30px;background:#FFD23F;box-shadow:0 7px 0 #D4A514;display:flex;align-items:center;justify-content:center;font-size:54px;animation:aaFloat 2.4s ease-in-out infinite">🏹</div>
+<div style="font:700 60px/1 Fredoka,sans-serif;letter-spacing:.5px;text-shadow:0 5px 0 #3A1FB0;margin-top:8px">Archer Arcade</div>
+<div style="font:800 14px Nunito,sans-serif;opacity:.9">NaveenCodes by Maa Labs™</div>
+<div style="width:220px;height:10px;border-radius:5px;background:rgba(255,255,255,.2);overflow:hidden;margin-top:18px"><div style="height:100%;background:#FFD23F;border-radius:5px;animation:aaLoad 1.6s ease-out forwards"></div></div>
+<div style="font:700 12px Nunito,sans-serif;opacity:.8">Tap to start</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0">
+<div style="position:absolute;left:-80px;right:-80px;bottom:-70px;height:170px;border-radius:50% 50% 0 0;background:var(--hill,#8BD346)"></div>
+<div style="position:absolute;top:14px;left:18px;right:18px;height:48px;display:flex;align-items:center;gap:10px">
+<button onClick="{{ goStats }}" style="display:flex;align-items:center;gap:10px;height:48px;padding:0 14px 0 5px;border-radius:24px;background:var(--card);border:1.5px solid var(--line);cursor:pointer;color:var(--ink)">
+<div style="width:38px;height:38px;border-radius:50%;background:{{ sel.color }};display:flex;align-items:center;justify-content:center;font-size:19px">{{ sel.icon }}</div>
+<div style="text-align:left"><div style="font:700 15px/1.1 Fredoka,sans-serif">Player</div><div style="font:800 11px Nunito,sans-serif;color:var(--ink2)">Level 12</div></div>
+<div style="display:flex;gap:3px;margin-left:4px"><sc-for list="{{ pinnedBadges }}" as="b" hint-placeholder-count="3"><div style="width:24px;height:24px;border-radius:50%;background:{{ b.tierColor }};display:flex;align-items:center;justify-content:center;font-size:12px">{{ b.icon }}</div></sc-for></div>
+</button>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:6px;height:36px;padding:0 12px 0 8px;border-radius:18px;background:var(--card);border:1.5px solid var(--line);font:700 17px Fredoka,sans-serif"><span>⭐</span>{{ starTotal }}</div>
+<div style="display:flex;align-items:center;gap:6px;height:36px;padding:0 12px 0 8px;border-radius:18px;background:var(--card);border:1.5px solid var(--line);font:700 17px Fredoka,sans-serif"><span>🪙</span>{{ coinsFmt }}</div>
+<sc-for list="{{ homeIcons }}" as="ic" hint-placeholder-count="5">
+<button onClick="{{ ic.onClick }}" title="{{ ic.label }}" style="position:relative;width:44px;height:44px;border:none;border-radius:14px;background:var(--solid);box-shadow:0 4px 0 var(--sh);font-size:20px;cursor:pointer" style-active="transform:translateY(3px);box-shadow:0 1px 0 var(--sh)">{{ ic.icon }}<sc-if value="{{ ic.dot }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-3px;right:-3px;width:13px;height:13px;border-radius:50%;background:#E5484D;border:2px solid var(--solid)"></span></sc-if></button>
+</sc-for>
+</div>
+<div style="position:absolute;left:30px;top:80px;width:260px;bottom:14px;display:flex;flex-direction:column;align-items:center">
+<div style="display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:14px;background:var(--card);border:1.5px solid var(--line)">
+<div style="font:700 17px Fredoka,sans-serif">{{ sel.name }}</div><div style="font:800 11px Nunito,sans-serif;color:var(--ink2)">Lv {{ selLevel }} · {{ sel.ability }}</div>
+</div>
+<div style="flex:1"></div>
+<div style="position:relative;width:110px;height:166px;animation:aaBreath 2.6s ease-in-out infinite;transform-origin:bottom center">
+<div style="position:absolute;left:36px;top:0;width:38px;height:38px;border-radius:50%;background:#FFD2A6;box-shadow:inset 0 -4px 0 rgba(0,0,0,.08)"></div>
+<div style="position:absolute;left:34px;top:5px;width:42px;height:9px;border-radius:5px;background:{{ sel.color }}"></div>
+<div style="position:absolute;left:58px;top:16px;width:5px;height:5px;border-radius:50%;background:#2A2350"></div>
+<div style="position:absolute;left:27px;top:42px;width:56px;height:70px;border-radius:18px;background:{{ sel.color }};box-shadow:inset 0 -8px 0 rgba(0,0,0,.14)"></div>
+<div style="position:absolute;left:41px;top:57px;width:28px;height:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">{{ sel.icon }}</div>
+<div style="position:absolute;left:35px;top:108px;width:15px;height:52px;border-radius:7px;background:#3A2F5B"></div>
+<div style="position:absolute;left:60px;top:108px;width:15px;height:52px;border-radius:7px;background:#3A2F5B"></div>
+<div style="position:absolute;left:80px;top:16px;width:30px;height:116px;border:6px solid #9A6234;border-left:none;border-radius:0 70px 70px 0;box-sizing:border-box"></div>
+<div style="position:absolute;left:80px;top:18px;width:2px;height:112px;background:rgba(255,255,255,.85)"></div>
+</div>
+<div style="width:170px;height:26px;border-radius:50%;background:rgba(0,0,0,.16);margin-top:-12px"></div>
+<button onClick="{{ goArchers }}" style="margin-top:8px;height:40px;padding:0 18px;border:none;border-radius:14px;background:#6D4AFF;color:#fff;font:700 16px Fredoka,sans-serif;box-shadow:0 4px 0 #4A2BD1;cursor:pointer;white-space:nowrap" style-active="transform:translateY(3px);box-shadow:0 1px 0 #4A2BD1">Archers ▸</button>
+</div>
+<div style="position:absolute;left:316px;right:18px;top:80px;bottom:18px;display:flex;flex-direction:column;gap:14px">
+<button onClick="{{ goMap }}" style="height:108px;flex:none;border:none;border-radius:28px;background:#F0641E;box-shadow:0 7px 0 #B8460F,0 14px 24px rgba(184,70,15,.3);display:flex;align-items:center;gap:18px;padding:0 16px 0 30px;cursor:pointer;color:#fff;text-align:left" style-active="transform:translateY(5px);box-shadow:0 2px 0 #B8460F">
+<div style="font:700 54px/1 Fredoka,sans-serif;text-shadow:0 4px 0 rgba(0,0,0,.18)">PLAY</div>
+<div style="flex:1;font:800 14px/1.3 Nunito,sans-serif">Campaign<br><span style="font:700 19px Fredoka,sans-serif">{{ playSub }}</span></div>
+<div style="width:68px;height:68px;border-radius:50%;background:#fff;color:#F0641E;display:flex;align-items:center;justify-content:center;font-size:30px;animation:aaPulse 1.8s ease-in-out infinite">▶</div>
+</button>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;flex:1;min-height:0">
+<sc-for list="{{ homeModes }}" as="md" hint-placeholder-count="4">
+<button onClick="{{ md.onClick }}" style="border:none;border-radius:22px;background:{{ md.color }};box-shadow:0 5px 0 {{ md.shade }};color:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;padding:12px 14px 14px;cursor:pointer;text-align:left" style-active="transform:translateY(4px);box-shadow:0 1px 0 {{ md.shade }}">
+<div style="width:42px;height:42px;border-radius:14px;background:rgba(255,255,255,.95);display:flex;align-items:center;justify-content:center;font-size:22px">{{ md.icon }}</div>
+<div><div style="font:700 18px/1.1 Fredoka,sans-serif">{{ md.name }}</div><div style="font:800 11px/1.3 Nunito,sans-serif;opacity:.95;margin-top:2px">{{ md.sub }}</div></div>
+</button>
+</sc-for>
+</div>
+<button onClick="{{ goModes }}" style="align-self:flex-end;background:none;border:none;font:800 13px Nunito,sans-serif;color:#fff;cursor:pointer;padding:0 4px;text-shadow:0 1px 2px rgba(0,0,0,.25)">All modes →</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isModes }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:66px;left:18px;right:18px;bottom:18px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:1fr 1fr;gap:14px;animation:aaIn .22s ease-out">
+<sc-for list="{{ allModes }}" as="md" hint-placeholder-count="6">
+<button onClick="{{ md.onClick }}" style="border:none;border-radius:22px;background:var(--solid);box-shadow:0 5px 0 var(--sh);display:flex;align-items:center;gap:14px;padding:14px 16px;cursor:pointer;text-align:left;color:var(--ink)" style-active="transform:translateY(4px);box-shadow:0 1px 0 var(--sh)">
+<div style="width:62px;height:62px;flex:none;border-radius:20px;background:{{ md.color }};box-shadow:0 4px 0 {{ md.shade }};display:flex;align-items:center;justify-content:center;font-size:30px">{{ md.icon }}</div>
+<div style="min-width:0"><div style="font:700 19px/1.1 Fredoka,sans-serif">{{ md.name }}</div><div style="font:700 12px/1.35 Nunito,sans-serif;color:var(--ink2);margin-top:3px;text-wrap:pretty">{{ md.sub }}</div></div>
+</button>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMap }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:58px;left:18px;right:18px;height:44px;display:flex;gap:8px">
+<sc-for list="{{ worldTabs }}" as="w" hint-placeholder-count="5">
+<button onClick="{{ w.onClick }}" style="flex:1;min-width:0;display:flex;align-items:center;gap:6px;justify-content:center;border:2.5px solid {{ w.border }};border-radius:14px;background:var(--solid);color:var(--ink);font:700 14px Fredoka,sans-serif;cursor:pointer;opacity:{{ w.op }}">
+<span style="font-size:17px">{{ w.icon }}</span><span style="white-space:nowrap">{{ w.name }}</span><span style="font:800 11px Nunito,sans-serif;color:var(--ink2)">{{ w.meta }}</span>
+</button>
+</sc-for>
+</div>
+<div ref="{{ mapRef }}" style="position:absolute;top:110px;left:0;right:0;bottom:0;overflow-x:auto;overflow-y:hidden">
+<div style="position:relative;width:1880px;height:100%">
+<svg width="1880" height="280" style="position:absolute;left:0;top:0"><polyline points="{{ pathPts }}" fill="none" stroke="{{ pathColor }}" stroke-width="7" stroke-dasharray="2 14" stroke-linecap="round"></polyline></svg>
+<sc-for list="{{ nodes }}" as="n" hint-placeholder-count="10">
+<button onClick="{{ n.onClick }}" style="position:absolute;left:{{ n.left }};top:{{ n.top }};width:{{ n.size }};height:{{ n.size }};border-radius:50%;border:4px solid #fff;background:{{ n.bg }};box-shadow:0 5px 0 {{ n.sh }};color:#fff;font:700 20px Fredoka,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;animation:{{ n.anim }}" style-active="transform:translateY(3px)">{{ n.label }}</button>
+<div style="position:absolute;left:{{ n.starLeft }};top:{{ n.starTop }};width:70px;text-align:center;font-size:14px;letter-spacing:1px;color:#FFB800;text-shadow:0 1px 0 rgba(0,0,0,.2)">{{ n.stars }}</div>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{ worldLocked }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:110px;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(20,16,50,.35);backdrop-filter:blur(3px)">
+<div style="width:340px;padding:22px;border-radius:24px;background:var(--solid);text-align:center;box-shadow:0 10px 30px rgba(0,0,0,.25);animation:aaPop .3s cubic-bezier(.34,1.56,.64,1)">
+<div style="font-size:40px">🔒</div>
+<div style="font:700 22px Fredoka,sans-serif;margin-top:4px">{{ lockTitle }}</div>
+<div style="font:700 13px/1.45 Nunito,sans-serif;color:var(--ink2);margin-top:6px;text-wrap:pretty">{{ lockMsg }}</div>
+<button onClick="{{ goWorld0 }}" style="margin-top:14px;height:44px;padding:0 22px;border:none;border-radius:14px;background:#12A67A;color:#fff;font:700 17px Fredoka,sans-serif;box-shadow:0 4px 0 #0B7555;cursor:pointer" style-active="transform:translateY(3px);box-shadow:0 1px 0 #0B7555">Back to Forest</button>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isArchers }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:62px;left:18px;right:18px;bottom:16px;display:flex;gap:14px;animation:aaIn .22s ease-out">
+<div style="width:268px;flex:none;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:68px;gap:6px;overflow:hidden;padding:2px;align-content:start">
+<sc-for list="{{ roster }}" as="a" hint-placeholder-count="10">
+<button onClick="{{ a.onClick }}" style="position:relative;border:3px solid {{ a.border }};border-radius:16px;background:var(--solid);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--ink);padding:0">
+<div style="width:34px;height:34px;border-radius:50%;background:{{ a.color }};display:flex;align-items:center;justify-content:center;font-size:18px;filter:{{ a.filter }}">{{ a.icon }}</div>
+<div style="font:800 10.5px/1.1 Nunito,sans-serif;text-align:center">{{ a.short }}</div>
+<div style="position:absolute;top:3px;right:5px;font:800 9.5px Nunito,sans-serif;color:var(--ink2)">{{ a.badge }}</div>
+</button>
+</sc-for>
+</div>
+<div onClick="{{ spin }}" title="Tap to turn" style="width:200px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;cursor:pointer;padding-bottom:14px;position:relative">
+<div style="position:absolute;top:10px;font:800 11px Nunito,sans-serif;color:var(--ink2)">⟲ Tap to turn</div>
+<div style="transform:scaleX({{ facing }});transition:transform .3s cubic-bezier(.34,1.56,.64,1)">
+<div style="position:relative;width:110px;height:166px;animation:aaBreath 2.6s ease-in-out infinite;transform-origin:bottom center;filter:{{ viewFilter }}">
+<div style="position:absolute;left:36px;top:0;width:38px;height:38px;border-radius:50%;background:#FFD2A6"></div>
+<div style="position:absolute;left:34px;top:5px;width:42px;height:9px;border-radius:5px;background:{{ viewColor }}"></div>
+<div style="position:absolute;left:58px;top:16px;width:5px;height:5px;border-radius:50%;background:#2A2350"></div>
+<div style="position:absolute;left:27px;top:42px;width:56px;height:70px;border-radius:18px;background:{{ viewColor }};box-shadow:inset 0 -8px 0 rgba(0,0,0,.14)"></div>
+<div style="position:absolute;left:41px;top:57px;width:28px;height:28px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px">{{ view.icon }}</div>
+<div style="position:absolute;left:35px;top:108px;width:15px;height:52px;border-radius:7px;background:#3A2F5B"></div>
+<div style="position:absolute;left:60px;top:108px;width:15px;height:52px;border-radius:7px;background:#3A2F5B"></div>
+<div style="position:absolute;left:80px;top:16px;width:30px;height:116px;border:6px solid #9A6234;border-left:none;border-radius:0 70px 70px 0;box-sizing:border-box"></div>
+</div>
+</div>
+<div style="width:170px;height:28px;border-radius:50%;background:rgba(0,0,0,.16);margin-top:-12px"></div>
+<div style="display:flex;gap:8px;margin-top:10px">
+<sc-for list="{{ skinDots }}" as="sk" hint-placeholder-count="3">
+<button onClick="{{ sk.onClick }}" title="{{ sk.name }}" style="width:26px;height:26px;border-radius:50%;background:{{ sk.color }};border:3px solid {{ sk.ring }};cursor:pointer;padding:0;font-size:10px">{{ sk.lock }}</button>
+</sc-for>
+</div>
+</div>
+<div style="flex:1;min-width:0;border-radius:22px;background:var(--card);border:1.5px solid var(--line);padding:14px 16px;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;align-items:center;gap:8px"><div style="font:700 24px/1 Fredoka,sans-serif">{{ view.name }}</div><div style="padding:3px 8px;border-radius:8px;background:{{ view.color }};color:#1d1840;font:800 11px Nunito,sans-serif">{{ view.icon }} {{ view.el }}</div></div>
+<div style="display:flex;align-items:center;gap:4px;font:800 11px Nunito,sans-serif;color:var(--ink2)">Level {{ viewLevel }}/10<div style="display:flex;gap:3px;margin-left:6px"><sc-for list="{{ levelPips }}" as="p" hint-placeholder-count="10"><div style="width:9px;height:9px;border-radius:3px;background:{{ p.c }}"></div></sc-for></div></div>
+<sc-for list="{{ statBars }}" as="sb" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:8px"><div style="width:74px;font:800 12px Nunito,sans-serif">{{ sb.label }}</div><div style="flex:1;height:10px;border-radius:5px;background:var(--track);overflow:hidden"><div style="height:100%;width:{{ sb.w }};border-radius:5px;background:{{ sb.c }};transition:width .3s"></div></div><div style="width:28px;text-align:right;font:700 13px Fredoka,sans-serif">{{ sb.v }}</div></div>
+</sc-for>
+<div style="font:700 12px/1.4 Nunito,sans-serif;color:var(--ink2)"><b style="color:var(--ink)">Passive · </b>{{ view.passive }}</div>
+<div style="display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:14px;background:var(--solid)">
+<div style="width:38px;height:38px;flex:none;border-radius:12px;background:{{ view.color }};display:flex;align-items:center;justify-content:center;font-size:19px">{{ view.icon }}</div>
+<div style="flex:1;min-width:0"><div style="font:700 15px Fredoka,sans-serif">{{ view.ability }}</div><div style="font:700 11.5px/1.3 Nunito,sans-serif;color:var(--ink2)">{{ view.abilityDesc }}</div></div>
+<button onClick="{{ demoAbility }}" style="height:32px;padding:0 10px;border:none;border-radius:10px;background:var(--track);color:var(--ink);font:800 12px Nunito,sans-serif;cursor:pointer">▶ Demo</button>
+</div>
+<div style="flex:1"></div>
+<div style="display:flex;gap:10px;align-items:center">
+<button onClick="{{ archerPrimary.onClick }}" style="flex:1;height:46px;border:none;border-radius:15px;background:{{ archerPrimary.bg }};color:{{ archerPrimary.fg }};font:700 16px Fredoka,sans-serif;box-shadow:0 4px 0 {{ archerPrimary.sh }};cursor:pointer;white-space:nowrap" style-active="transform:translateY(3px)">{{ archerPrimary.label }}</button>
+<sc-if value="{{ showUpgrade }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ upgrade }}" style="flex:1;height:46px;border:none;border-radius:15px;background:#FFD23F;color:#2A2350;font:700 17px Fredoka,sans-serif;box-shadow:0 4px 0 #D4A514;cursor:pointer;white-space:nowrap" style-active="transform:translateY(3px);box-shadow:0 1px 0 #D4A514">Upgrade 🪙 {{ upgradeCost }}</button>
+</sc-if>
+</div>
+<sc-if value="{{ needMsg }}" hint-placeholder-val="{{ false }}"><div style="font:800 11.5px Nunito,sans-serif;color:#E5484D;text-align:center">{{ needMsg }}</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLoadout }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:62px;left:18px;right:18px;bottom:16px;display:flex;gap:14px;animation:aaIn .22s ease-out">
+<div style="width:246px;flex:none;border-radius:22px;background:{{ lvl.color }};box-shadow:0 5px 0 {{ lvl.shade }};color:#fff;padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+<div style="font:800 12px Nunito,sans-serif;opacity:.95">{{ lvl.kicker }}</div>
+<div style="font:700 30px/1 Fredoka,sans-serif;text-shadow:0 3px 0 rgba(0,0,0,.15)">{{ lvl.title }}</div>
+<div style="font:800 13px/1.35 Nunito,sans-serif">🎯 {{ lvl.goal }}</div>
+<sc-if value="{{ lvl.hasNew }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.95);color:#2A2350;font:700 12px/1.35 Nunito,sans-serif"><span style="padding:2px 6px;border-radius:6px;background:#E83E8C;color:#fff;font:700 11px Fredoka,sans-serif;margin-right:4px">New!</span>{{ lvl.newText }}</div>
+</sc-if>
+<sc-if value="{{ showDiff }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:6px"><sc-for list="{{ diffs }}" as="d" hint-placeholder-count="3"><button onClick="{{ d.onClick }}" style="flex:1;height:32px;border:none;border-radius:10px;background:{{ d.bg }};color:{{ d.fg }};font:700 13px Fredoka,sans-serif;cursor:pointer">{{ d.name }}</button></sc-for></div>
+</sc-if>
+<div style="font:800 12px Nunito,sans-serif;opacity:.95">{{ lvl.meta }}</div>
+<div style="flex:1"></div>
+<button onClick="{{ startMatch }}" style="height:58px;border:none;border-radius:18px;background:#FFD23F;color:#2A2350;font:700 26px Fredoka,sans-serif;box-shadow:0 5px 0 #D4A514;cursor:pointer" style-active="transform:translateY(4px);box-shadow:0 1px 0 #D4A514">START ▶</button>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:700 16px Fredoka,sans-serif">Arrows <span style="font:800 12px Nunito,sans-serif;color:var(--ink2)">pick 3 · limited ammo per match</span></div><div style="font:800 12px Nunito,sans-serif;color:var(--ink2)">{{ arrowPickCount }}/3</div></div>
+<div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px">
+<sc-for list="{{ arrowGrid }}" as="ar" hint-placeholder-count="10">
+<button onClick="{{ ar.onClick }}" style="height:56px;border:3px solid {{ ar.border }};border-radius:14px;background:{{ ar.bg }};color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;padding:0">
+<div style="font-size:18px;line-height:1">{{ ar.icon }}</div><div style="font:800 10.5px/1.1 Nunito,sans-serif">{{ ar.name }}</div><div style="font:800 9.5px Nunito,sans-serif;color:var(--ink2)">×{{ ar.ammo }}</div>
+</button>
+</sc-for>
+</div>
+<div style="display:flex;gap:14px;flex:1;min-height:0">
+<div style="flex:1.6;min-width:0;display:flex;flex-direction:column;gap:6px">
+<div style="font:700 16px Fredoka,sans-serif">Bow</div>
+<div style="display:flex;gap:7px;flex:1">
+<sc-for list="{{ bowList }}" as="bw" hint-placeholder-count="3">
+<button onClick="{{ bw.onClick }}" style="flex:1;min-width:0;border:3px solid {{ bw.border }};border-radius:14px;background:var(--solid);color:var(--ink);padding:6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;opacity:{{ bw.op }}">
+<div style="font-size:22px">{{ bw.icon }}</div><div style="font:700 13px/1.1 Fredoka,sans-serif;text-align:center">{{ bw.name }}</div><div style="font:800 9.5px/1.2 Nunito,sans-serif;color:var(--ink2);text-align:center">{{ bw.stat }}</div>
+</button>
+</sc-for>
+</div>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+<div style="font:700 16px Fredoka,sans-serif">Skin</div>
+<div style="display:flex;gap:7px;flex:1">
+<sc-for list="{{ skinList }}" as="sk" hint-placeholder-count="3">
+<button onClick="{{ sk.onClick }}" style="flex:1;min-width:0;border:3px solid {{ sk.ring }};border-radius:14px;background:var(--solid);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px;color:var(--ink)">
+<div style="width:30px;height:30px;border-radius:50%;background:{{ sk.color }};display:flex;align-items:center;justify-content:center;font-size:12px">{{ sk.lock }}</div><div style="font:800 10.5px/1.1 Nunito,sans-serif;text-align:center">{{ sk.name }}</div>
+</button>
+</sc-for>
+</div>
+</div>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMatch }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0">
+<canvas ref="{{ canvasRef }}" style="position:absolute;inset:0;width:844px;height:390px;touch-action:none;cursor:crosshair"></canvas>
+<div style="position:absolute;top:12px;left:12px;right:12px;display:flex;align-items:flex-start;gap:10px;pointer-events:none;zoom:{{ hudZoom }}">
+<button onClick="{{ pause }}" style="pointer-events:auto;width:44px;height:44px;flex:none;border:none;border-radius:14px;background:rgba(255,255,255,.92);box-shadow:0 4px 0 rgba(0,0,0,.18);font:700 18px Fredoka,sans-serif;color:#2A2350;cursor:pointer" style-active="transform:translateY(3px)">❚❚</button>
+<div style="width:220px;display:flex;align-items:center;gap:8px;padding:6px 10px 6px 6px;border-radius:16px;background:rgba(255,255,255,.9);box-shadow:0 4px 12px rgba(0,0,0,.12);color:#2A2350;outline:3px solid {{ p0ring }}">
+<div style="width:36px;height:36px;flex:none;border-radius:50%;background:{{ p0.color }};display:flex;align-items:center;justify-content:center;font-size:18px">{{ p0.icon }}</div>
+<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;font:700 13px Fredoka,sans-serif"><span>{{ p0name }}</span><span>{{ hp0 }}</span></div><div style="height:10px;border-radius:5px;background:rgba(42,35,80,.12);overflow:hidden;margin-top:3px"><div style="height:100%;width:{{ hp0w }};background:{{ hpc0 }};border-radius:5px;transition:width .35s cubic-bezier(.16,1,.3,1)"></div></div></div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px">
+<div style="width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.95);box-shadow:0 4px 0 rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font:700 23px Fredoka,sans-serif;color:{{ timerColor }}">{{ timer }}</div>
+<div style="padding:3px 10px;border-radius:10px;background:rgba(42,35,80,.78);color:#fff;font:800 12px Nunito,sans-serif;white-space:nowrap">🌬️ {{ windText }}</div>
+</div>
+<div style="width:220px;display:flex;align-items:center;gap:8px;padding:6px 6px 6px 10px;border-radius:16px;background:rgba(255,255,255,.9);box-shadow:0 4px 12px rgba(0,0,0,.12);color:#2A2350;outline:3px solid {{ p1ring }}">
+<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;font:700 13px Fredoka,sans-serif"><span>{{ hp1 }}</span><span>{{ p1name }}</span></div><div style="height:10px;border-radius:5px;background:rgba(42,35,80,.12);overflow:hidden;margin-top:3px;display:flex;justify-content:flex-end"><div style="height:100%;width:{{ hp1w }};background:{{ hpc1 }};border-radius:5px;transition:width .35s cubic-bezier(.16,1,.3,1)"></div></div></div>
+<div style="width:36px;height:36px;flex:none;border-radius:50%;background:{{ p1.color }};display:flex;align-items:center;justify-content:center;font-size:18px">{{ p1.icon }}</div>
+</div>
+</div>
+<div style="position:absolute;left:14px;right:14px;bottom:12px;display:flex;flex-direction:{{ hudDir }};align-items:flex-end;justify-content:space-between;gap:10px;pointer-events:none;zoom:{{ hudZoom }}">
+<div style="display:flex;gap:7px;pointer-events:auto">
+<sc-for list="{{ slots }}" as="sl" hint-placeholder-count="3">
+<button onClick="{{ sl.onClick }}" style="width:60px;height:54px;border:3px solid {{ sl.border }};border-radius:14px;background:rgba(255,255,255,.92);color:#2A2350;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:0;opacity:{{ sl.op }}">
+<div style="font-size:17px;line-height:1">{{ sl.icon }}</div><div style="font:800 10px Nunito,sans-serif">{{ sl.name }} ×{{ sl.ammo }}</div>
+</button>
+</sc-for>
+</div>
+<div style="padding:7px 14px;border-radius:14px;background:rgba(42,35,80,.8);color:#fff;font:800 13px Nunito,sans-serif;margin-bottom:6px">{{ turnLabel }}</div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:4px;pointer-events:auto">
+<button onClick="{{ toggleAbility }}" style="width:70px;height:70px;border-radius:50%;border:4px solid {{ abRing }};background:{{ abBg }};box-shadow:0 5px 0 rgba(0,0,0,.2);font-size:28px;cursor:pointer;animation:{{ abAnim }};filter:{{ abFilter }}">{{ abIcon }}</button>
+<div style="display:flex;gap:3px"><sc-for list="{{ abPips }}" as="p" hint-placeholder-count="3"><div style="width:14px;height:6px;border-radius:3px;background:{{ p.c }}"></div></sc-for></div>
+<div style="padding:1px 7px;border-radius:7px;background:rgba(42,35,80,.78);color:#fff;font:800 10.5px Nunito,sans-serif;white-space:nowrap">{{ abName }}</div>
+</div>
+</div>
+<sc-if value="{{ isPause }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(20,16,50,.55);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center">
+<div style="width:300px;padding:20px;border-radius:26px;background:var(--solid);color:var(--ink);display:flex;flex-direction:column;gap:10px;animation:aaPop .28s cubic-bezier(.34,1.56,.64,1)">
+<div style="font:700 28px Fredoka,sans-serif;text-align:center">Paused</div>
+<button onClick="{{ resume }}" style="height:50px;border:none;border-radius:16px;background:#12A67A;color:#fff;font:700 20px Fredoka,sans-serif;box-shadow:0 4px 0 #0B7555;cursor:pointer" style-active="transform:translateY(3px)">Resume</button>
+<div style="display:flex;gap:10px">
+<button onClick="{{ restart }}" style="flex:1;height:44px;border:none;border-radius:14px;background:#1C9AD6;color:#fff;font:700 16px Fredoka,sans-serif;box-shadow:0 4px 0 #13709E;cursor:pointer" style-active="transform:translateY(3px)">Restart</button>
+<button onClick="{{ quit }}" style="flex:1;height:44px;border:none;border-radius:14px;background:#E5484D;color:#fff;font:700 16px Fredoka,sans-serif;box-shadow:0 4px 0 #B02D32;cursor:pointer" style-active="transform:translateY(3px)">Quit</button>
+</div>
+<button onClick="{{ toggleSound }}" style="height:36px;border:none;border-radius:12px;background:var(--track);color:var(--ink);font:800 13px Nunito,sans-serif;cursor:pointer">{{ soundLabel }}</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ isPass }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ ready }}" style="position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,#FF7FB6,#E83E8C 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;cursor:pointer">
+<div style="font-size:52px;animation:aaFloat 2s ease-in-out infinite">📱</div>
+<div style="font:800 14px Nunito,sans-serif;opacity:.95">Pass the phone</div>
+<div style="font:700 44px/1 Fredoka,sans-serif;text-shadow:0 4px 0 rgba(0,0,0,.15)">{{ passTo }}, your turn</div>
+<div style="font:700 13px Nunito,sans-serif;opacity:.95">The last aim is hidden. No peeking.</div>
+<button onClick="{{ ready }}" style="margin-top:10px;height:54px;padding:0 34px;border:none;border-radius:18px;background:#fff;color:#C92A73;font:700 22px Fredoka,sans-serif;box-shadow:0 5px 0 rgba(0,0,0,.18);cursor:pointer" style-active="transform:translateY(4px)">I'm ready</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isResult }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:{{ resBg }};display:flex;align-items:center;justify-content:center;overflow:hidden">
+<sc-for list="{{ confetti }}" as="cf" hint-placeholder-count="0"><div style="position:absolute;top:-20px;left:{{ cf.left }};width:9px;height:14px;border-radius:3px;background:{{ cf.c }};animation:aaConfetti {{ cf.dur }} linear {{ cf.delay }} infinite"></div></sc-for>
+<div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;color:#fff;animation:aaIn .3s ease-out">
+<div style="font:700 58px/1 Fredoka,sans-serif;text-shadow:0 5px 0 rgba(0,0,0,.18)">{{ res.title }}</div>
+<div style="font:800 14px Nunito,sans-serif;opacity:.95">{{ res.sub }}</div>
+<sc-if value="{{ res.showStars }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;gap:10px;align-items:flex-end">
+<sc-for list="{{ resStars }}" as="st" hint-placeholder-count="3"><div style="font-size:{{ st.size }};line-height:1;color:{{ st.c }};text-shadow:0 4px 0 rgba(0,0,0,.18);animation:aaPop .45s cubic-bezier(.34,1.56,.64,1) {{ st.delay }} both">★</div></sc-for>
+</div>
+</sc-if>
+<div style="display:flex;gap:10px">
+<sc-for list="{{ resStats }}" as="rs" hint-placeholder-count="3"><div style="min-width:88px;padding:8px 12px;border-radius:14px;background:rgba(255,255,255,.18);text-align:center"><div style="font:700 22px/1 Fredoka,sans-serif">{{ rs.v }}</div><div style="font:800 11px Nunito,sans-serif;opacity:.95;margin-top:2px">{{ rs.k }}</div></div></sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:8px;padding:6px 16px;border-radius:16px;background:#fff;color:#2A2350;font:700 22px Fredoka,sans-serif;animation:aaPop .4s cubic-bezier(.34,1.56,.64,1) 1s both">🪙 +{{ res.coins }}</div>
+<div style="display:flex;gap:10px;margin-top:4px">
+<button onClick="{{ goHome }}" style="height:48px;padding:0 20px;border:none;border-radius:15px;background:rgba(255,255,255,.95);color:#2A2350;font:700 17px Fredoka,sans-serif;box-shadow:0 4px 0 rgba(0,0,0,.18);cursor:pointer" style-active="transform:translateY(3px)">Home</button>
+<button onClick="{{ restart }}" style="height:48px;padding:0 20px;border:none;border-radius:15px;background:#1C9AD6;color:#fff;font:700 17px Fredoka,sans-serif;box-shadow:0 4px 0 #13709E;cursor:pointer" style-active="transform:translateY(3px)">{{ res.retry }}</button>
+<sc-if value="{{ res.showNext }}" hint-placeholder-val="{{ false }}"><button onClick="{{ nextLevel }}" style="height:48px;padding:0 24px;border:none;border-radius:15px;background:#FFD23F;color:#2A2350;font:700 17px Fredoka,sans-serif;box-shadow:0 4px 0 #D4A514;cursor:pointer" style-active="transform:translateY(3px)">Next level ▶</button></sc-if>
+</div>
+<sc-if value="{{ res.tip }}" hint-placeholder-val="{{ false }}"><div style="font:700 12px Nunito,sans-serif;opacity:.95;max-width:360px;text-align:center">💡 {{ res.tip }}</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isChests }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:64px;left:18px;right:18px;bottom:16px;display:flex;flex-direction:column;gap:10px;animation:aaIn .22s ease-out">
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;flex:1">
+<sc-for list="{{ chests }}" as="ch" hint-placeholder-count="3">
+<div style="border-radius:22px;background:var(--card);border:1.5px solid var(--line);padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px">
+<div style="position:relative;width:112px;height:86px;margin-top:4px;animation:{{ ch.anim }}">
+<div style="position:absolute;left:0;right:0;top:0;height:36px;border-radius:16px 16px 5px 5px;background:{{ ch.c1 }};box-shadow:inset 0 -5px 0 rgba(0,0,0,.14)"></div>
+<div style="position:absolute;left:0;right:0;top:32px;height:54px;border-radius:5px 5px 14px 14px;background:{{ ch.c2 }};box-shadow:0 5px 0 rgba(0,0,0,.15)"></div>
+<div style="position:absolute;left:44px;top:24px;width:24px;height:28px;border-radius:7px;background:#FFE58A;border:3px solid #D4A514;box-sizing:border-box"></div>
+</div>
+<div style="font:700 19px Fredoka,sans-serif">{{ ch.name }}</div>
+<div style="font:700 11.5px/1.4 Nunito,sans-serif;color:var(--ink2);text-align:center;text-wrap:pretty">{{ ch.contents }}</div>
+<div style="flex:1"></div>
+<button onClick="{{ ch.onClick }}" style="width:100%;height:44px;border:none;border-radius:14px;background:{{ ch.bg }};color:{{ ch.fg }};font:700 16px Fredoka,sans-serif;box-shadow:0 4px 0 {{ ch.sh }};cursor:pointer" style-active="transform:translateY(3px)">{{ ch.cta }}</button>
+</div>
+</sc-for>
+</div>
+<div style="font:800 12px Nunito,sans-serif;color:var(--ink2);text-align:center">Chest contents are fixed and earned by playing. Nothing is ever for sale.</div>
+</div>
+<sc-if value="{{ isChestOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;background:rgba(20,16,50,.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:6">
+<div style="display:flex;flex-direction:column;align-items:center;gap:14px;color:#fff">
+<div style="font:700 34px Fredoka,sans-serif;text-shadow:0 4px 0 rgba(0,0,0,.2)">Wooden Chest opened!</div>
+<div style="display:flex;gap:12px">
+<sc-for list="{{ chestLoot }}" as="lt" hint-placeholder-count="3"><div style="width:130px;padding:14px 8px;border-radius:20px;background:var(--solid);color:var(--ink);text-align:center;animation:aaPop .45s cubic-bezier(.34,1.56,.64,1) {{ lt.delay }} both"><div style="font-size:34px">{{ lt.icon }}</div><div style="font:700 17px Fredoka,sans-serif;margin-top:4px">{{ lt.name }}</div></div></sc-for>
+</div>
+<button onClick="{{ closeOverlay }}" style="height:50px;padding:0 34px;border:none;border-radius:16px;background:#FFD23F;color:#2A2350;font:700 20px Fredoka,sans-serif;box-shadow:0 4px 0 #D4A514;cursor:pointer" style-active="transform:translateY(3px)">Collect</button>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isShop }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:64px;left:18px;right:18px;bottom:16px;display:flex;flex-direction:column;gap:10px;animation:aaIn .22s ease-out">
+<div style="padding:9px 14px;border-radius:14px;background:#12A67A;color:#fff;font:800 13px Nunito,sans-serif">🪙 Coins only. Every coin is earned by playing. No real money, ever.</div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:1fr;gap:10px;flex:1;min-height:0">
+<sc-for list="{{ shopItems }}" as="it" hint-placeholder-count="8">
+<div style="border-radius:18px;background:var(--card);border:1.5px solid var(--line);padding:8px 10px;display:flex;align-items:center;gap:10px">
+<div style="width:44px;height:44px;flex:none;border-radius:14px;background:var(--solid);display:flex;align-items:center;justify-content:center;font-size:23px">{{ it.icon }}</div>
+<div style="flex:1;min-width:0"><div style="font:700 14px/1.1 Fredoka,sans-serif">{{ it.name }}</div><div style="font:800 10.5px Nunito,sans-serif;color:var(--ink2)">{{ it.cat }}</div>
+<button onClick="{{ it.onClick }}" style="margin-top:4px;height:28px;padding:0 10px;border:none;border-radius:9px;background:{{ it.bg }};color:{{ it.fg }};font:700 13px Fredoka,sans-serif;box-shadow:0 3px 0 {{ it.sh }};cursor:pointer" style-active="transform:translateY(2px)">{{ it.cta }}</button></div>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isBadges }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:62px;left:18px;right:18px;bottom:14px;display:flex;gap:14px;animation:aaIn .22s ease-out">
+<div style="width:170px;flex:none;border-radius:22px;background:var(--card);border:1.5px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px">
+<div style="font:700 16px Fredoka,sans-serif">Pinned</div>
+<div style="font:700 11px/1.35 Nunito,sans-serif;color:var(--ink2)">Shown on your profile. Tap an earned badge to pin or unpin it.</div>
+<sc-for list="{{ pinnedBadges }}" as="b" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:8px;padding:6px;border-radius:12px;background:var(--solid)"><div style="width:32px;height:32px;border-radius:50%;background:{{ b.tierColor }};display:flex;align-items:center;justify-content:center;font-size:16px">{{ b.icon }}</div><div style="font:800 12px Nunito,sans-serif">{{ b.name }}</div></div>
+</sc-for>
+<div style="flex:1"></div>
+<div style="font:700 22px Fredoka,sans-serif">{{ badgeEarned }}<span style="font:800 12px Nunito,sans-serif;color:var(--ink2)"> earned</span></div>
+</div>
+<div style="flex:1;min-width:0;overflow-y:auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:98px;gap:8px;padding:2px">
+<sc-for list="{{ badges }}" as="b" hint-placeholder-count="12">
+<button onClick="{{ b.onClick }}" style="border:3px solid {{ b.ring }};border-radius:16px;background:var(--solid);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:4px;cursor:pointer">
+<div style="width:38px;height:38px;border-radius:50%;background:{{ b.tierColor }};display:flex;align-items:center;justify-content:center;font-size:19px;filter:{{ b.filter }};box-shadow:0 3px 0 rgba(0,0,0,.15)">{{ b.icon }}</div>
+<div style="font:800 10.5px/1.1 Nunito,sans-serif;text-align:center">{{ b.name }}</div>
+<div style="font:800 9.5px Nunito,sans-serif;color:var(--ink2)">{{ b.meta }}</div>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMissions }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:62px;left:18px;right:18px;bottom:16px;display:flex;gap:14px;animation:aaIn .22s ease-out">
+<div style="flex:1.5;min-width:0;display:flex;flex-direction:column;gap:9px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:700 17px Fredoka,sans-serif">Today</div><div style="font:800 12px Nunito,sans-serif;color:var(--ink2)">New missions in {{ resetIn }}</div></div>
+<sc-for list="{{ missions }}" as="ms" hint-placeholder-count="3">
+<div style="flex:1;border-radius:18px;background:var(--card);border:1.5px solid var(--line);padding:10px 14px;display:flex;align-items:center;gap:12px">
+<div style="width:44px;height:44px;flex:none;border-radius:14px;background:var(--solid);display:flex;align-items:center;justify-content:center;font-size:22px">{{ ms.icon }}</div>
+<div style="flex:1;min-width:0"><div style="font:700 15px Fredoka,sans-serif">{{ ms.name }}</div><div style="display:flex;align-items:center;gap:8px;margin-top:5px"><div style="flex:1;height:9px;border-radius:5px;background:var(--track);overflow:hidden"><div style="height:100%;width:{{ ms.w }};background:#12A67A;border-radius:5px"></div></div><div style="font:800 11px Nunito,sans-serif;color:var(--ink2)">{{ ms.prog }}</div></div></div>
+<button onClick="{{ ms.onClick }}" style="width:104px;height:40px;flex:none;border:none;border-radius:13px;background:{{ ms.bg }};color:{{ ms.fg }};font:700 14px Fredoka,sans-serif;box-shadow:0 4px 0 {{ ms.sh }};cursor:pointer" style-active="transform:translateY(3px)">{{ ms.cta }}</button>
+</div>
+</sc-for>
+</div>
+<div style="flex:1;min-width:0;border-radius:22px;background:#6D4AFF;box-shadow:0 5px 0 #4A2BD1;color:#fff;padding:16px;display:flex;flex-direction:column;gap:8px">
+<div style="font:800 12px Nunito,sans-serif;opacity:.95">WEEKLY CHALLENGE · 3 DAYS LEFT</div>
+<div style="font:700 24px/1.1 Fredoka,sans-serif">Clear 10 campaign levels</div>
+<div style="display:flex;align-items:center;gap:8px"><div style="flex:1;height:12px;border-radius:6px;background:rgba(255,255,255,.25);overflow:hidden"><div style="height:100%;width:70%;background:#FFD23F;border-radius:6px"></div></div><div style="font:700 15px Fredoka,sans-serif">7/10</div></div>
+<div style="flex:1"></div>
+<div style="display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:rgba(255,255,255,.16)"><div style="font-size:30px">🎁</div><div style="font:800 12.5px/1.35 Nunito,sans-serif">Reward: Silver Chest + 300 🪙 + Frost trail</div></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDaily }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:62px;left:18px;right:18px;bottom:16px;display:flex;gap:14px;animation:aaIn .22s ease-out">
+<div style="flex:1.3;min-width:0;border-radius:22px;background:#1C9AD6;box-shadow:0 5px 0 #13709E;color:#fff;padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+<div style="font:800 12px Nunito,sans-serif;opacity:.95">{{ dailyDate }} · SEED #{{ dailySeed }}</div>
+<div style="font:700 32px/1 Fredoka,sans-serif;text-shadow:0 3px 0 rgba(0,0,0,.15)">Windy Canyon</div>
+<div style="font:800 13px/1.4 Nunito,sans-serif">Same level for every player today. Works offline.</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ dailyMods }}" as="dm" hint-placeholder-count="3"><div style="padding:4px 10px;border-radius:10px;background:rgba(255,255,255,.2);font:800 12px Nunito,sans-serif">{{ dm }}</div></sc-for></div>
+<div style="flex:1"></div>
+<button onClick="{{ playDaily }}" style="height:56px;border:none;border-radius:18px;background:#FFD23F;color:#2A2350;font:700 24px Fredoka,sans-serif;box-shadow:0 5px 0 #D4A514;cursor:pointer" style-active="transform:translateY(4px);box-shadow:0 1px 0 #D4A514">Play today's level</button>
+</div>
+<div style="flex:1;min-width:0;border-radius:22px;background:var(--card);border:1.5px solid var(--line);padding:14px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;justify-content:space-between;align-items:baseline"><div style="font:700 18px Fredoka,sans-serif">🔥 5-day streak</div><div style="font:800 12px Nunito,sans-serif;color:var(--ink2)">Best 12</div></div>
+<div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px">
+<sc-for list="{{ streak }}" as="sd" hint-placeholder-count="7"><div style="height:62px;border-radius:12px;background:{{ sd.bg }};color:{{ sd.fg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2.5px solid {{ sd.ring }}"><div style="font:800 10px Nunito,sans-serif">{{ sd.d }}</div><div style="font-size:15px">{{ sd.icon }}</div></div></sc-for>
+</div>
+<div style="font:700 12px/1.4 Nunito,sans-serif;color:var(--ink2)">Day 7 reward: Gold Chest. Missing a day resets the streak. There is no way to pay to restore it.</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStats }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:62px;left:18px;right:18px;bottom:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-template-rows:1fr 1fr;gap:12px;animation:aaIn .22s ease-out">
+<sc-for list="{{ stats }}" as="st" hint-placeholder-count="8">
+<div style="border-radius:20px;background:var(--card);border:1.5px solid var(--line);padding:14px;display:flex;flex-direction:column;justify-content:space-between">
+<div style="font-size:24px">{{ st.icon }}</div>
+<div><div style="font:700 30px/1 Fredoka,sans-serif">{{ st.v }}</div><div style="font:800 12px Nunito,sans-serif;color:var(--ink2);margin-top:4px">{{ st.k }}</div></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:62px;left:18px;right:18px;bottom:12px;display:flex;flex-direction:column;gap:8px;animation:aaIn .22s ease-out">
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+<div style="border-radius:20px;background:var(--card);border:1.5px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+<div style="font:700 16px Fredoka,sans-serif">Sound</div>
+<label style="font:800 12.5px Nunito,sans-serif">Music · {{ set.music }}<input type="range" min="0" max="100" value="{{ set.music }}" onChange="{{ setMusic }}" style="width:100%;accent-color:#6D4AFF;margin:4px 0 0"></label>
+<label style="font:800 12.5px Nunito,sans-serif">Sound effects · {{ set.sfx }}<input type="range" min="0" max="100" value="{{ set.sfx }}" onChange="{{ setSfx }}" style="width:100%;accent-color:#6D4AFF;margin:4px 0 0"></label>
+<sc-for list="{{ togglesA }}" as="tg" hint-placeholder-count="1">
+<button onClick="{{ tg.toggle }}" style="display:flex;align-items:center;gap:10px;background:none;border:none;padding:4px 0;cursor:pointer;text-align:left;color:var(--ink)"><div style="flex:1;min-width:0"><div style="font:800 13px Nunito,sans-serif">{{ tg.label }}</div><div style="font:700 10.5px Nunito,sans-serif;color:var(--ink2)">{{ tg.desc }}</div></div><div style="width:44px;height:26px;flex:none;border-radius:13px;background:{{ tg.track }};position:relative;transition:background .2s"><div style="position:absolute;top:3px;left:{{ tg.knob }};width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:left .22s cubic-bezier(.34,1.56,.64,1)"></div></div></button>
+</sc-for>
+<label style="font:800 12.5px Nunito,sans-serif">Aim sensitivity · {{ set.sens }}<input type="range" min="0" max="100" value="{{ set.sens }}" onChange="{{ setSens }}" style="width:100%;accent-color:#6D4AFF;margin:4px 0 0"></label>
+</div>
+<div style="border-radius:20px;background:var(--card);border:1.5px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+<div style="font:700 16px Fredoka,sans-serif">Display</div>
+<div style="display:flex;gap:6px;padding:4px;border-radius:14px;background:var(--track)">
+<button onClick="{{ setLight }}" style="flex:1;height:32px;border:none;border-radius:10px;background:{{ lightBg }};color:var(--ink);font:700 14px Fredoka,sans-serif;cursor:pointer">☀️ Light</button>
+<button onClick="{{ setDark }}" style="flex:1;height:32px;border:none;border-radius:10px;background:{{ darkBg }};color:var(--ink);font:700 14px Fredoka,sans-serif;cursor:pointer">🌙 Dark</button>
+</div>
+<sc-for list="{{ togglesB }}" as="tg" hint-placeholder-count="2">
+<button onClick="{{ tg.toggle }}" style="display:flex;align-items:center;gap:10px;background:none;border:none;padding:4px 0;cursor:pointer;text-align:left;color:var(--ink)"><div style="flex:1;min-width:0"><div style="font:800 13px Nunito,sans-serif">{{ tg.label }}</div><div style="font:700 10.5px Nunito,sans-serif;color:var(--ink2)">{{ tg.desc }}</div></div><div style="width:44px;height:26px;flex:none;border-radius:13px;background:{{ tg.track }};position:relative;transition:background .2s"><div style="position:absolute;top:3px;left:{{ tg.knob }};width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:left .22s cubic-bezier(.34,1.56,.64,1)"></div></div></button>
+</sc-for>
+<label style="font:800 12.5px Nunito,sans-serif;display:flex;align-items:center;gap:8px">Language<select value="{{ set.lang }}" onChange="{{ setLang }}" style="flex:1;height:32px;border-radius:10px;border:1.5px solid var(--line);background:var(--solid);color:var(--ink);font:700 13px Nunito,sans-serif;padding:0 6px"><option>English</option><option>हिन्दी</option><option>Español</option><option>Português</option><option>Français</option></select></label>
+</div>
+<div style="border-radius:20px;background:var(--card);border:1.5px solid var(--line);padding:12px 14px;display:flex;flex-direction:column;gap:6px">
+<div style="font:700 16px Fredoka,sans-serif">Controls & access</div>
+<sc-for list="{{ togglesC }}" as="tg" hint-placeholder-count="3">
+<button onClick="{{ tg.toggle }}" style="display:flex;align-items:center;gap:10px;background:none;border:none;padding:4px 0;cursor:pointer;text-align:left;color:var(--ink)"><div style="flex:1;min-width:0"><div style="font:800 13px Nunito,sans-serif">{{ tg.label }}</div><div style="font:700 10.5px Nunito,sans-serif;color:var(--ink2)">{{ tg.desc }}</div></div><div style="width:44px;height:26px;flex:none;border-radius:13px;background:{{ tg.track }};position:relative;transition:background .2s"><div style="position:absolute;top:3px;left:{{ tg.knob }};width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:left .22s cubic-bezier(.34,1.56,.64,1)"></div></div></button>
+</sc-for>
+<div style="flex:1"></div>
+<button onClick="{{ goCredits }}" style="height:40px;border:none;border-radius:13px;background:#6D4AFF;color:#fff;font:700 15px Fredoka,sans-serif;box-shadow:0 4px 0 #4A2BD1;cursor:pointer" style-active="transform:translateY(3px);box-shadow:0 1px 0 #4A2BD1">Credits</button>
+</div>
+</div>
+<div style="text-align:center;font:800 13px Nunito,sans-serif;color:var(--ink)">In loving memory of Maa ❤️</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCredits }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:58px;left:18px;right:18px;bottom:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center;animation:aaIn .22s ease-out">
+<div style="width:64px;height:64px;border-radius:20px;background:#FFD23F;box-shadow:0 5px 0 #D4A514;display:flex;align-items:center;justify-content:center;font-size:34px">🏹</div>
+<div style="font:700 34px Fredoka,sans-serif;margin-top:6px">Archer Arcade</div>
+<div style="font:800 13px Nunito,sans-serif;color:var(--ink2)">A game by NaveenCodes by Maa Labs™</div>
+<div style="font:800 13px Nunito,sans-serif;color:var(--ink2)">Design & development · Naveen Goyal</div>
+<div style="font:800 12px Nunito,sans-serif;color:var(--ink2);margin-top:4px">Free forever · No ads · No purchases · No tracking · Saved on your phone</div>
+<div style="margin-top:14px;padding:12px 26px;border-radius:20px;background:var(--card);border:1.5px solid var(--line);font:700 24px Fredoka,sans-serif">In loving memory of Maa ❤️</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:70px;left:0;right:0;display:flex;justify-content:center;pointer-events:none;z-index:10"><div style="padding:9px 16px;border-radius:14px;background:#2A2350;color:#fff;font:800 13px Nunito,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25);animation:aaPop .25s cubic-bezier(.34,1.56,.64,1)">{{ toast }}</div></div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;splash&quot;,&quot;home&quot;,&quot;modes&quot;,&quot;map&quot;,&quot;archers&quot;,&quot;loadout&quot;,&quot;match&quot;,&quot;result&quot;,&quot;chests&quot;,&quot;shop&quot;,&quot;badges&quot;,&quot;missions&quot;,&quot;daily&quot;,&quot;stats&quot;,&quot;settings&quot;,&quot;credits&quot;],&quot;default&quot;:&quot;splash&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;variant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;victory&quot;,&quot;defeat&quot;,&quot;locked&quot;,&quot;worldLocked&quot;,&quot;missionsDone&quot;,&quot;pvp&quot;,&quot;leftHanded&quot;,&quot;timesUp&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;overlay&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;pause&quot;,&quot;pass&quot;,&quot;chestOpen&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;embedded&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  static ARCHERS = [
+    {id:'ranger',name:'Ranger',short:'Ranger',icon:'🏹',color:'#2ED3A0',el:'Balanced',hp:100,draw:70,dmg:60,ability:'Triple Shot',abilityDesc:'Fires 3 arrows in a spread.',passive:'Steady hand: slightly longer aim preview.',cost:0},
+    {id:'fire',name:'Fire Archer',short:'Fire',icon:'🔥',color:'#FF8A3D',el:'Fire',hp:95,draw:65,dmg:72,ability:'Meteor Arrow',abilityDesc:'A falling meteor that bursts on impact.',passive:'Hits burn for 6 damage over 2 turns.',cost:800},
+    {id:'electric',name:'Electric Archer',short:'Electric',icon:'⚡',color:'#FFD23F',el:'Electric',hp:90,draw:80,dmg:64,ability:'Storm Bolt',abilityDesc:'A bolt that ignores the wind.',passive:'Chain lightning jumps to nearby targets.',cost:1200},
+    {id:'bomb',name:'Bomb Archer',short:'Bomb',icon:'💣',color:'#FF5A6E',el:'Explosive',hp:105,draw:55,dmg:78,ability:'Cluster Bomb',abilityDesc:'Splits into 4 bomblets on impact.',passive:'Arrows explode on impact and break cover.',cost:1500},
+    {id:'blast',name:'Blast Archer',short:'Blast',icon:'💥',color:'#FF7FB6',el:'Force',hp:100,draw:60,dmg:66,ability:'Shockwave',abilityDesc:'Pushes the enemy back hard.',passive:'Knockback can push enemies off platforms.',cost:1800},
+    {id:'ice',name:'Ice Archer',short:'Ice',icon:'❄️',color:'#7FD6F7',el:'Frost',hp:100,draw:68,dmg:58,ability:'Frost Wall',abilityDesc:'Raises an ice shield in front of you.',passive:'Hits shorten the enemy\u2019s next turn timer.',cost:2000},
+    {id:'poison',name:'Poison Archer',short:'Poison',icon:'🧪',color:'#9BE15D',el:'Poison',hp:95,draw:70,dmg:56,ability:'Toxic Cloud',abilityDesc:'Leaves a cloud that poisons for 3 turns.',passive:'Poison stacks up to 3 times.',cost:2400},
+    {id:'wind',name:'Wind Archer',short:'Wind',icon:'🌪️',color:'#6FE3CF',el:'Wind',hp:92,draw:85,dmg:55,ability:'Gale',abilityDesc:'You choose the wind for one turn.',passive:'Wind affects your arrows 30% less.',cost:2800},
+    {id:'shadow',name:'Shadow Archer',short:'Shadow',icon:'🌑',color:'#9D86FF',el:'Shadow',hp:88,draw:78,dmg:70,ability:'Blink',abilityDesc:'Teleport to a new spot before you shoot.',passive:'Your arrow trail is invisible.',cost:3200},
+    {id:'light',name:'Light Archer',short:'Light',icon:'☀️',color:'#FFC46B',el:'Light',hp:98,draw:66,dmg:60,ability:'Sun Beam',abilityDesc:'A straight beam with no arc.',passive:'Heals you 5 HP on every hit.',cost:3600}
+  ];
+  static WORLDS = [
+    {name:'Forest',icon:'🌲',color:'#12A67A',shade:'#0B7555',boss:'Old Barkjaw'},
+    {name:'Desert',icon:'🏜️',color:'#F0641E',shade:'#B8460F',boss:'Sultan Sandcoil'},
+    {name:'Snow Peaks',icon:'🏔️',color:'#1C9AD6',shade:'#13709E',boss:'Queen Rime'},
+    {name:'Volcano',icon:'🌋',color:'#E5484D',shade:'#B02D32',boss:'Magmaw'},
+    {name:'Sky Castle',icon:'🏰',color:'#6D4AFF',shade:'#4A2BD1',boss:'The Cloud Warden'}
+  ];
+  static ARROWS = [
+    {id:'normal',name:'Normal',icon:'➵',ammo:'∞'},{id:'heavy',name:'Heavy',icon:'🪨',ammo:5},{id:'split',name:'Split',icon:'🔱',ammo:4},
+    {id:'pierce',name:'Piercing',icon:'📌',ammo:3},{id:'homing',name:'Homing',icon:'🧲',ammo:2},{id:'bounce',name:'Bouncing',icon:'🔁',ammo:4},
+    {id:'grapple',name:'Grapple',icon:'🪝',ammo:2},{id:'breaker',name:'Shield-break',icon:'🛡️',ammo:3},{id:'explosive',name:'Explosive',icon:'💣',ammo:2},{id:'healing',name:'Healing',icon:'💚',ammo:2}
+  ];
+  static GOALS = ['Defeat the opponent','Hit 3 targets','Hit the moving targets','Protect your ally','Survive 3 waves','One-arrow challenge','Trick shot: bounce first'];
+  static NEWS = {1:'Wind changes every turn. Watch the arrow up top.',3:'Walls block low shots. Arc over them.',6:'Breakable crates. Shoot them to open a path.',9:'Moving platforms. Time your shot.',12:'Bounce pads send arrows flying.',15:'Portals. What goes in comes out.',18:'Explosive barrels. Big boom, big damage.'};
+  static BADGES = [
+    ['sharp','Sharpshooter','🎯','gold','100 headshots'],['firestarter','Firestarter','🔥','silver','34/50 burns'],['untouch','Untouchable','🛡️','bronze','Win without damage'],
+    ['wind','Wind Whisperer','🌬️','silver','14/20 strong-wind hits'],['boss','Boss Slayer','👑','bronze','1/5 bosses'],['collector','Collector','🏹',null,'3/10 archers'],
+    ['long','Long Shot','📏','gold','Shot over 400 m'],['combo','Combo King','✨','silver','3 hits in a row'],['daily','Early Bird','📅','bronze','5/7 day streak'],
+    ['surv','Last Standing','🌊',null,'Wave 14/20'],['trick','Trick Shooter','🌀','bronze','8/25 bounce hits'],['chest','Treasure Hunter','🎁','bronze','9/25 chests'],
+    ['ice','Ice Cold','❄️',null,'0/30 freezes'],['volt','Live Wire','⚡','bronze','12/40 chains'],['pals','Couch Rivals','👥','silver','18/25 local duels'],
+    ['heal','Medic','☀️',null,'0/500 HP healed'],['blink','Now You See Me','🌑',null,'0/50 blinks'],['stars','Star Collector','⭐','bronze','16/100 stars']
+  ];
+  static TIER = {gold:'#FFC928',silver:'#C9D3E3',bronze:'#E09A5F'};
+  static K = {GY:316,POS:[120,724],G:520,V:820,WK:22,WALL:{x:404,w:36,top:222}};
+  static LIGHT = {bg:'#BFE6FF',bg2:'#FFF0DA',card:'rgba(255,255,255,.72)',solid:'#FFFFFF',line:'rgba(255,255,255,.95)',ink:'#2A2350',ink2:'#5F5985',track:'rgba(42,35,80,.12)',sh:'rgba(42,35,80,.18)',hill:'#8BD346'};
+  static DARK = {bg:'#1E1A45',bg2:'#3A2766',card:'rgba(255,255,255,.08)',solid:'#2E2860',line:'rgba(255,255,255,.14)',ink:'#FFFFFF',ink2:'#C4BEEA',track:'rgba(255,255,255,.14)',sh:'rgba(0,0,0,.35)',hill:'#2F7A4C'};
+
+  state = this.initState();
+  timers = [];
+
+  initState() {
+    const p = this.props || {};
+    let sv = {};
+    if (!p.embedded) { try { sv = JSON.parse(localStorage.getItem('archerArcade.save.v1') || '{}'); } catch (e) {} }
+    const s = {
+      screen: p.screen || 'splash', stack: [], theme: p.theme || sv.theme || 'light',
+      coins: sv.coins ?? 1860, selected: sv.selected || 'ranger', archerView: sv.selected || 'ranger',
+      owned: sv.owned || ['ranger','fire','electric'], levels: sv.levels || {ranger:4,fire:2,electric:1},
+      progress: sv.progress ?? 6, stars: sv.stars || [3,3,2,3,1,2],
+      mode: 'campaign', world: 0, level: sv.progress ?? 6, difficulty: 'Medium',
+      loadArrows: ['normal','heavy','split'], bow: 'oak', skin: 0, facing: 1,
+      overlay: p.overlay && p.overlay !== 'none' ? p.overlay : null, toast: null,
+      set: Object.assign({music:70,sfx:80,sens:50,lang:'English',haptics:true,left:false,big:false,cb:false,battery:false}, sv.set || {}),
+      pinned: sv.pinned || ['sharp','long','pals'], claimed: sv.claimed || [], chestOpened: sv.chestOpened || false,
+      shopOwned: sv.shopOwned || [], match: null, result: null, scale: 1
+    };
+    const v = p.variant;
+    if (v === 'defeat') s.result = {win:false,mode:'campaign',stars:0,coins:20,heads:0,shots:6,hp:0};
+    if (v === 'victory') s.result = {win:true,mode:'campaign',stars:3,coins:180,heads:2,shots:4,hp:72};
+    if (v === 'locked') { s.archerView = 'shadow'; }
+    if (v === 'worldLocked') s.world = 2;
+    if (v === 'missionsDone') s.missionsDone = true;
+    if (v === 'pvp') s.mode = 'pvp';
+    if (v === 'leftHanded') { s.set = {...s.set, left:true, big:true}; }
+    if (v === 'timesUp') s.toast = 'Time\u2019s up! Turn passes.';
+    return s;
+  }
+
+  componentDidMount() {
+    const p = this.props || {};
+    if (this.state.screen === 'splash' && !p.embedded) this.later(() => { if (this.state.screen === 'splash') this.setState({screen:'home'}); }, 1900);
+    if (this.state.screen === 'match') this.beginMatch(this.state.overlay);
+    this.clock = setInterval(() => this.second(), 1000);
+    if (!p.embedded) {
+      this.onKey = e => { if (e.key === 'Escape' || e.key === 'Backspace') { e.preventDefault(); this.back(); } };
+      window.addEventListener('keydown', this.onKey);
+      this.onResize = () => this.setState({scale: Math.min(1, (innerWidth - 16) / 904, (innerHeight - 16) / 450)});
+      window.addEventListener('resize', this.onResize); this.onResize();
+    }
+  }
+  componentWillUnmount() { clearInterval(this.clock); this.clearTimers(); cancelAnimationFrame(this.raf); if (this.onKey) window.removeEventListener('keydown', this.onKey); if (this.onResize) window.removeEventListener('resize', this.onResize); }
+  componentDidUpdate() {
+    if ((this.props || {}).embedded) return;
+    const s = this.state;
+    try { localStorage.setItem('archerArcade.save.v1', JSON.stringify({v:1,theme:s.theme,coins:s.coins,selected:s.selected,owned:s.owned,levels:s.levels,progress:s.progress,stars:s.stars,set:s.set,pinned:s.pinned,claimed:s.claimed,chestOpened:s.chestOpened,shopOwned:s.shopOwned})); } catch (e) {}
+  }
+  later(fn, ms) { const id = setTimeout(fn, ms); this.timers.push(id); return id; }
+  clearTimers() { this.timers.forEach(clearTimeout); this.timers = []; }
+  toast(msg) { this.setState({toast: msg}); clearTimeout(this.toastT); this.toastT = setTimeout(() => this.setState({toast: null}), 1900); }
+  arch(id) { return Component.ARCHERS.find(a => a.id === id); }
+  nav(screen, extra) { this.setState(st => ({stack: [...st.stack, st.screen], screen, overlay: null, ...(extra || {})})); }
+  back = () => {
+    const s = this.state;
+    if (s.screen === 'match') { if (s.overlay === 'pause') this.resume(); else if (!s.overlay) this.setState({overlay:'pause'}); return; }
+    if (s.overlay) { this.setState({overlay: null}); return; }
+    if (s.screen === 'splash') return this.setState({screen:'home'});
+    if (!s.stack.length) return this.toast('Press Back again to exit');
+    const st = s.stack.slice(); const prev = st.pop();
+    this.setState({screen: prev === 'match' ? 'loadout' : prev, stack: st});
+  };
+  goHome = () => { this.stopMatch(); this.setState({screen:'home', stack:[], overlay:null, result:null}); };
+
+  // ---------- match engine ----------
+  rng() { let x = this.seed || 1; x ^= x << 13; x ^= x >>> 17; x ^= x << 5; this.seed = x >>> 0; return this.seed / 4294967296; }
+  beginMatch(overlay) {
+    const s = this.state; this.clearTimers();
+    this.seed = 20260925 + s.world * 100 + s.level * 7 + (s.mode.length * 13);
+    const enemy = s.mode === 'pvp' ? 'fire' : s.mode === 'training' ? 'ranger' : Component.ARCHERS[(s.level % 9) + 1].id;
+    const ammo = {}; s.loadArrows.forEach(id => { const a = Component.ARROWS.find(x => x.id === id); ammo[id] = a.ammo; });
+    this.m = {hp:[100,100], turn:0, timer:12, wind: s.mode === 'training' ? 0 : 1.5, charge:[2,2], armed:false, sel:0, ammo, shots:[0,0], heads:[0,0], busy:false, over:false, enemy, wave:1, aiShots:0};
+    this.g = {arrows:[], stuck:[], parts:[], texts:[], shake:0, stop:0, slow:0, t:0, drag:null, aim:null, aimAI:null, resolving:false,
+      clouds:[{x:90,y:60,s:1},{x:400,y:38,s:.8},{x:640,y:112,s:.6},{x:250,y:130,s:.5}]};
+    this.setState({screen:'match', overlay: overlay || null, match: {...this.m}});
+  }
+  stopMatch() { this.clearTimers(); this.m = null; }
+  sync() { if (this.m) this.setState({match: {...this.m}}); }
+  human(t) { return t === 0 || this.state.mode === 'pvp'; }
+  canvasRef = el => {
+    if (el && el !== this.cv) {
+      this.cv = el; const dpr = Math.min(2, window.devicePixelRatio || 1);
+      el.width = 844 * dpr; el.height = 390 * dpr; this.ctx = el.getContext('2d'); this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      el.onpointerdown = this.pd; el.onpointermove = this.pm; el.onpointerup = this.pu; el.onpointercancel = this.pu;
+      let last = performance.now();
+      const loop = now => { const dt = Math.min(.033, (now - last) / 1000); last = now; if (this.m && this.g) { this.tick(dt); this.draw(); } this.raf = requestAnimationFrame(loop); };
+      cancelAnimationFrame(this.raf); this.raf = requestAnimationFrame(loop);
+    } else if (!el && this.cv) { cancelAnimationFrame(this.raf); this.cv = null; this.ctx = null; }
+  };
+  pt(e) { const r = this.cv.getBoundingClientRect(); return {x: (e.clientX - r.left) * 844 / r.width, y: (e.clientY - r.top) * 390 / r.height}; }
+  pd = e => { const m = this.m; if (!m || m.busy || m.over || this.state.overlay || !this.human(m.turn) || this.g.aimAI) return; const p = this.pt(e); this.g.drag = {sx:p.x, sy:p.y, x:p.x, y:p.y}; try { this.cv.setPointerCapture(e.pointerId); } catch (er) {} };
+  pm = e => { const d = this.g && this.g.drag; if (!d) return; const p = this.pt(e); d.x = p.x; d.y = p.y; this.g.aim = this.aimFrom(d); };
+  pu = () => { const g = this.g; if (!g || !g.drag) return; const a = g.aim; g.drag = null; g.aim = null; if (a && a.pow > .1) this.shoot(this.m.turn, a.vx, a.vy); };
+  aimFrom(d) { const sens = .7 + this.state.set.sens / 100 * .6; const dx = d.sx - d.x, dy = d.sy - d.y; const pow = Math.min(1, Math.hypot(dx, dy) * sens / 150); const an = Math.atan2(dy, dx); return {vx: Math.cos(an) * pow * Component.K.V, vy: Math.sin(an) * pow * Component.K.V, pow}; }
+  origin(side) { const K = Component.K; return {x: K.POS[side] + (side ? -8 : 8), y: K.GY - 60}; }
+  shoot(side, vx, vy) {
+    const m = this.m, g = this.g; const o = this.origin(side);
+    let type = 'normal';
+    if (this.human(side)) { type = this.state.loadArrows[m.sel]; if (m.ammo[type] !== '∞') { if (m.ammo[type] <= 0) type = 'normal'; else m.ammo[type]--; } }
+    const spreads = m.armed ? [-.09, 0, .09] : type === 'split' ? [-.045, .045] : [0];
+    if (m.armed) { m.charge[side] = 0; m.armed = false; }
+    g.arrows = spreads.map(sp => { const c = Math.cos(sp), sn = Math.sin(sp); return {x:o.x, y:o.y, vx: vx * c - vy * sn, vy: vx * sn + vy * c, side, type, grav: type === 'heavy' ? 1.25 : 1, mult: (type === 'heavy' ? 1.4 : 1) * (spreads.length > 1 ? .65 : 1), alive:true, trail:[]}; });
+    g.resolving = false; m.busy = true; m.shots[side]++;
+    for (let i = 0; i < 6; i++) g.parts.push({x:o.x + (side ? -16 : 16), y:o.y, vx:(Math.random() - .5) * 60, vy:(Math.random() - .5) * 60, life:.3, max:.3, c:'#ffffff', r:2.5});
+    this.sync();
+  }
+  zone(a, side) {
+    const K = Component.K, tx = K.POS[side], GY = K.GY;
+    if (Math.hypot(a.x - tx, a.y - (GY - 86)) < 15) return 'head';
+    if (Math.abs(a.x - tx) < 16 && a.y > GY - 72 && a.y < GY - 30) return 'body';
+    if (Math.abs(a.x - tx) < 12 && a.y >= GY - 30 && a.y < GY) return 'legs';
+    return null;
+  }
+  burst(x, y, n, cols, sp) { for (let i = 0; i < n; i++) { const an = Math.random() * 6.283, v = sp * (.4 + Math.random() * .8); this.g.parts.push({x, y, vx: Math.cos(an) * v, vy: Math.sin(an) * v - 60, life: .7, max: .7, c: cols[i % cols.length], r: 3 + Math.random() * 3}); } }
+  tick(dt) {
+    const g = this.g, m = this.m, K = Component.K, s = this.state;
+    g.t += dt;
+    g.clouds.forEach(c => { c.x += (8 + m.wind * 5) * dt * c.s; if (c.x > 920) c.x = -80; if (c.x < -90) c.x = 910; });
+    if (s.overlay === 'pause' || s.overlay === 'pass') return;
+    if (g.stop > 0) { g.stop -= dt; return; }
+    if (g.slow > 0) { g.slow -= dt; dt *= .35; }
+    g.shake = Math.max(0, g.shake - dt * 40);
+    if (g.aimAI) { g.aimAI.t += dt; if (g.aimAI.t >= g.aimAI.dur) { const a = g.aimAI; g.aimAI = null; this.shoot(1, a.vx, a.vy); } }
+    const cols = ['#FFD23F','#FF5FA2','#38BDF8','#2ED3A0','#FF8A3D'];
+    for (const a of g.arrows) {
+      if (!a.alive) continue;
+      for (let k = 0; k < 2; k++) {
+        const h = dt / 2;
+        a.vy += K.G * a.grav * h; a.vx += m.wind * K.WK * h; a.x += a.vx * h; a.y += a.vy * h;
+        const W = K.WALL;
+        if (a.x > W.x && a.x < W.x + W.w && a.y > W.top) { a.alive = false; g.stuck.push({x:a.x, y:a.y, ang:Math.atan2(a.vy, a.vx)}); this.burst(a.x, a.y, 8, ['#C98A4B','#E8B07A','#9A6234'], 120); g.shake = 3; break; }
+        const tgt = 1 - a.side, z = this.zone(a, tgt);
+        if (z) { a.alive = false; g.stuck.push({x:a.x, y:a.y, ang:Math.atan2(a.vy, a.vx), side:tgt}); this.hit(a, z, tgt); break; }
+        if (a.y >= K.GY) { a.alive = false; g.stuck.push({x:a.x, y:K.GY + 2, ang:Math.atan2(a.vy, a.vx)}); this.burst(a.x, K.GY, 5, ['#7ED957','#B98A5A'], 80); break; }
+        if (a.x < -60 || a.x > 904 || a.y > 520) { a.alive = false; break; }
+      }
+      a.trail.push({x:a.x, y:a.y}); if (a.trail.length > 14) a.trail.shift();
+    }
+    if (g.stuck.length > 24) g.stuck.splice(0, g.stuck.length - 24);
+    if (m.busy && !m.over && g.arrows.length && g.arrows.every(a => !a.alive) && !g.resolving) { g.resolving = true; this.later(() => this.endTurn(), 700); }
+    g.parts = g.parts.filter(p => { p.life -= dt; p.vy += 380 * dt; p.x += p.vx * dt; p.y += p.vy * dt; return p.life > 0; });
+    g.texts = g.texts.filter(t => { t.life -= dt; t.y -= 34 * dt; return t.life > 0; });
+  }
+  hit(a, z, tgt) {
+    const m = this.m, g = this.g, base = {head:34, body:20, legs:12}[z];
+    const dmg = Math.round(base * a.mult);
+    m.hp[tgt] = Math.max(0, m.hp[tgt] - dmg);
+    if (z === 'head') { m.heads[a.side]++; g.texts.push({x:a.x, y:a.y - 34, txt:'HEADSHOT!', c:'#FFD23F', size:26, life:1.2}); }
+    g.texts.push({x:a.x, y:a.y - 10, txt:'-' + dmg, c:'#ffffff', size:22, life:1});
+    g.stop = .05; g.shake = Math.min(14, dmg * .38);
+    this.burst(a.x, a.y, 16, ['#FFD23F','#FF5FA2','#38BDF8','#2ED3A0','#FF8A3D'], 220);
+    if (m.hp[tgt] <= 0 && !m.over) {
+      m.over = true; g.slow = 1.1; g.arrows.forEach(x => x.alive = false);
+      const K = Component.K; this.burst(K.POS[tgt], K.GY - 50, 40, ['#ffffff','#FFD23F','#FF5FA2','#C9D3E3'], 300);
+      g.texts.push({x:K.POS[tgt], y:K.GY - 120, txt:'POOF!', c:'#FF5FA2', size:34, life:1.4});
+      this.later(() => this.finish(tgt), 1500);
+    }
+    this.sync();
+  }
+  endTurn() {
+    const m = this.m, g = this.g, s = this.state; if (!m || m.over) return;
+    g.resolving = false; g.arrows = [];
+    if (m.charge[m.turn] < 3) m.charge[m.turn]++;
+    const nxt = s.mode === 'training' ? 0 : 1 - m.turn;
+    m.turn = nxt; m.busy = false; m.timer = 12;
+    if (s.mode !== 'training') m.wind = Math.round((this.rng() * 6 - 3) * 2) / 2;
+    this.sync();
+    if (s.mode === 'pvp') this.setState({overlay:'pass'});
+    else if (nxt === 1) this.aiTurn();
+  }
+  aiTurn() {
+    this.later(() => {
+      const m = this.m; if (!m || m.over) return;
+      const sol = this.solve(1, this.state.difficulty === 'Hard');
+      const base = {Easy:.13, Medium:.075, Hard:.03}[this.state.difficulty] || .075;
+      const err = base * Math.max(.35, 1 - .18 * m.aiShots); m.aiShots++;
+      const f = 1 + (this.rng() * 2 - 1) * err, ang = (this.rng() * 2 - 1) * err * .5;
+      const c = Math.cos(ang), sn = Math.sin(ang);
+      this.g.aimAI = {t:0, dur: .6 + this.rng() * .6, vx:(sol.vx * c - sol.vy * sn) * f, vy:(sol.vx * sn + sol.vy * c) * f};
+      m.busy = true; this.sync();
+    }, 500);
+  }
+  sim(side, vx, vy, grav) {
+    const K = Component.K, o = this.origin(side), tx = K.POS[1 - side], W = K.WALL; let x = o.x, y = o.y; const h = 1 / 120;
+    for (let i = 0; i < 1500; i++) { vy += K.G * grav * h; vx += this.m.wind * K.WK * h; x += vx * h; y += vy * h;
+      if (x > W.x && x < W.x + W.w && y > W.top) return null; if ((vx < 0 && x <= tx) || (vx > 0 && x >= tx)) return y; if (y > K.GY) return null; }
+    return null;
+  }
+  solve(side, head) {
+    const K = Component.K, dir = side ? -1 : 1, want = head ? K.GY - 86 : K.GY - 52; let best = null;
+    for (const an of [.8, .7, .9, 1.0, .6, 1.1]) for (let p = .35; p <= 1; p += .004) {
+      const vx = dir * Math.cos(an) * p * K.V, vy = -Math.sin(an) * p * K.V, y = this.sim(side, vx, vy, 1);
+      if (y == null) continue; const e = Math.abs(y - want); if (!best || e < best.e) best = {e, vx, vy};
+    }
+    return best || {vx: dir * 560, vy: -560};
+  }
+  finish(loser) {
+    const m = this.m, s = this.state; if (!m) return;
+    if (s.mode === 'training') { m.hp[1] = 100; m.over = false; m.busy = false; this.toast('Target down! Reset.'); this.sync(); return; }
+    if (s.mode === 'survival' && loser === 1) { m.wave++; m.hp[1] = 100; m.over = false; m.busy = false; m.turn = 0; m.timer = 12; this.toast('Wave ' + m.wave + '!'); this.sync(); return; }
+    const win = loser === 1;
+    const stars = win ? 1 + (m.hp[0] > 50 ? 1 : 0) + (m.shots[0] <= 4 ? 1 : 0) : 0;
+    const coins = s.mode === 'pvp' ? 0 : win ? 80 + m.heads[0] * 20 + stars * 20 : 20;
+    const upd = {screen:'result', overlay:null, result:{win, mode:s.mode, stars, coins, heads:m.heads[0], shots:m.shots[0], hp:m.hp[0], wave:m.wave, winner: loser === 1 ? 'Player 1' : 'Player 2'}, coins: s.coins + coins};
+    if (win && s.mode === 'campaign' && s.world === 0) {
+      const st = s.stars.slice(); st[s.level] = Math.max(st[s.level] || 0, stars); upd.stars = st;
+      if (s.level === s.progress) upd.progress = s.progress + 1;
+    }
+    this.clearTimers(); this.setState(upd);
+  }
+  second() {
+    const m = this.m, s = this.state;
+    if (s.screen !== 'match' || !m || s.overlay || m.busy || m.over || s.mode === 'training' || !this.human(m.turn) || this.g.aimAI) return;
+    m.timer--;
+    if (m.timer <= 0) { this.g.drag = null; this.g.aim = null; this.toast('Time\u2019s up! Turn passes.'); m.busy = true; this.sync(); this.later(() => { this.m.busy = false; this.endTurnNoShot(); }, 400); return; }
+    this.sync();
+  }
+  endTurnNoShot() { const m = this.m; if (!m) return; m.busy = true; this.g.resolving = true; this.endTurn(); }
+
+  // ---------- drawing ----------
+  rr(x, y, w, h, r) { const c = this.ctx; c.beginPath(); c.roundRect(x, y, w, h, r); c.fill(); }
+  circ(x, y, r) { const c = this.ctx; c.beginPath(); c.arc(x, y, r, 0, 6.283); c.fill(); }
+  drawArcher(side, col, aimAng, pow, active, alpha) {
+    const c = this.ctx, K = Component.K, GY = K.GY, x = K.POS[side], dir = side ? -1 : 1, b = Math.sin(this.g.t * 2.6 + side) * 1.3;
+    c.save(); c.globalAlpha = alpha; c.translate(x, 0); c.scale(dir, 1);
+    c.fillStyle = 'rgba(0,0,0,.14)'; c.beginPath(); c.ellipse(0, GY + 3, 26, 6, 0, 0, 6.283); c.fill();
+    c.fillStyle = '#3A2F5B'; this.rr(-11, GY - 32, 9, 32, 4); this.rr(2, GY - 32, 9, 32, 4);
+    c.fillStyle = col; this.rr(-15, GY - 72 + b, 30, 44, 11);
+    c.fillStyle = 'rgba(0,0,0,.13)'; this.rr(-15, GY - 38 + b, 30, 8, 4);
+    c.fillStyle = '#FFD2A6'; this.circ(0, GY - 86 + b, 14);
+    c.fillStyle = col; this.rr(-15, GY - 96 + b, 30, 7, 3);
+    c.fillStyle = '#2A2350'; this.circ(6, GY - 86 + b, 2.4);
+    c.save(); c.translate(6, GY - 60 + b); c.rotate(aimAng);
+    c.strokeStyle = '#9A6234'; c.lineWidth = 4.5; c.lineCap = 'round'; c.beginPath(); c.arc(0, 0, 26, -1.15, 1.15); c.stroke();
+    const tx = Math.cos(1.15) * 26, ty = Math.sin(1.15) * 26, px = tx - 4 - pow * 22;
+    c.strokeStyle = 'rgba(255,255,255,.95)'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(tx, -ty); c.lineTo(px, 0); c.lineTo(tx, ty); c.stroke();
+    if (active) { c.strokeStyle = '#6B4A2B'; c.lineWidth = 3; c.beginPath(); c.moveTo(px, 0); c.lineTo(px + 34, 0); c.stroke(); c.fillStyle = '#9AA3B5'; c.beginPath(); c.moveTo(px + 40, 0); c.lineTo(px + 32, -4); c.lineTo(px + 32, 4); c.fill(); }
+    c.restore(); c.restore();
+    if (active) { c.save(); c.fillStyle = '#ffffff'; const yy = GY - 122 + Math.sin(this.g.t * 5) * 3; c.beginPath(); c.moveTo(x - 8, yy); c.lineTo(x + 8, yy); c.lineTo(x, yy + 10); c.fill(); c.restore(); }
+  }
+  draw() {
+    const c = this.ctx, g = this.g, m = this.m, K = Component.K, s = this.state; if (!c) return;
+    const dark = s.theme === 'dark', GY = K.GY;
+    c.save();
+    const gr = c.createLinearGradient(0, 0, 0, 390); gr.addColorStop(0, dark ? '#1E1A45' : '#8FD3FF'); gr.addColorStop(1, dark ? '#4A3478' : '#E6F6FF');
+    c.fillStyle = gr; c.fillRect(0, 0, 844, 390);
+    c.fillStyle = dark ? '#FFF3C4' : '#FFE27A'; this.circ(690, 92, 24);
+    c.fillStyle = dark ? 'rgba(255,255,255,.12)' : 'rgba(255,255,255,.9)';
+    g.clouds.forEach(cl => { this.circ(cl.x, cl.y, 18 * cl.s + 8); this.circ(cl.x + 22 * cl.s, cl.y - 8, 22 * cl.s + 8); this.circ(cl.x + 46 * cl.s, cl.y, 16 * cl.s + 8); });
+    c.fillStyle = dark ? '#2D2A62' : '#B9E6A6'; c.beginPath(); c.ellipse(170, GY + 30, 280, 100, 0, 0, 6.283); c.fill(); c.beginPath(); c.ellipse(650, GY + 40, 320, 120, 0, 0, 6.283); c.fill();
+    if (g.shake > 0) c.translate((Math.random() - .5) * g.shake, (Math.random() - .5) * g.shake);
+    c.fillStyle = dark ? '#2F7A4C' : '#7ED957'; c.fillRect(-20, GY, 884, 100);
+    c.fillStyle = dark ? '#256240' : '#5FBF3F'; c.fillRect(-20, GY, 884, 7);
+    const W = K.WALL; c.fillStyle = '#C98A4B'; this.rr(W.x, W.top, W.w, GY - W.top + 4, 6);
+    c.fillStyle = '#A66A32'; for (let yy = W.top + 22; yy < GY; yy += 24) c.fillRect(W.x + 3, yy, W.w - 6, 3);
+    c.fillStyle = '#E8B07A'; this.rr(W.x - 3, W.top - 6, W.w + 6, 10, 4);
+    const enemy = this.arch(m.enemy), me = this.arch(s.selected);
+    const d = g.drag && g.aim;
+    const ang0 = d && m.turn === 0 ? Math.atan2(g.aim.vy, g.aim.vx) : -.35;
+    const ang1 = d && m.turn === 1 ? Math.atan2(g.aim.vy, -g.aim.vx) : g.aimAI ? Math.atan2(g.aimAI.vy, -g.aimAI.vx) : -.35;
+    const pw0 = d && m.turn === 0 ? g.aim.pow : 0, pw1 = d && m.turn === 1 ? g.aim.pow : g.aimAI ? Math.min(1, g.aimAI.t / g.aimAI.dur) * .8 : 0;
+    const idle = !m.busy && !m.over;
+    this.drawArcher(0, me.color, ang0, pw0, idle && m.turn === 0, m.over && m.hp[0] <= 0 ? .15 : 1);
+    this.drawArcher(1, enemy.color, ang1, pw1, (idle && m.turn === 1) || !!g.aimAI, m.over && m.hp[1] <= 0 ? .15 : 1);
+    const drawArrow = (x, y, an, a) => { c.save(); c.globalAlpha = a; c.translate(x, y); c.rotate(an); c.strokeStyle = '#6B4A2B'; c.lineWidth = 3; c.beginPath(); c.moveTo(-26, 0); c.lineTo(0, 0); c.stroke(); c.fillStyle = '#9AA3B5'; c.beginPath(); c.moveTo(6, 0); c.lineTo(-3, -5); c.lineTo(-3, 5); c.fill(); c.fillStyle = '#FF5FA2'; c.fillRect(-28, -4, 6, 8); c.restore(); };
+    g.stuck.forEach(st => drawArrow(st.x, st.y, st.ang, 1));
+    if (d) {
+      const o = this.origin(m.turn), frac = s.mode === 'training' ? 1 : s.difficulty === 'Hard' ? .3 : s.difficulty === 'Easy' ? .6 : .42;
+      const pts = []; let x = o.x, y = o.y, vx = g.aim.vx, vy = g.aim.vy; const h = 1 / 60; const grav = s.loadArrows[m.sel] === 'heavy' ? 1.25 : 1;
+      for (let i = 0; i < 400; i++) { vy += K.G * grav * h; vx += m.wind * K.WK * h; x += vx * h; y += vy * h; pts.push([x, y]); if (y > GY || x < 0 || x > 844) break; }
+      const n = Math.floor(pts.length * frac);
+      c.fillStyle = '#ffffff';
+      for (let i = 2; i < n; i += 3) { c.globalAlpha = 1 - i / n * .8; this.circ(pts[i][0], pts[i][1], 3.4); }
+      c.globalAlpha = 1;
+      c.strokeStyle = 'rgba(255,255,255,.7)'; c.lineWidth = 2; c.setLineDash([4, 5]); c.beginPath(); c.moveTo(g.drag.sx, g.drag.sy); c.lineTo(g.drag.x, g.drag.y); c.stroke(); c.setLineDash([]);
+      c.strokeStyle = 'rgba(255,255,255,.9)'; c.lineWidth = 3; c.beginPath(); c.arc(g.drag.sx, g.drag.sy, 12, 0, 6.283); c.stroke();
+      c.font = '700 15px Fredoka, sans-serif'; c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.fillText(Math.round(g.aim.pow * 100) + '%', g.drag.sx, g.drag.sy - 20);
+    }
+    g.arrows.forEach(a => { if (!a.alive) return; c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 3; c.lineCap = 'round'; c.beginPath(); a.trail.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.stroke(); drawArrow(a.x, a.y, Math.atan2(a.vy, a.vx), 1); });
+    g.parts.forEach(p => { c.globalAlpha = Math.max(0, p.life / p.max); c.fillStyle = p.c; this.circ(p.x, p.y, p.r); }); c.globalAlpha = 1;
+    c.textAlign = 'center';
+    g.texts.forEach(t => { c.globalAlpha = Math.min(1, t.life * 2); c.font = '700 ' + t.size + 'px Fredoka, sans-serif'; c.lineWidth = 5; c.strokeStyle = '#2A2350'; c.strokeText(t.txt, t.x, t.y); c.fillStyle = t.c; c.fillText(t.txt, t.x, t.y); }); c.globalAlpha = 1;
+    c.restore();
+  }
+
+  // ---------- render ----------
+  renderVals() {
+    const s = this.state, p = this.props || {}, A = Component.ARCHERS, W = Component.WORLDS;
+    const t = s.theme === 'dark' ? Component.DARK : Component.LIGHT;
+    const sel = this.arch(s.selected), view = this.arch(s.archerView);
+    const fmt = n => n.toLocaleString('en-US');
+    const titles = {modes:'Modes',map:'Campaign',archers:'Archers',loadout:'Loadout',chests:'Chests',shop:'Shop',badges:'Badges',missions:'Missions',daily:'Daily Challenge',stats:'Stats',settings:'Settings',credits:'Credits'};
+    const starTotal = s.stars.reduce((a, b) => a + (b || 0), 0);
+    const btn = (bg, sh, fg) => ({bg, sh, fg: fg || '#fff'});
+    const off = btn('var(--track)', 'transparent', 'var(--ink2)');
+    const TB = Component.BADGES.map(([id, name, icon, tier, meta]) => ({id, name, icon, tier, meta, tierColor: tier ? Component.TIER[tier] : 'var(--track)'}));
+    const pinnedBadges = s.pinned.map(id => TB.find(b => b.id === id)).filter(Boolean);
+    const go = (sc, extra) => () => this.nav(sc, extra);
+    const toLoad = mode => () => this.nav('loadout', {mode});
+    const modesDef = [
+      {name:'Campaign',icon:'🗺️',color:'#12A67A',shade:'#0B7555',sub:'5 worlds · 105 levels · bosses',onClick:go('map',{mode:'campaign'})},
+      {name:'Quick Duel',icon:'⚔️',color:'#1C9AD6',shade:'#13709E',sub:'You vs the computer',onClick:toLoad('quick')},
+      {name:'2 Players',icon:'👥',color:'#E83E8C',shade:'#B02467',sub:'Pass-and-play on one phone',onClick:toLoad('pvp')},
+      {name:'Survival',icon:'🌊',color:'#6D4AFF',shade:'#4A2BD1',sub:'Endless waves · best: wave 14',onClick:toLoad('survival')},
+      {name:'Daily',icon:'📅',color:'#F0641E',shade:'#B8460F',sub:'Same level for everyone today',onClick:go('daily')},
+      {name:'Training',icon:'🎯',color:'#8E7A5B',shade:'#65563F',sub:'Practice with the full trajectory',onClick:toLoad('training')}
+    ];
+    // map
+    const w = s.world, wc = W[w];
+    const nodes = []; const pts = [];
+    for (let i = 0; i <= 20; i++) {
+      const x = 60 + i * 86, y = 130 + Math.sin(i * .85) * 68, boss = i === 20, size = boss ? 72 : 54;
+      const st = w === 0 ? (i < s.progress ? 'done' : i === s.progress ? 'cur' : 'lock') : 'lock';
+      pts.push(x + ',' + y);
+      const n = s.stars[i] || 0;
+      nodes.push({left:(x - size / 2) + 'px', top:(y - size / 2) + 'px', size:size + 'px', label: boss ? '👑' : st === 'lock' ? '🔒' : String(i + 1),
+        bg: st === 'done' ? wc.color : st === 'cur' ? '#F0641E' : boss ? '#8B84B8' : '#A9A4C9', sh: st === 'done' ? wc.shade : st === 'cur' ? '#B8460F' : '#7D78A3',
+        anim: st === 'cur' ? 'aaPulse 1.6s ease-in-out infinite' : 'none', stars: st === 'done' ? '★'.repeat(n) + '☆'.repeat(3 - n) : boss ? wc.boss : '',
+        starLeft:(x - 35) + 'px', starTop:(y + size / 2 + 4) + 'px',
+        onClick: () => { if (st === 'lock') return this.toast(boss ? 'Beat levels 1–20 to face ' + wc.boss : 'Clear level ' + (s.progress + 1) + ' first'); this.nav('loadout', {mode:'campaign', level:i}); }});
+    }
+    const need = [0, 30, 60, 95, 130];
+    // archers
+    const lv = id => s.levels[id] || 1;
+    const vOwned = s.owned.includes(view.id), vLv = lv(view.id);
+    let archerPrimary, needMsg = false;
+    if (!vOwned) {
+      const ok = s.coins >= view.cost;
+      archerPrimary = ok ? {...btn('#12A67A', '#0B7555'), label: 'Unlock 🪙 ' + fmt(view.cost), onClick: () => this.setState(st => ({coins: st.coins - view.cost, owned: [...st.owned, view.id], levels: {...st.levels, [view.id]:1}}), () => this.toast(view.name + ' unlocked!'))}
+        : {...off, label: '🔒 Unlock 🪙 ' + fmt(view.cost), onClick: () => this.toast('Need 🪙 ' + fmt(view.cost - s.coins) + ' more')};
+      if (!ok) needMsg = 'Need 🪙 ' + fmt(view.cost - s.coins) + ' more. Earn coins in the campaign, missions and chests.';
+    } else if (s.selected === view.id) archerPrimary = {...off, label:'Selected ✓', onClick: () => this.toast(view.name + ' is already selected')};
+    else archerPrimary = {...btn('#6D4AFF', '#4A2BD1'), label:'Select', onClick: () => this.setState({selected: view.id}, () => this.toast(view.name + ' selected'))};
+    const upCost = vLv * 150;
+    const bonus = (vLv - 1) * 3;
+    // loadout
+    const lvlNum = s.level;
+    const lvl = s.mode === 'campaign' ? {color:wc.color, shade:wc.shade, kicker: wc.icon + ' ' + wc.name.toUpperCase() + ' · LEVEL ' + (lvlNum + 1) + (lvlNum === 20 ? ' · BOSS' : ''), title: lvlNum === 20 ? wc.boss : 'Level ' + (lvlNum + 1), goal: Component.GOALS[lvlNum % 7], hasNew: !!Component.NEWS[lvlNum], newText: Component.NEWS[lvlNum] || '', meta: 'Par: 4 arrows · Opponent: ' + A[(lvlNum % 9) + 1].name}
+      : s.mode === 'quick' ? {color:'#1C9AD6', shade:'#13709E', kicker:'⚔️ QUICK DUEL', title:'You vs CPU', goal:'Defeat the opponent', hasNew:false, meta:'Opponent: ' + A[(lvlNum % 9) + 1].name}
+      : s.mode === 'pvp' ? {color:'#E83E8C', shade:'#B02467', kicker:'👥 2-PLAYER DUEL', title:'Player 1 vs 2', goal:'Take turns on one phone. Last one standing wins.', hasNew:false, meta:'Player 2 plays Fire Archer 🔥'}
+      : s.mode === 'survival' ? {color:'#6D4AFF', shade:'#4A2BD1', kicker:'🌊 SURVIVAL', title:'Endless waves', goal:'Beat as many archers as you can', hasNew:false, meta:'Best: wave 14'}
+      : s.mode === 'daily' ? {color:'#1C9AD6', shade:'#13709E', kicker:'📅 DAILY CHALLENGE', title:'Windy Canyon', goal:'Defeat the opponent in strong wind', hasNew:false, meta:'Same seed for everyone today'}
+      : {color:'#8E7A5B', shade:'#65563F', kicker:'🎯 TRAINING RANGE', title:'Practice', goal:'Shoot the dummy. Full trajectory, no timer.', hasNew:false, meta:'No wind · no pressure'};
+    const bows = [{id:'oak',name:'Oak Longbow',icon:'🏹',stat:'Balanced'},{id:'twin',name:'Twin Curve',icon:'🎐',stat:'+5% draw, −3% dmg'},{id:'star',name:'Starfall',icon:'🌠',stat:'+8% dmg, more drop'}];
+    const skinsFor = a => [{name:'Classic',color:a.color,lock:''},{name:'Midnight',color:'#3A2F5B',lock:'',req:''},{name:'Candy',color:'#FF7FB6',lock:'🔒',req:'Earn: gold Sharpshooter'}];
+    // match
+    const m = s.match, enemy = m ? this.arch(m.enemy) : A[1], pvp = s.mode === 'pvp';
+    const hum = m ? this.human(m.turn) : true;
+    const ch = m ? m.charge[m.turn] : 0, abReady = m && hum && ch >= 3 && !m.busy;
+    const turnArcher = m && m.turn === 1 ? enemy : sel;
+    const cb = s.set.cb;
+    let turnLabel = '';
+    if (m) turnLabel = m.over ? 'K.O.!' : m.busy && !hum ? 'Computer is aiming…' : m.busy ? 'Arrow in flight…' : hum ? (pvp ? 'Player ' + (m.turn + 1) + ' · drag back to aim' : s.mode === 'training' ? 'Drag back to aim · release to shoot' : 'Your turn · drag back to aim') : 'Computer is thinking…';
+    if (m && m.busy && !hum && this.g && !this.g.aimAI && !this.g.arrows.some(a => a.alive)) turnLabel = 'Computer is thinking…';
+    if (s.mode === 'survival' && m) turnLabel = 'Wave ' + m.wave + ' · ' + turnLabel;
+    const wind = m ? m.wind : 0;
+    const windText = wind === 0 ? 'No wind' : (wind < 0 ? '← ' : '') + Math.abs(wind).toFixed(1) + (wind > 0 ? ' →' : '');
+    // result
+    const r = s.result || {win:true, stars:0, coins:0, heads:0, shots:0, hp:0};
+    const res = r.mode === 'pvp' ? {title: r.winner + ' wins!', sub:'Great duel. Rematch?', showStars:false, retry:'Rematch', showNext:false, coins:0, tip:false}
+      : r.mode === 'survival' ? {title:'Run over', sub:'You reached wave ' + r.wave, showStars:false, retry:'Try again', showNext:false, coins:r.coins, tip:'Tip: heavy arrows end waves faster.'}
+      : r.win ? {title:'VICTORY!', sub: r.mode === 'campaign' ? 'Level cleared' : 'Duel won', showStars:true, retry:'Replay', showNext: r.mode === 'campaign', coins:r.coins, tip:false}
+      : {title:'So close!', sub:'The opponent won this round', showStars:false, retry:'Retry', showNext:false, coins:r.coins, tip:'Headshots deal double damage. Aim a little higher.'};
+    const confetti = r.win && s.screen === 'result' && r.mode !== 'survival' ? Array.from({length:34}, (_, i) => ({left: ((i * 37) % 100) + '%', c: ['#FFD23F','#FF5FA2','#38BDF8','#2ED3A0','#ffffff','#FF8A3D'][i % 6], dur: (2.4 + (i % 5) * .35) + 's', delay: (-(i % 7) * .45) + 's'})) : [];
+    // toggles
+    const tog = (key, label, desc) => ({label, desc, track: s.set[key] ? '#12A67A' : 'var(--track)', knob: s.set[key] ? '21px' : '3px', toggle: () => this.setState(st => ({set: {...st.set, [key]: !st.set[key]}}))});
+    const today = new Date();
+    const chestsDef = [
+      {name:'Wooden Chest',c1:'#E0A267',c2:'#B97B42',contents:'150 🪙 · 5 Heavy arrows · Midnight skin',ready:!s.chestOpened,prog:''},
+      {name:'Silver Chest',c1:'#DCE3EE',c2:'#A8B4C8',contents:'300 🪙 · Sparkle trail · 3 Explosive arrows',ready:false,prog:'Clear 2 more levels'},
+      {name:'Gold Chest',c1:'#FFD84D',c2:'#E0A800',contents:'600 🪙 · Starfall bow · Ice Archer skin',ready:false,prog:'Clear 5 more levels'}
+    ];
+    const shopDef = [
+      {id:'twin',name:'Twin Curve',icon:'🎐',cat:'Bow',price:600},{id:'star',name:'Starfall',icon:'🌠',cat:'Bow',price:1400},
+      {id:'tfire',name:'Fire trail',icon:'🔥',cat:'Arrow trail',price:300},{id:'tspark',name:'Sparkle trail',icon:'✨',cat:'Arrow trail',price:300},
+      {id:'train',name:'Rainbow trail',icon:'🌈',cat:'Arrow trail',price:900},{id:'tbolt',name:'Lightning trail',icon:'⚡',cat:'Arrow trail',price:900},
+      {id:'heavy',name:'10 Heavy arrows',icon:'🪨',cat:'Ammo',price:150},{id:'split',name:'10 Split arrows',icon:'🔱',cat:'Ammo',price:150}
+    ];
+    const missionsDef = [
+      {id:'m1',icon:'🎯',name:'Land 5 headshots',prog:5,goal:5,reward:60},
+      {id:'m2',icon:'🔥',name:'Win 2 duels with Fire Archer',prog: s.missionsDone ? 2 : 1,goal:2,reward:80},
+      {id:'m3',icon:'🌬️',name:'Hit a shot in strong wind',prog: s.missionsDone ? 1 : 0,goal:1,reward:50}
+    ];
+    const streakDays = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+    return {
+      t, scale: p.embedded ? 1 : s.scale, minH: p.embedded ? 'auto' : '100vh',
+      showHeader: !!titles[s.screen], title: titles[s.screen] || '', subtitle: s.screen === 'map' ? '⭐ ' + starTotal + ' / 63' : s.screen === 'loadout' ? 'Get ready' : '',
+      coinsFmt: fmt(s.coins), starTotal, back: this.back, goHome: this.goHome,
+      isSplash: s.screen === 'splash', isHome: s.screen === 'home', isModes: s.screen === 'modes', isMap: s.screen === 'map', isArchers: s.screen === 'archers', isLoadout: s.screen === 'loadout',
+      isMatch: s.screen === 'match', isResult: s.screen === 'result', isChests: s.screen === 'chests', isShop: s.screen === 'shop', isBadges: s.screen === 'badges', isMissions: s.screen === 'missions',
+      isDaily: s.screen === 'daily', isStats: s.screen === 'stats', isSettings: s.screen === 'settings', isCredits: s.screen === 'credits',
+      toast: s.toast || false,
+      sel, selLevel: lv(sel.id), pinnedBadges, playSub: 'World 1 · Level ' + (s.progress + 1),
+      goStats: go('stats'), goArchers: () => this.nav('archers', {archerView: s.selected}), goMap: go('map', {mode:'campaign', world:0}), goModes: go('modes'), goCredits: go('credits'),
+      homeIcons: [
+        {icon:'🎯',label:'Missions',dot: !s.claimed.includes('m1'),onClick:go('missions')},{icon:'🎁',label:'Chests',dot:!s.chestOpened,onClick:go('chests')},
+        {icon:'🛒',label:'Shop',dot:false,onClick:go('shop')},{icon:'🏅',label:'Badges',dot:false,onClick:go('badges')},{icon:'⚙️',label:'Settings',dot:false,onClick:go('settings')}],
+      homeModes: [modesDef[1], modesDef[2], modesDef[3], modesDef[4]], allModes: modesDef,
+      worldTabs: W.map((x, i) => ({name:x.name, icon:x.icon, meta: i === 0 ? '' : '🔒', border: i === w ? x.color : 'transparent', op: i === w ? 1 : .85, onClick: () => this.setState({world:i})})),
+      nodes, pathPts: pts.join(' '), pathColor: s.theme === 'dark' ? 'rgba(255,255,255,.35)' : 'rgba(42,35,80,.25)',
+      mapRef: el => { if (el) el.scrollLeft = Math.max(0, 60 + s.progress * 86 - 360); },
+      worldLocked: w > 0, lockTitle: wc.name + ' is locked', lockMsg: 'Collect ' + need[w] + ' ⭐ to open ' + wc.name + '. You have ' + starTotal + '. Replay levels for 3 stars.', goWorld0: () => this.setState({world:0}),
+      roster: A.map(a => { const own = s.owned.includes(a.id); return {icon:a.icon, short:a.short, color:a.color, filter: own ? 'none' : 'grayscale(1) opacity(.55)', badge: own ? 'Lv ' + lv(a.id) : '🔒', border: a.id === s.archerView ? '#6D4AFF' : a.id === s.selected ? '#12A67A' : 'transparent', onClick: () => this.setState({archerView:a.id, facing:1})}; }),
+      view, viewColor: s.skin === 1 && vOwned ? '#3A2F5B' : view.color, viewFilter: vOwned ? 'none' : 'grayscale(.85) brightness(.9)', viewLevel: vLv, facing: s.facing,
+      spin: () => this.setState(st => ({facing: -st.facing})),
+      skinDots: skinsFor(view).map((k, i) => ({name:k.name + (k.req ? ' · ' + k.req : ''), color:k.color, lock:k.lock, ring: s.skin === i ? '#6D4AFF' : 'var(--solid)', onClick: () => k.lock ? this.toast(k.req) : this.setState({skin:i})})),
+      levelPips: Array.from({length:10}, (_, i) => ({c: i < vLv ? '#FFC928' : 'var(--track)'})),
+      statBars: [{label:'HP',v:view.hp + bonus,w:Math.min(100, view.hp - 40 + bonus) + '%',c:'#12A67A'},{label:'Draw speed',v:view.draw + bonus,w:Math.min(100, view.draw + bonus) + '%',c:'#1C9AD6'},{label:'Damage',v:view.dmg + bonus,w:Math.min(100, view.dmg + bonus) + '%',c:'#E5484D'}],
+      demoAbility: () => this.toast(view.icon + ' ' + view.ability + ': ' + view.abilityDesc),
+      archerPrimary, needMsg, showUpgrade: vOwned && vLv < 10, upgradeCost: fmt(upCost),
+      upgrade: () => s.coins < upCost ? this.toast('Need 🪙 ' + fmt(upCost - s.coins) + ' more') : this.setState(st => ({coins: st.coins - upCost, levels: {...st.levels, [view.id]: vLv + 1}}), () => this.toast(view.name + ' is now level ' + (vLv + 1) + '!')),
+      lvl, showDiff: s.mode === 'quick' || s.mode === 'survival',
+      diffs: ['Easy','Medium','Hard'].map(d => ({name:d, bg: s.difficulty === d ? '#fff' : 'rgba(255,255,255,.22)', fg: s.difficulty === d ? '#13709E' : '#fff', onClick: () => this.setState({difficulty:d})})),
+      arrowPickCount: s.loadArrows.length,
+      arrowGrid: Component.ARROWS.map(a => { const on = s.loadArrows.includes(a.id); return {icon:a.icon, name:a.name, ammo:a.ammo, border: on ? '#FFC928' : 'transparent', bg: on ? 'var(--solid)' : 'var(--card)', onClick: () => {
+        if (a.id === 'normal') return this.toast('Normal arrows are always in your quiver');
+        if (on) return this.setState(st => ({loadArrows: st.loadArrows.filter(x => x !== a.id)}));
+        if (s.loadArrows.length >= 3) return this.toast('3 arrow types max. Tap one to remove it.');
+        this.setState(st => ({loadArrows: [...st.loadArrows, a.id]}));
+      }}; }),
+      bowList: bows.map(b => { const own = b.id === 'oak' || s.shopOwned.includes(b.id); return {icon:b.icon, name:b.name, stat: own ? b.stat : '🔒 Shop', border: s.bow === b.id ? '#FFC928' : 'transparent', op: own ? 1 : .6, onClick: () => own ? this.setState({bow:b.id}) : this.toast(b.name + ' is in the Shop')}; }),
+      skinList: skinsFor(sel).map((k, i) => ({name:k.name, color:k.color, lock:k.lock, ring: s.skin === i ? '#FFC928' : 'transparent', onClick: () => k.lock ? this.toast(k.req) : this.setState({skin:i})})),
+      startMatch: () => { this.setState(st => ({stack: [...st.stack, 'loadout']})); this.beginMatch(); },
+      canvasRef: this.canvasRef,
+      p0: pvp ? sel : sel, p1: enemy, p0name: pvp ? 'Player 1' : 'You', p1name: pvp ? 'Player 2' : s.mode === 'training' ? 'Dummy' : 'CPU · ' + enemy.short,
+      hp0: m ? m.hp[0] : 100, hp1: m ? m.hp[1] : 100, hp0w: (m ? m.hp[0] : 100) + '%', hp1w: (m ? m.hp[1] : 100) + '%',
+      hpc0: cb ? '#1C9AD6' : '#12A67A', hpc1: cb ? '#F59E0B' : '#E5484D',
+      p0ring: m && m.turn === 0 && !m.over ? '#FFD23F' : 'transparent', p1ring: m && m.turn === 1 && !m.over ? '#FFD23F' : 'transparent',
+      timer: s.mode === 'training' ? '∞' : m ? m.timer : 12, timerColor: m && m.timer <= 3 ? '#E5484D' : '#2A2350', windText,
+      hudDir: s.set.left ? 'row-reverse' : 'row', hudZoom: s.set.big ? 1.15 : 1,
+      slots: s.loadArrows.map((id, i) => { const a = Component.ARROWS.find(x => x.id === id); const am = m ? m.ammo[id] : a.ammo; return {icon:a.icon, name:a.name, ammo:am, border: m && m.sel === i ? '#FFC928' : 'transparent', op: am === 0 ? .45 : 1, onClick: () => { if (!this.m) return; if (am === 0) return this.toast('No ' + a.name + ' arrows left'); this.m.sel = i; this.sync(); }}; }),
+      turnLabel, abIcon: turnArcher.icon, abName: turnArcher.ability, abBg: turnArcher.color,
+      abRing: m && m.armed ? '#FFD23F' : '#ffffff', abAnim: abReady ? 'aaPulse 1.2s ease-in-out infinite' : 'none', abFilter: abReady || (m && m.armed) ? 'none' : 'grayscale(.7) opacity(.75)',
+      abPips: [0,1,2].map(i => ({c: i < ch ? '#FFD23F' : 'rgba(255,255,255,.55)'})),
+      toggleAbility: () => { const mm = this.m; if (!mm || !hum || mm.busy) return; if (mm.charge[mm.turn] < 3) return this.toast(turnArcher.ability + ' charges in ' + (3 - mm.charge[mm.turn]) + ' more turn' + (3 - mm.charge[mm.turn] > 1 ? 's' : '')); mm.armed = !mm.armed; this.sync(); if (mm.armed) this.toast(turnArcher.ability + ' ready. Shoot!'); },
+      isPause: s.overlay === 'pause', isPass: s.overlay === 'pass', passTo: m ? 'Player ' + (m.turn + 1) : 'Player 2',
+      pause: () => this.setState({overlay:'pause'}), resume: () => this.setState({overlay:null}), ready: () => { if (this.m) { this.m.timer = 12; this.sync(); } this.setState({overlay:null}); },
+      restart: () => this.beginMatch(), quit: this.goHome,
+      soundLabel: s.set.sfx > 0 ? '🔊 Sound on' : '🔇 Sound off', toggleSound: () => this.setState(st => ({set: {...st.set, sfx: st.set.sfx > 0 ? 0 : 80}})),
+      res, resBg: r.win || r.mode === 'pvp' ? 'radial-gradient(circle at 50% 35%,#8E6BFF,#5536D6 75%)' : 'radial-gradient(circle at 50% 35%,#6E6A9E,#3E3A6B 75%)',
+      resStars: [0,1,2].map(i => ({c: i < r.stars ? '#FFD23F' : 'rgba(255,255,255,.25)', size: i === 1 ? '76px' : '58px', delay: (.25 + i * .25) + 's'})),
+      resStats: r.mode === 'pvp' ? [{k:'Arrows',v:r.shots}] : [{k:'Headshots',v:r.heads},{k:'Arrows used',v:r.shots},{k:'HP left',v:r.hp}],
+      confetti, nextLevel: () => this.nav('loadout', {mode:'campaign', level: Math.min(20, s.level + 1), result:null}),
+      chests: chestsDef.map((c, i) => ({...c, anim: c.ready ? 'aaFloat 2.2s ease-in-out infinite' : 'none', ...(c.ready ? btn('#FFD23F', '#D4A514', '#2A2350') : off), cta: c.ready ? 'Open' : i === 0 ? 'Opened ✓' : c.prog,
+        onClick: () => c.ready ? this.setState(st => ({overlay:'chestOpen', chestOpened:true, coins: st.coins + 150, owned: st.owned})) : this.toast(i === 0 ? 'Already opened. Next wooden chest in 3 levels.' : c.prog + ' to unlock')})),
+      isChestOpen: s.overlay === 'chestOpen', closeOverlay: () => this.setState({overlay:null}),
+      chestLoot: [{icon:'🪙',name:'150 coins',delay:'.1s'},{icon:'🪨',name:'5 Heavy arrows',delay:'.35s'},{icon:'🎨',name:'Midnight skin',delay:'.6s'}],
+      shopItems: shopDef.map(it => { const own = s.shopOwned.includes(it.id) && it.cat !== 'Ammo'; const ok = s.coins >= it.price; return {...it, cta: own ? 'Owned ✓' : '🪙 ' + fmt(it.price), ...(own ? off : ok ? btn('#FFD23F', '#D4A514', '#2A2350') : off),
+        onClick: () => { if (own) return this.toast('You already own ' + it.name); if (!ok) return this.toast('Need 🪙 ' + fmt(it.price - s.coins) + ' more'); this.setState(st => ({coins: st.coins - it.price, shopOwned: [...st.shopOwned, it.id]}), () => this.toast(it.name + ' is yours!')); }}; }),
+      badges: TB.map(b => { const pin = s.pinned.includes(b.id); return {...b, ring: pin ? '#6D4AFF' : 'transparent', filter: b.tier ? 'none' : 'grayscale(1) opacity(.5)', meta: b.tier ? b.tier[0].toUpperCase() + b.tier.slice(1) + (pin ? ' · 📌' : '') : b.meta,
+        onClick: () => { if (!b.tier) return this.toast(b.name + ': ' + b.meta); if (pin) return this.setState(st => ({pinned: st.pinned.filter(x => x !== b.id)})); if (s.pinned.length >= 3) return this.toast('3 pins max. Unpin one first.'); this.setState(st => ({pinned: [...st.pinned, b.id]})); }}; }),
+      badgeEarned: TB.filter(b => b.tier).length + ' / 42',
+      resetIn: '6h 12m',
+      missions: missionsDef.map(ms => { const done = ms.prog >= ms.goal, cl = s.claimed.includes(ms.id); return {icon:ms.icon, name:ms.name, prog: ms.prog + '/' + ms.goal, w: Math.round(ms.prog / ms.goal * 100) + '%', cta: cl ? 'Claimed ✓' : done ? 'Claim 🪙 ' + ms.reward : '🪙 ' + ms.reward, ...(cl ? off : done ? btn('#12A67A', '#0B7555') : off),
+        onClick: () => cl ? null : done ? this.setState(st => ({claimed: [...st.claimed, ms.id], coins: st.coins + ms.reward}), () => this.toast('+' + ms.reward + ' 🪙')) : this.toast('Keep going: ' + ms.prog + '/' + ms.goal)}; }),
+      dailyDate: today.toLocaleDateString('en-GB', {weekday:'short', day:'numeric', month:'short'}).toUpperCase(),
+      dailySeed: '' + today.getFullYear() + String(today.getMonth() + 1).padStart(2, '0') + String(today.getDate()).padStart(2, '0'),
+      dailyMods: ['🌬️ Strong wind','🪵 Moving platform','🔱 Split arrows only'],
+      playDaily: () => this.nav('loadout', {mode:'daily'}),
+      streak: streakDays.map((d, i) => ({d, icon: i < 4 ? '✓' : i === 4 ? '▶' : i === 6 ? '🎁' : '·', bg: i < 4 ? '#12A67A' : 'var(--solid)', fg: i < 4 ? '#fff' : 'var(--ink)', ring: i === 4 ? '#F0641E' : 'transparent'})),
+      stats: [{icon:'🎯',k:'Accuracy',v:'62%'},{icon:'💥',k:'Headshots',v:'148'},{icon:'🏆',k:'Matches won',v:'86'},{icon:'📈',k:'Win rate',v:'71%'},
+        {icon:'📏',k:'Longest shot',v:'412 m'},{icon:sel.icon,k:'Favourite archer',v:sel.short},{icon:'🌊',k:'Best survival wave',v:'14'},{icon:'📅',k:'Daily streak',v:'5 days'}],
+      set: s.set,
+      setMusic: e => this.setState({set: {...s.set, music: +e.target.value}}), setSfx: e => this.setState({set: {...s.set, sfx: +e.target.value}}),
+      setSens: e => this.setState({set: {...s.set, sens: +e.target.value}}), setLang: e => this.setState({set: {...s.set, lang: e.target.value}}),
+      togglesA: [tog('haptics','Haptics','Buzz on draw, release and hits')],
+      togglesB: [tog('battery','Battery saver','Cap at 60 fps'), tog('cb','Colour-blind mode','Blue/orange HP bars, icons on everything')],
+      togglesC: [tog('left','Left-handed','Mirror the match controls'), tog('big','Bigger touch targets','Larger HUD buttons')],
+      lightBg: s.theme === 'light' ? 'var(--solid)' : 'transparent', darkBg: s.theme === 'dark' ? 'var(--solid)' : 'transparent',
+      setLight: () => this.setState({theme:'light'}), setDark: () => this.setState({theme:'dark'})
+    };
+  }
+}
+</script>
+</body>
+</html>

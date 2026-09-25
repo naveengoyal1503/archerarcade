@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap">
+<style>body{margin:0;background:#15122e}a{color:#FFD23F}a:hover{color:#FF7FB6}</style>
+</helmet>
+<div style="padding:44px 48px 60px;font-family:Nunito,sans-serif;color:#fff">
+<div style="font:700 36px Fredoka,sans-serif">Archer Arcade: edge-case states</div>
+<div style="font:700 14px Nunito,sans-serif;color:#C4BEEA;margin:6px 0 30px;max-width:760px">These are live instances of the prototype, each started in a specific state. You can click around inside any of them.</div>
+<div style="display:grid;grid-template-columns:repeat(2,904px);gap:40px 44px">
+<sc-for list="{{ items }}" as="it" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;align-items:baseline;gap:10px"><span style="font:700 12px ui-monospace,Menlo,monospace;padding:3px 8px;border-radius:6px;background:#FFD23F;color:#2A2350">{{ it.id }}</span><span style="font:700 18px Fredoka,sans-serif">{{ it.name }}</span><span style="font:700 12.5px Nunito,sans-serif;color:#C4BEEA">{{ it.note }}</span></div>
+<dc-import name="Archer Arcade" embedded="{{ true }}" screen="{{ it.screen }}" theme="{{ it.theme }}" variant="{{ it.variant }}" overlay="{{ it.overlay }}" hint-size="904px,450px"></dc-import>
+</div>
+</sc-for>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const L = (id, name, note, screen, o = {}) => ({id, name, note, screen, theme: o.theme || 'light', variant: o.variant || 'none', overlay: o.overlay || 'none'});
+    return { items: [
+      L('01', 'Splash', 'First launch · studio credit', 'splash'),
+      L('02', 'Home, dark theme', 'Theme toggle lives in Settings', 'home', {theme:'dark'}),
+      L('03', 'Match, paused', 'Opens on Back or ❚❚ · every action is live', 'match', {overlay:'pause'}),
+      L('04', 'Pass the phone', '2-player turn hand-off · hides the last aim', 'match', {variant:'pvp', overlay:'pass'}),
+      L('05', 'Timer ran out', 'Toast shown · turn passes to opponent', 'match', {variant:'timesUp'}),
+      L('06', 'Left-handed + big targets', 'Mirrored HUD, larger buttons', 'match', {variant:'leftHanded', theme:'dark'}),
+      L('07', 'Victory, 3 stars', 'Stars pop · coins fly · confetti', 'result', {variant:'victory'}),
+      L('08', 'Defeat', 'Gentle tone + a tip, no penalty', 'result', {variant:'defeat'}),
+      L('09', 'Archer locked, not enough coins', 'Disabled CTA with the exact gap', 'archers', {variant:'locked'}),
+      L('10', 'World locked', 'Stars gate, explained', 'map', {variant:'worldLocked'}),
+      L('11', 'Chest opened', 'Fixed contents, no randomness for money', 'chests', {overlay:'chestOpen'}),
+      L('12', 'Missions ready to claim', 'All 3 daily missions complete', 'missions', {variant:'missionsDone'}),
+      L('13', 'Settings, dark', 'Maa tribute in footer', 'settings', {theme:'dark'}),
+      L('14', 'Credits', 'Tribute + studio', 'credits')
+    ]};
+  }
+}
+</script>
+</body>
+</html>
