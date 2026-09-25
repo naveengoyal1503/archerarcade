@@ -73,6 +73,18 @@ namespace ArcherArcade.Arena
             return sr;
         }
 
+        /// <summary>
+        /// Places a sliced / tiled sprite of <paramref name="height"/> metres so its bottom centre is at
+        /// <paramref name="bottomCenter"/>, whatever its pivot (posts have their pivot at the top).
+        /// </summary>
+        public static void StandOn(SpriteRenderer sr, Vector3 bottomCenter, float height)
+        {
+            if (!sr || !sr.sprite) return;
+            Vector2 piv = sr.sprite.pivot / sr.sprite.rect.size;
+            float width = sr.drawMode == SpriteDrawMode.Simple ? sr.sprite.bounds.size.x * sr.transform.lossyScale.x : sr.size.x;
+            sr.transform.position = bottomCenter + new Vector3((piv.x - 0.5f) * width, piv.y * height, 0f);
+        }
+
         public static Vector3 V(Vec2 v, float z = 0f) => new Vector3((float)v.X, (float)v.Y, z);
 
         public static Vector2 V2(Vec2 v) => new Vector2((float)v.X, (float)v.Y);

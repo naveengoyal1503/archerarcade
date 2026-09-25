@@ -133,9 +133,11 @@ namespace ArcherArcade.Feel
             sr.sortingOrder = 960;
             sr.enabled = true;
             // Sprite pivot is near the bottom tip: stretch it up from the target.
+            // The bolt's pivot is above its lower end: lift it so the tip touches the target.
+            Vector3 at = target + Vector3.up * (-bolt.bounds.min.y * scale);
             _p[i] = new P
             {
-                Alive = true, Pos = target, Vel = Vector3.zero, Life = 0.35f, Max = 0.35f, Rot = Range(-6f, 6f),
+                Alive = true, Pos = at, Vel = Vector3.zero, Life = 0.35f, Max = 0.35f, Rot = Range(-4f, 4f),
                 Size0 = bolt.bounds.size.x * scale, Size1 = bolt.bounds.size.x * scale, C0 = Color.white, C1 = new Color(1f, 0.95f, 0.6f, 0f),
                 Stretch = 1f
             };

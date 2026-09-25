@@ -165,7 +165,7 @@ namespace ArcherArcade.Arena
                 {
                     float len = (float)s.A.Y - ground;
                     _line = WorldSprites.Sliced(transform, ArtLibrary.Props, "target_post", new Vector2(0.2f, len), _order);
-                    _line.transform.position = new Vector3((float)s.A.X, ground, 0f) + new Vector3(0f, len * 0.5f, 0f);
+                    WorldSprites.StandOn(_line, new Vector3((float)s.A.X, ground, 0f), len);
                     _extra2 = WorldSprites.Make(transform, ArtLibrary.Props, "target_stand", _order + 1);
                     WorldSprites.FitWidth(_extra2, 0.95f);
                     _extra2.transform.position = new Vector3((float)s.A.X, ground + 0.04f, 0f);
@@ -269,7 +269,7 @@ namespace ArcherArcade.Arena
                 Vector3 b = _extra.sprite ? _extra.sprite.bounds.max : Vector3.zero;
                 _extra.transform.position = new Vector3((float)s.A.X, bottom - b.y * _extra.transform.localScale.y, 0f);
             }
-            if (_extra2 && _extra) _extra2.transform.position = _extra.transform.position + new Vector3(-0.05f, -0.52f, 0f);
+            PlaceFoxInCage();
         }
 
         // ---------- reactions (called by the replay) ----------
@@ -370,7 +370,7 @@ namespace ArcherArcade.Arena
                         OpenCage();
                     }
                     _extra.transform.position = pos;
-                    if (_extra2 && _foxHop < 0f) _extra2.transform.position = pos + new Vector3(-0.05f, -0.52f, 0f);
+                    if (_foxHop < 0f) PlaceFoxInCage();
                 }
             }
             if (_foxHop >= 0f && _extra2)
@@ -447,6 +447,15 @@ namespace ArcherArcade.Arena
                 float sq = Mathf.Sin(_squash * Mathf.PI * 3f) * 0.25f * _squash;
                 _body.localScale = new Vector3(1f + sq, 1f - sq, 1f);
             }
+        }
+
+        /// <summary>The fox sits on the cage floor.</summary>
+        void PlaceFoxInCage()
+        {
+            if (!_extra2 || !_extra || !_extra.sprite || !_extra2.sprite) return;
+            float cageBottom = _extra.transform.position.y + _extra.sprite.bounds.min.y * _extra.transform.localScale.y;
+            float foxBottom = _extra2.sprite.bounds.min.y * _extra2.transform.localScale.y;
+            _extra2.transform.position = new Vector3(_extra.transform.position.x - 0.03f, cageBottom + 0.1f - foxBottom, 0f);
         }
 
         void OpenCage()

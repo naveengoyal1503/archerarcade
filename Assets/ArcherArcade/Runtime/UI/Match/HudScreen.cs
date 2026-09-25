@@ -216,8 +216,9 @@ namespace ArcherArcade.UI
             UiKit.At(av, new Vector2(right ? 1f : 0f, 0.5f), new Vector2(right ? 1f : 0f, 0.5f), new Vector2(right ? -6f : 6f, 0f), new Vector2(36f, 36f));
             _avatar[side] = UiKit.Disc(av, "Disc", Widgets.Purple);
             UiKit.Stretch(_avatar[side].rectTransform);
-            av.gameObject.AddComponent<RectMask2D>();
-            _face[side] = UiKit.Box(av, "Face", Color.white, 0f);
+            // Round portrait: the disc masks the face (design: 36 dp circle in the archer's colour).
+            _avatar[side].gameObject.AddComponent<Mask>().showMaskGraphic = true;
+            _face[side] = UiKit.Box(_avatar[side].transform, "Face", Color.white, 0f);
             _face[side].preserveAspect = true;
             UiKit.Stretch(_face[side].rectTransform, -2f, -1f, -2f, -5f);
 

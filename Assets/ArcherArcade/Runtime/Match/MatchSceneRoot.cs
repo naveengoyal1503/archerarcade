@@ -89,7 +89,7 @@ namespace ArcherArcade.Match
         {
             get
             {
-                if (Session == null || Session.Mode == GameMode.Training) return -1f;
+                if (Session == null || Session.Mode == GameMode.Training || _tutorial != null) return -1f;
                 return Mathf.Max(0f, (float)M.TurnTimeLeft);
             }
         }
@@ -574,7 +574,8 @@ namespace ArcherArcade.Match
         {
             Fighter f = M.CurrentFighter;
             ArcherView v = Roster.View(f.Index);
-            if (!Ui.HasModal && !Paused && TickTimer(dt)) return;
+            // The first-launch tutorial never runs out of time: a beginner reads, tries, and cancels at leisure.
+            if (!Ui.HasModal && !Paused && _tutorial == null && TickTimer(dt)) return;
             if (_drag.Dragging)
             {
                 v.Aim(_drag.AngleDeg, _drag.InDeadZone ? 0f : _drag.Power);

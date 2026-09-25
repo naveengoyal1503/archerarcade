@@ -221,14 +221,14 @@ namespace ArcherArcade.Arena
                 if (ground < -50f) ground = beamY - 7f;
                 float len = beamY - ground;
                 SpriteRenderer post = WorldSprites.Sliced(_world, ArtLibrary.Props, "target_post", new Vector2(0.26f, len), WorldSprites.Props - 7);
-                post.transform.position = new Vector3(x, ground + len * 0.5f, 0f);
+                WorldSprites.StandOn(post, new Vector3(x, ground, 0f), len);
             }
             foreach (Vector3 p in pivots)
             {
                 float len = beamY - p.y;
                 if (len < 0.05f) continue;
                 SpriteRenderer rope = WorldSprites.Tiled(_world, ArtLibrary.Props, "rope", new Vector2(0.1f, len), WorldSprites.Props - 5);
-                rope.transform.position = new Vector3(p.x, p.y + len * 0.5f, 0f);
+                WorldSprites.StandOn(rope, p, len);
             }
         }
 
