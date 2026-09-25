@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ArcherArcade.Runtime as the Android player compiles it. -->
+  <PropertyGroup>
+    <AssemblyName>ArcherArcade.Runtime</AssemblyName>
+    <DefineConstants>$(PlayerDefines)</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(GameAssets)/Runtime/**/*.cs" />
+    <ProjectReference Include="../../LogicTests/Logic/Logic.csproj" />
+    <ProjectReference Include="../Pkg.UGUI/UnityEngine.UI.csproj" />
+    <ProjectReference Include="../Pkg.TMP/Unity.TextMeshPro.csproj" />
+    <ProjectReference Include="../Pkg.InputSystem/Unity.InputSystem.csproj" />
+  </ItemGroup>
+</Project>

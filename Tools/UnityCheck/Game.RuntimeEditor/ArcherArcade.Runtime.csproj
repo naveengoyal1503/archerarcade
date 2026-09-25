@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- ArcherArcade.Runtime as the Unity Editor compiles it (UNITY_EDITOR branches). -->
+  <PropertyGroup>
+    <AssemblyName>ArcherArcade.Runtime</AssemblyName>
+    <DefineConstants>$(EditorDefines)</DefineConstants>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(GameAssets)/Runtime/**/*.cs" />
+    <Reference Include="$(UnityData)/Managed/UnityEditor.dll"><Private>false</Private></Reference>
+    <Reference Include="$(UnityData)/Managed/UnityEngine/UnityEditor*.dll"><Private>false</Private></Reference>
+    <ProjectReference Include="../../LogicTests/Logic/Logic.csproj" />
+    <ProjectReference Include="../Pkg.UGUI/UnityEngine.UI.csproj" />
+    <ProjectReference Include="../Pkg.TMP/Unity.TextMeshPro.csproj" />
+    <ProjectReference Include="../Pkg.InputSystem/Unity.InputSystem.csproj" />
+  </ItemGroup>
+</Project>

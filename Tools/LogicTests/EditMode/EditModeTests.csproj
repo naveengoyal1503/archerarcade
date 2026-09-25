@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Runs the EditMode tests that only need Logic (same NUnit 3 API as the Unity Test Framework).
+       Usage: dotnet test Tools/LogicTests/EditMode -->
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../../Assets/ArcherArcade/Tests/EditMode/Pure/**/*.cs" />
+    <Compile Include="../../../Assets/ArcherArcade/Runtime/Tweening/Ease.cs" />
+    <Compile Include="../../../Assets/ArcherArcade/Runtime/Tweening/EaseType.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="../Logic/Logic.csproj" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="NUnit" Version="3.14.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.6.0" />
+  </ItemGroup>
+</Project>

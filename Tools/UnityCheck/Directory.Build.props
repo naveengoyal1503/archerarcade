@@ -1,0 +1,35 @@
+<Project>
+  <!--
+    Unity compile check without a Unity licence: compiles the game's Runtime and Editor code (and the Unity
+    packages it uses) against the managed DLLs of the same Unity version. It proves the C# compiles; it does not
+    run anything. Get the DLLs once with Tools/UnityCheck/fetch_unity_refs.sh, then:
+      dotnet build Tools/UnityCheck/Game.Runtime        (player / Android defines)
+      dotnet build Tools/UnityCheck/Game.RuntimeEditor  (UNITY_EDITOR defines)
+      dotnet build Tools/UnityCheck/Game.Editor         (editor scripts)
+      dotnet build Tools/UnityCheck/Game.PlayModeTests  (PlayMode tests, with the Test Framework runtime)
+  -->
+  <PropertyGroup>
+    <UnityRef Condition="'$(UnityRef)' == ''">/opt/unityref</UnityRef>
+    <UnityData>$(UnityRef)/Editor/Data</UnityData>
+    <UnityPackages>$(UnityData)/Resources/PackageManager/BuiltInPackages</UnityPackages>
+    <UnityExtraPackages>$(UnityRef)/packages</UnityExtraPackages>
+    <GameAssets>$(MSBuildThisFileDirectory)../../Assets/ArcherArcade</GameAssets>
+
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <NoWarn>$(NoWarn);CS0618;CS0649;CS0169;CS0414;CS0067;CS0108;CS0162;CS0219;CS1998;CS8032</NoWarn>
+    <UnityVersionDefines>UNITY_5_3_OR_NEWER;UNITY_5_4_OR_NEWER;UNITY_5_5_OR_NEWER;UNITY_5_6_OR_NEWER;UNITY_2017_1_OR_NEWER;UNITY_2017_2_OR_NEWER;UNITY_2017_3_OR_NEWER;UNITY_2017_4_OR_NEWER;UNITY_2018_1_OR_NEWER;UNITY_2018_2_OR_NEWER;UNITY_2018_3_OR_NEWER;UNITY_2018_4_OR_NEWER;UNITY_2019_1_OR_NEWER;UNITY_2019_2_OR_NEWER;UNITY_2019_3_OR_NEWER;UNITY_2019_4_OR_NEWER;UNITY_2020_1_OR_NEWER;UNITY_2020_2_OR_NEWER;UNITY_2020_3_OR_NEWER;UNITY_2021_1_OR_NEWER;UNITY_2021_2_OR_NEWER;UNITY_2021_3_OR_NEWER;UNITY_2022_1_OR_NEWER;UNITY_2022_2_OR_NEWER;UNITY_2022_3_OR_NEWER;UNITY_2023_1_OR_NEWER;UNITY_2023_2_OR_NEWER;UNITY_2023_3_OR_NEWER;UNITY_6000_0_OR_NEWER;UNITY_6000_1_OR_NEWER;UNITY_6000_2_OR_NEWER;UNITY_6000_3_OR_NEWER;UNITY_6000_3;UNITY_6000;CSHARP_7_3_OR_NEWER;ENABLE_INPUT_SYSTEM;PACKAGE_PHYSICS;PACKAGE_PHYSICS2D;PACKAGE_ANIMATION;PACKAGE_TILEMAP;UNITY_INPUT_SYSTEM_ENABLE_UI;UNITY_INPUT_SYSTEM_ENABLE_PHYSICS;UNITY_INPUT_SYSTEM_ENABLE_PHYSICS2D;UNITY_POST_PROCESSING_STACK_V2;ENABLE_MONO;NET_STANDARD_2_1;NET_STANDARD</UnityVersionDefines>
+    <PlayerDefines>$(UnityVersionDefines);UNITY_ANDROID;PLATFORM_ANDROID;UNITY_ANDROID_API</PlayerDefines>
+    <EditorDefines>$(UnityVersionDefines);UNITY_EDITOR;UNITY_EDITOR_64;UNITY_EDITOR_LINUX;UNITY_ANDROID;PLATFORM_ANDROID;UNITY_INCLUDE_TESTS</EditorDefines>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="$(UnityData)/Managed/UnityEngine/*.dll" Exclude="$(UnityData)/Managed/UnityEngine/UnityEditor*.dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

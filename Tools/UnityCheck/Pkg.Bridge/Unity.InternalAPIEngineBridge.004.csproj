@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Unity.InternalAPIEngineBridge.004</AssemblyName>
+    <DefineConstants>$(PlayerDefines)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UnityPackages)/com.unity.ugui/Runtime/InternalBridge/**/*.cs" />
+  </ItemGroup>
+</Project>

@@ -204,10 +204,13 @@ Boosters are never required: every level is tested to be winnable without them.
 ### 6.2 Difficulty profiles (config)
 | Profile | Angle σ | Power σ | Learn / miss | Head aim | Ability use | Think time |
 |---|---|---|---|---|---|---|
-| Easy | 6.0° | 10 % | −15 % | 0 % | never | 1.0–1.4 s |
-| Medium | 3.5° | 6 % | −35 % | 15 % | when charged, 50 % | 0.8–1.2 s |
-| Hard | 1.6° | 3 % | −50 % | 60 % | when charged | 0.6–1.0 s |
-| Boss | 1.2° | 2.5 % | −50 % | 70 % | always + boss moves | 0.6–0.9 s |
+| Easy | 12.0° | 20 % | −15 % | 0 % | never | 1.0–1.4 s |
+| Medium | 5.5° | 9.5 % | −35 % | 15 % | when charged, 50 % | 0.8–1.2 s |
+| Hard | 2.8° | 5 % | −50 % | 60 % | when charged | 0.6–1.0 s |
+| Boss | 1.8° | 3.5 % | −50 % | 70 % | always + boss moves | 0.6–0.9 s |
+
+Angle/power σ were tuned (2026-09-25) so the §6.3 fairness tests land mid-range; the first values (6.0/3.5/1.6/1.2°,
+10/6/3/2.5 %) made every profile too accurate (Easy 38 %, Medium 60 %, Hard 82 %, Boss 86 %).
 
 ### 6.3 Fairness targets (verified by EditMode tests, 1,000 simulated duels per profile)
 - First-shot hit rate on a 20 m target in wind 2: Easy 15–30 %, Medium 30–50 %, Hard 55–75 %, Boss 65–85 %.
@@ -336,10 +339,15 @@ Badge wall (Badges screen) + pin up to 3 on the Home profile card. Unlock toast 
 ## 12. UI and art direction
 
 - **Look**: bright cartoon, chunky 3D-looking buttons with a pressed pose, rounded glass cards, big readable
-  numbers. Display font rounded (e.g. Fredoka), body Nunito. **Light theme** candy colors; **dark theme** uses
-  the NaveenCodes dark + gold accent (decision to confirm in the Claude Design prototype, see PROGRESS Decisions).
-- World 1 art: parallax forest (4 layers), sun rays, drifting leaves, fireflies at dusk levels.
+  numbers. Display font rounded (e.g. Fredoka), body Nunito. **Light theme** candy colors (confirmed by Naveen);
+  **dark theme** deep purple + gold accent as in the Claude Design prototype (DESIGN_TOKENS §2).
+- World 1 art: parallax forest (sky + 3 layers + floating far islands), sun rays, drifting leaves, wind streaks,
+  fireflies at dusk and night levels, stars and moon at night.
 - Characters: stylized, big heads (readable headshots), thick outlines, idle breathing, squash/stretch.
+  **2.5D** (confirmed by Naveen): the Design roster's parts rendered with baked 3D volume shading ("vinyl toy":
+  highlight, rim light, ambient occlusion), depth-tinted back limbs and a soft ground shadow, assembled every
+  frame by the roster's own rig (same bone names and pivots) — see PROGRESS Decisions log. The game is played on a
+  2D side plane (Logic is 2D). Final art replaces parts by id.
 - Motion: UI pops 150–300 ms easeOutBack; screen transitions 250 ms; coin fly 600 ms; everything with unscaled time.
 - Match HUD (our own design, not copied): health bar + portrait for both sides, **ability/power bar**
   (charges over turns), wind gauge, turn timer, **arrow-tip bar** at the bottom (owned tips with ammo, locked tips

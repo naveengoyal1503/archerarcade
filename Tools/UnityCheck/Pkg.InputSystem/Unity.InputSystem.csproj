@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Unity.InputSystem</AssemblyName>
+    <DefineConstants>$(PlayerDefines)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UnityExtraPackages)/com.unity.inputsystem/InputSystem/**/*.cs"
+             Exclude="$(UnityExtraPackages)/com.unity.inputsystem/InputSystem/**/Editor/**/*.cs;$(UnityExtraPackages)/com.unity.inputsystem/InputSystem/Runtime/Plugins/InputForUI/**/*.cs" />
+    <ProjectReference Include="../Pkg.UGUI/UnityEngine.UI.csproj" />
+  </ItemGroup>
+</Project>

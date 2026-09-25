@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Unity.TextMeshPro</AssemblyName>
+    <DefineConstants>$(PlayerDefines)</DefineConstants>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(UnityPackages)/com.unity.ugui/Runtime/TMP/**/*.cs" />
+    <ProjectReference Include="../Pkg.UGUI/UnityEngine.UI.csproj" />
+    <ProjectReference Include="../Pkg.Bridge/Unity.InternalAPIEngineBridge.004.csproj" />
+  </ItemGroup>
+</Project>

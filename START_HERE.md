@@ -29,19 +29,35 @@ one phone** (pass-and-play). Premium UI like MindTap. **Free forever** — no ad
 - Multiplayer v1 = same phone. Online only in 2.0. No INTERNET permission until then. Match logic is pure C#,
   deterministic and input-driven (shot = angle, power, tip, ability) so online can be added later.
 - A reference stickman archery game was shown ONLY to explain features. Never copy its UI, layout or art.
-- Characters are being designed in Claude Design as SVG with separate named parts + pivots (for 2D skeletal
-  animation). Until they arrive, use geometric stand-ins with the same rig bones.
+- Characters come from the Claude Design roster (SVG parts + pivots), exported to shaded 2.5D rig sprites by
+  `Tools/art` and animated by `Archers/RigSolver` (the design's own rig maths).
 
 ## Current status
-- Phase 0: docs done. **Pending:** Claude Design prototype (screens + characters), Naveen approves the look,
-  export into `Design/`, fill DESIGN_TOKENS, answer the open questions in PROGRESS.md.
-- No Unity project yet. Phase 1 starts after the design is approved (or with stand-ins if Naveen says start now).
+- See `Docs/PROGRESS.md` for the live checklist. All 15 phases are code complete: Logic (tested with
+  `dotnet test Tools/LogicTests/EditMode`, 248 tests), Runtime (menus, match, 2.5D archers, arena, VFX, audio),
+  Editor builders and PlayMode tests — all compiled against Unity 6000.3.24f1's DLLs with
+  `dotnet build Tools/UnityCheck/Game.Runtime` / `Game.RuntimeEditor` / `Game.Editor` / `Game.PlayModeTests`.
+- The Unity project has not been opened yet: running in Unity, the device checks and the APK wait for Naveen's PC.
+- Generated content (re-run instead of hand-editing): art `node Tools/art/export_art.mjs` +
+  `python Tools/art/build_art.py`, fonts `python Tools/build_fonts.py`, audio `python Tools/gen_sounds.py`,
+  store art `python Tools/art/make_store_art.py`.
 
-## Open questions (ask Naveen if still open)
-1. Style: candy / NaveenCodes dark + gold / **mix** (dark theme = NaveenCodes dark+gold, light = candy) — recommended: mix.
-2. Art: 2D cartoon sprites or 2.5D 3D-looking characters?
-3. Final art/music from Naveen, or generated/placeholder replaced later by id?
-4. Name "Archer Arcade" and package final?
+## First open on Naveen's PC (once)
+1. Unity Hub ▸ Add ▸ this folder, editor 6000.3.24f1. Unity reads `Packages/manifest.json` (URP, uGUI/TMP,
+   Input System, Test Framework) and creates ProjectSettings.
+2. If Unity asks to enable the new Input System backend and restart: Yes.
+3. Menu **ArcherArcade ▸ Build ▸ All** (project settings, GameConfig asset, import rules, scenes). Run it again once
+   after the restart so the URP asset and TMP essentials are in place.
+4. Open `Assets/ArcherArcade/Scenes/Boot.unity` ▸ Play. Game view 1688 × 780 (844 × 390 × 2) to match the design.
+5. Tests: Window ▸ General ▸ Test Runner ▸ EditMode + PlayMode ▸ Run All.
+6. Design check: **ArcherArcade ▸ Capture ▸ Screens + Match** → `Builds/Capture/`.
+7. APK: **ArcherArcade ▸ Build ▸ Android APK (dev)** → `Builds/Android/ArcherArcade.apk` (AAB only when asked).
+
+## Open questions — answered 2026-09-25
+1. Style: light theme = candy colors (dark = prototype purple + gold).
+2. Art: **2.5D** (3D toon characters, 2D gameplay plane).
+3. Placeholder art/music now, replaced later by id.
+4. Name "Archer Arcade" + package `com.naveencodes.archerarcade`: final.
 
 ## Reuse from MindTap (C:\Users\navee\Desktop\NaveenCodes\apps\Arrow)
 Same Unity install `E:\Unity\Editors\6000.3.24f1` (C: is nearly full — keep caches on E:), adb in

@@ -1,0 +1,46 @@
+# Unity
+/[Ll]ibrary/
+/[Tt]emp/
+/[Oo]bj/
+/[Bb]uild/
+/[Bb]uilds/
+/[Ll]ogs/
+/[Uu]ser[Ss]ettings/
+/[Mm]emoryCaptures/
+*.csproj
+*.sln
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.apk
+*.aab
+*.keystore
+crashlytics-build.properties
+.vs/
+.vscode/
+.idea/
+
+# Logic test harness (dotnet)
+!/Tools/LogicTests/**/*.csproj
+/Tools/LogicTests/bin/
+/Tools/LogicTests/obj/
+/Tools/LogicTests/**/bin/
+/Tools/LogicTests/**/obj/
+
+# Unity compile check (dotnet, against Unity's managed DLLs)
+!/Tools/UnityCheck/**/*.csproj
+/Tools/UnityCheck/**/bin/
+/Tools/UnityCheck/**/obj/
+
+# Tool download caches (fonts etc.)
+/Tools/.cache/
+
+# Rig preview tool (dotnet)
+!/Tools/RigPreview/*.csproj
+/Tools/RigPreview/bin/
+/Tools/RigPreview/obj/
+!/Tools/ScenePreview/*.csproj
+/Tools/ScenePreview/bin/
+/Tools/ScenePreview/obj/

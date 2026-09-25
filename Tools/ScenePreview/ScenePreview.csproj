@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Scene preview: builds real matches with the game's Logic and prints their layout as JSON (islands, walls, props,
+    archers). Tools/art/preview_arena.py draws them with the exported art and the Runtime's placement rules, so
+    arena composition can be checked without Unity:
+      dotnet run -\-project Tools/ScenePreview > /tmp/scenes.json && python Tools/art/preview_arena.py /tmp/scenes.json
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../LogicTests/Logic/Logic.csproj" />
+  </ItemGroup>
+</Project>
