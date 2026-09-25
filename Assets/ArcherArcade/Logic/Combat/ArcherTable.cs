@@ -1,28 +1,45 @@
 namespace ArcherArcade.Logic
 {
-    /// <summary>Default v1.0 hero archers (GAME_DESIGN §4). Enemy stats come from level data.</summary>
+    /// <summary>Default v1.0 hero archers (GAME_DESIGN §4). Enemy types are in <see cref="EnemyTable"/>.</summary>
     public static class ArcherTable
     {
+        public static ArcherDef[] Heroes() => new[] { Ranger(), FireArcher(), ElectricArcher(), BombArcher() };
+
+        public static ArcherDef Hero(string id)
+        {
+            switch (id)
+            {
+                case "fire": return FireArcher();
+                case "electric": return ElectricArcher();
+                case "bomb": return BombArcher();
+                default: return Ranger();
+            }
+        }
+
         public static ArcherDef Ranger() => new ArcherDef
         {
-            Id = "ranger", Element = Element.None, BaseHp = 100, BaseDamage = 25, PreviewBonus = 0.10
+            Id = "ranger", Element = Element.None, BaseHp = 100, BaseDamage = 25, PreviewBonus = 0.10,
+            Ability = AbilityKind.TripleShot, Unlock = ArcherUnlock.Owned
         };
 
         public static ArcherDef FireArcher() => new ArcherDef
         {
-            Id = "fire", Element = Element.Fire, BaseHp = 95, BaseDamage = 25, PassiveBurnPerTurn = 6, PassiveBurnTurns = 2
+            Id = "fire", Element = Element.Fire, BaseHp = 95, BaseDamage = 25, PassiveBurnPerTurn = 6, PassiveBurnTurns = 2,
+            Ability = AbilityKind.MeteorArrow, Unlock = new ArcherUnlock(UnlockKind.ClearLevel, 5)
         };
 
         public static ArcherDef ElectricArcher() => new ArcherDef
         {
             Id = "electric", Element = Element.Electric, BaseHp = 100, BaseDamage = 24,
-            PassiveChainFraction = 0.5, PassiveChainRadius = 3.0
+            PassiveChainFraction = 0.5, PassiveChainRadius = 3.0,
+            Ability = AbilityKind.StormBolt, Unlock = new ArcherUnlock(UnlockKind.Stars, 20)
         };
 
         public static ArcherDef BombArcher() => new ArcherDef
         {
             Id = "bomb", Element = Element.Bomb, BaseHp = 105, BaseDamage = 22,
-            PassiveSplashDamage = 10, PassiveSplashRadius = 1.2
+            PassiveSplashDamage = 10, PassiveSplashRadius = 1.2,
+            Ability = AbilityKind.ClusterBomb, Unlock = new ArcherUnlock(UnlockKind.ClearLevel, 20)
         };
 
         /// <summary>A plain opponent (Bandit Archer style) with the given HP and damage.</summary>

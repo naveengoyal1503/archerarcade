@@ -23,5 +23,8 @@ namespace ArcherArcade.Logic
 
         /// <summary>Stands on top of this crate tower (Tower Sniper), −1 = none. Drops when crates are knocked off.</summary>
         public int StandOnTower = -1;
+
+        /// <summary>Boosters picked in the Loadout (one of each at most; duplicates are ignored).</summary>
+        public BoosterKind[] Boosters = new BoosterKind[0];
     }
 }

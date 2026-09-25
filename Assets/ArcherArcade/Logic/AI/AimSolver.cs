@@ -40,7 +40,7 @@ namespace ArcherArcade.Logic
             solution = default;
             double step = r.AngleStepDeg > 0.0 ? r.AngleStepDeg : 0.5;
             int count = (int)((cfg.MaxAngleDeg - cfg.MinAngleDeg) / step + 1e-9) + 1;
-            Vec2 acc = Ballistics.Acceleration(r.Wind, r.GravityScale, cfg);
+            Vec2 acc = Ballistics.Acceleration(r.Wind, r.GravityScale, cfg, r.WindScale);
 
             for (int i = 0; i < count; i++)
             {
@@ -53,6 +53,8 @@ namespace ArcherArcade.Logic
             }
             return false;
         }
+
+        static double SpeedScale(in AimRequest r) => r.SpeedScale > 0.0 ? r.SpeedScale : 1.0;
 
         static bool SolvePowerForAngle(in AimRequest r, ShotConfig cfg, Vec2 acc, double angle, out double power, out double time)
         {
@@ -85,7 +87,7 @@ namespace ArcherArcade.Logic
         {
             time = 0.0;
             Vec2 pos = r.Origin;
-            Vec2 vel = Ballistics.LaunchVelocity(angle, power, r.Facing, cfg);
+            Vec2 vel = Ballistics.LaunchVelocity(angle, power, r.Facing, cfg, SpeedScale(r));
             double dt = cfg.StepSeconds;
             int maxSteps = (int)(cfg.MaxFlightSeconds * cfg.SimHz);
             double dir = r.Facing >= 0 ? 1.0 : -1.0;
@@ -117,7 +119,7 @@ namespace ArcherArcade.Logic
             ArenaLayout arena, int shooter, ColliderKind targetKind, int targetOwner, HitZone zone)
         {
             Vec2 pos = r.Origin;
-            Vec2 vel = Ballistics.LaunchVelocity(angle, power, r.Facing, cfg);
+            Vec2 vel = Ballistics.LaunchVelocity(angle, power, r.Facing, cfg, SpeedScale(r));
             double dt = cfg.StepSeconds;
             int maxSteps = (int)(cfg.MaxFlightSeconds * cfg.SimHz);
             double time = 0.0;

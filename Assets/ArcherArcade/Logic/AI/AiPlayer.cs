@@ -9,6 +9,7 @@ namespace ArcherArcade.Logic
     {
         readonly AiProfile _profile;
         readonly Rng _rng;
+        readonly TipDef _arrow = new TipDef();
 
         public AiPlayer(AiProfile profile, ulong seed)
         {
@@ -30,15 +31,20 @@ namespace ArcherArcade.Logic
             double think = _rng.Range(_profile.ThinkMinSeconds, _profile.ThinkMaxSeconds);
             double angleNoise = _rng.NextGaussian();
             double powerNoise = _rng.NextGaussian();
+            double abilityRoll = _rng.NextDouble();
+
+            bool useAbility = me.AbilityReady && WantsAbility(abilityRoll);
+            TipDef arrow = match.BuildShotTip(me, ArrowTip.Normal, useAbility, me.MultiArrowLeft, _arrow);
 
             var decision = new AiDecision { ThinkSeconds = think * (1.0 + me.Status.ActiveDrawSlow) };
             ShotInput perfect;
             HitZone zone;
-            if (!TrySolve(match, me, head ? HitZone.Head : HitZone.Body, out perfect, out zone))
+            if (!TrySolve(match, me, arrow, head ? HitZone.Head : HitZone.Body, out perfect, out zone))
             {
                 perfect = new ShotInput(45.0, 0.75);
                 zone = HitZone.None;
             }
+            perfect.UseAbility = useAbility;
 
             ShotConfig cfg = match.Setup.Shot;
             ShotInput shot = perfect;
@@ -65,8 +71,21 @@ namespace ArcherArcade.Logic
             ErrorScale *= 1.0 - _profile.LearnPerMiss;
         }
 
+        bool WantsAbility(double roll)
+        {
+            switch (_profile.AbilityUse)
+            {
+                case AbilityUse.Sometimes: return roll < _profile.AbilityChance;
+                case AbilityUse.WhenCharged:
+                case AbilityUse.Always:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         /// <summary>Wanted zone first, then any zone, then the zone's point ignoring cover.</summary>
-        static bool TrySolve(MatchState match, Fighter me, HitZone wanted, out ShotInput input, out HitZone zone)
+        static bool TrySolve(MatchState match, Fighter me, TipDef arrow, HitZone wanted, out ShotInput input, out HitZone zone)
         {
             input = default;
             zone = wanted;
@@ -76,7 +95,10 @@ namespace ArcherArcade.Logic
             ShotConfig cfg = match.Setup.Shot;
             CollisionWorld world = match.BuildWorld();
 
-            var req = AimRequest.Create(me.BowPosition(cfg), me.Facing, match.Setup.Body.ZoneCenter(wanted, foe.Feet), match.Wind);
+            var req = AimRequest.Create(me.BowPosition(cfg), me.Facing, match.Setup.Body.ZoneCenter(wanted, foe.Feet), match.Wind,
+                arrow.GravityScale);
+            req.SpeedScale = arrow.SpeedScale;
+            req.WindScale = arrow.WindScale;
             req.Clock = match.Clock;
             AimSolution sol;
             if (AimSolver.SolveValidated(req, cfg, world, match.Setup.Arena, me.Index, foeIndex, wanted, out sol))

@@ -1,8 +1,8 @@
 namespace ArcherArcade.Logic
 {
     /// <summary>
-    /// One archer or enemy type: level-1 stats, element and passive (GAME_DESIGN §4). Abilities are added in
-    /// Phase 7. Filled by the Runtime archer config; defaults in <see cref="ArcherTable"/>.
+    /// One archer or enemy type: level-1 stats, element, passive, ability and behaviour (GAME_DESIGN §4, §4.1).
+    /// Filled by the Runtime archer config; defaults in <see cref="ArcherTable"/> and <see cref="EnemyTable"/>.
     /// </summary>
     public sealed class ArcherDef
     {
@@ -10,6 +10,10 @@ namespace ArcherArcade.Logic
         public Element Element = Element.None;
         public int BaseHp = 100;
         public double BaseDamage = 25.0;
+
+        public AbilityKind Ability = AbilityKind.None;
+        public ArcherUnlock Unlock = ArcherUnlock.Owned;
+        public int MaxLevel = 10;
 
         /// <summary>Ranger: trajectory preview longer by this share (0.10 = +10 %).</summary>
         public double PreviewBonus;
@@ -25,5 +29,24 @@ namespace ArcherArcade.Logic
         /// <summary>Bomb Archer: arrows explode on impact.</summary>
         public double PassiveSplashDamage;
         public double PassiveSplashRadius;
+
+        // Enemy behaviour (GAME_DESIGN §4.1).
+
+        /// <summary>Crossbow Scout: flatter, faster shots.</summary>
+        public double ShotSpeedScale = 1.0;
+        public double ShotGravityScale = 1.0;
+
+        /// <summary>Twin Shooter: aimed shots per turn.</summary>
+        public int ShotsPerTurn = 1;
+
+        /// <summary>Healer Druid: heals this much at the start of every Nth own turn.</summary>
+        public int HealAmount;
+        public int HealEveryTurns;
+
+        /// <summary>Bubble caster: casts a shield bubble at the start of every Nth own turn.</summary>
+        public int BubbleEveryTurns;
+
+        /// <summary>Shield Bearer: carries a wooden shield in front (added as a prop).</summary>
+        public bool CarriesShield;
     }
 }

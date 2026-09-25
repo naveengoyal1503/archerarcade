@@ -91,33 +91,42 @@ and this file updated. The game must run after every phase.
 ## Phase 6 — Match flow and HUD
 - [ ] Match HUD: two HP bars + names + archer portraits, wind gauge, turn timer ring, ability button (charge
       ring), arrow picker (ammo counts), pause, turn banner ("Your turn" / "Moss is aiming…")
-- [ ] Turn system: coin-flip intro (duels), timer ticks + timeout, status ticks at turn start
+- [~] Turn system: coin-flip intro (duels), timer ticks + timeout, status ticks at turn start — rules done in
+      `MatchState` (seeded coin flip, 12 s timer, timeout passes the turn, statuses tick at turn start); the
+      coin-flip animation is Runtime
 - [ ] Pause modal (resume, restart, settings, quit) with timeScale 0; Android Back opens it
 - [ ] Victory screen: stars pop one by one, coins fly into the counter, badge progress, next / replay / home
 - [ ] Defeat screen: tip, retry, assist offer after 3 losses, home
 - [ ] Level intro card ("New!" idea cards) and goal banner for target / apple / rescue / gauntlet levels
 
 ## Phase 7 — Archers, abilities, arrow tips, injury looks, enemies
-- [ ] Archer data (SO): stats, passive, ability, unlock rule, upgrade curve, skins
-- [ ] Ranger: passive (longer preview) + Triple Shot
-- [ ] Fire Archer: burn passive + Meteor Arrow (splash + burn)
-- [ ] Electric Archer: chain passive + Storm Bolt (ignores wind, chains twice)
-- [ ] Bomb Archer: explosive passive + Cluster Bomb (3 bomblets at apex)
-- [ ] Ability charge (3 turns, 2 after a headshot), button states, cast animation + VFX + SFX per element
-- [ ] 8 arrow tips (GAME_DESIGN §5): Normal, Fire, Electric, Split, Bomb, Heavy, Ice, Poison — glow in flight,
-      unlock by level (Fire L3 … Poison L18), ammo per match, arrow-tip bar in the HUD with locked tips + level
+- [~] Archer data (SO): stats, passive, ability, unlock rule, upgrade curve, skins — `ArcherDef`/`ArcherTable`
+      (stats, passive, ability, unlock rule, max level); SO wrapper, upgrade costs and skins come with Phase 11
+- [x] Ranger: passive (longer preview) + Triple Shot (Logic; the preview itself is Runtime)
+- [x] Fire Archer: burn passive + Meteor Arrow (splash + burn)
+- [x] Electric Archer: chain passive + Storm Bolt (ignores wind, chains twice)
+- [x] Bomb Archer: explosive passive + Cluster Bomb (3 bomblets at apex)
+- [~] Ability charge (3 turns, 2 after a headshot), button states, cast animation + VFX + SFX per element —
+      charge rules done in Logic; button, animation, VFX, SFX are Runtime
+- [~] 8 arrow tips (GAME_DESIGN §5): Normal, Fire, Electric, Split, Bomb, Heavy, Ice, Poison — glow in flight,
+      unlock by level (Fire L3 … Poison L18), ammo per match, arrow-tip bar in the HUD with locked tips + level —
+      tips, ammo, unlock levels (`TipUnlocks`) done in Logic; glow + HUD bar are Runtime
 - [ ] Impact effects (§3.3.1): fireball + burning body, **lightning bolt from the sky** + stun + chain + pops
       bubbles, bomb explosion + knockback + debris, ice encase + slow draw, poison cloud 2 turns — each with its
       sound, haptic and camera move; pooled; scaled by "Reduce motion"
-- [ ] Archer + own element bonus (+20 %)
-- [ ] **Injury looks** (§3.3.2): 4 HP stages (scratches/torn cape → limp + cracked armor → dizzy stars +
-      bandage) + knockout poof; element marks (soot, frizzy hair, frost, green tint); stuck arrows stay visible
-- [ ] Enemy types (§4.1): Bandit Archer, Crossbow Scout, Shield Bearer, Twin Shooter, Healer Druid, Tower
-      Sniper, bubble-shield caster — looks + AI behaviour per type
-- [ ] Match boosters (§5.1): Shield Bubble, Multi Arrow, Iron Helmet, Extra Heart (coins only, never required)
-- [ ] Loadout screen: archer, skin, trail, up to 3 special tips, boosters
-- [ ] Tests: every ability's and tip's damage/area/status math, ammo limits, charge timing, injury stage per HP,
-      boosters apply once, every level winnable without boosters
+- [x] Archer + own element bonus (+20 %)
+- [~] **Injury looks** (§3.3.2): 4 HP stages (scratches/torn cape → limp + cracked armor → dizzy stars +
+      bandage) + knockout poof; element marks (soot, frizzy hair, frost, green tint); stuck arrows stay visible —
+      stage + marks computed in Logic (`Injury`, `Fighter.Marks`); the looks are Runtime
+- [~] Enemy types (§4.1): Bandit Archer, Crossbow Scout, Shield Bearer, Twin Shooter, Healer Druid, Tower
+      Sniper, bubble-shield caster — looks + AI behaviour per type — behaviour done (`EnemyTable`); looks Runtime
+- [~] Match boosters (§5.1): Shield Bubble, Multi Arrow, Iron Helmet, Extra Heart (coins only, never required) —
+      effects done in Logic; prices come with the economy (Phase 11)
+- [~] Loadout screen: archer, skin, trail, up to 3 special tips, boosters — rules done (`LoadoutRules`); screen is
+      Runtime
+- [~] Tests: every ability's and tip's damage/area/status math, ammo limits, charge timing, injury stage per HP,
+      boosters apply once, every level winnable without boosters — all done except "every level winnable",
+      which needs the level data (Phase 8)
 
 ## Phase 8 — Campaign World 1
 - [ ] Level data for levels 1–20 exactly as `LEVELS.md` (goals, opponents, distances, wind, props, par, rewards)
@@ -217,4 +226,6 @@ and this file updated. The game must run after every phase.
 | 2026-09-25 | AI noise σ tuned to meet GAME_DESIGN §6.3 (first values made every profile ~20 points too accurate): Easy 12°/20 %, Medium 5.5°/9.5 %, Hard 2.8°/5 %, Boss 1.8°/3.5 %. GAME_DESIGN §6.2 updated. |
 | 2026-09-25 | Props rules: a tower crate is knocked off by any single hit (standalone crates need 2); any explosion touching a tower topples it and sets off its TNT; explosions (TNT, barrels) hurt every archer in range, the shooter too; a knocked-down shield is back up when its owner's second turn after the knock starts (the shooter gets one free shot); arrows stop at ropes; Bomb knockback 0.8 m, never pushes off an island (stops 0.4 m from the edge and stumbles). |
 | 2026-09-25 | Moving targets follow a match clock that only advances with aiming time (`Tick`) and flight time, so release timing matters but stays deterministic. Replays / online must record the release clock (`ShotResult.Clock`) with each `ShotInput`. |
+| 2026-09-25 | Ability rules: Triple Shot fans the picked tip (one ammo, 60 % per arrow); Meteor, Storm Bolt and Cluster Bomb fire their own arrow (no ammo) whose damage is final (no archer-base scaling, no element bonus; upgrade level still scales it). Storm Bolt flies 25 % faster and ignores wind. Cluster bomblets split ±8°. The turn an ability is used does not count toward the next charge. Multi Arrow booster = Triple Shot fan on the first shot (60 %); it never stacks with Triple Shot. |
+| 2026-09-25 | Enemy rules: Twin Shooter gets 2 aimed shots per turn (timer resets for the 2nd); Healer Druid heals 10 at the start of every 2nd own turn (never above max); bubble casters cast at the start of every 3rd own turn; a bubble eats one arrow (no damage), Electric pops it and still hits; Iron Helmet turns the first headshot into a body hit (no headshot credit). Default enemy HP: Scout 70, Twin 80, Druid 90, Sniper 90, Bramble 120 (levels may override). |
 | 2026-09-25 | Cloud sessions have no Unity: Logic is compiled and tested with .NET 8 (`Tools/LogicTests`, same NUnit API). APKs and Unity-side checks happen on Naveen's PC. |

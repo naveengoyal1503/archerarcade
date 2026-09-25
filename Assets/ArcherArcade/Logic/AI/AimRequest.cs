@@ -18,6 +18,10 @@ namespace ArcherArcade.Logic
         /// <summary>Match clock at release (places moving props during validation).</summary>
         public double Clock;
 
+        /// <summary>Launch speed and wind multipliers of the arrow (see TipDef / ArcherDef).</summary>
+        public double SpeedScale;
+        public double WindScale;
+
         public static AimRequest Create(Vec2 origin, int facing, Vec2 target, double wind, double gravityScale = 1.0)
         {
             return new AimRequest
@@ -28,7 +32,9 @@ namespace ArcherArcade.Logic
                 Wind = wind,
                 GravityScale = gravityScale,
                 AngleStepDeg = 0.5,
-                PreferHighArc = false
+                PreferHighArc = false,
+                SpeedScale = 1.0,
+                WindScale = 1.0
             };
         }
     }

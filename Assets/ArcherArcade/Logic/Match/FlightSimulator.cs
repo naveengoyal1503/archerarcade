@@ -15,10 +15,19 @@ namespace ArcherArcade.Logic
 
         public static void Simulate(Vec2 origin, Vec2 velocity, Vec2 acceleration, int splitCount, double splitSpreadDeg,
             ShotConfig cfg, PropConfig props, CollisionWorld world, ArenaLayout arena, int ignoreOwner, double clock,
-            List<ArrowPath> output)
+            List<ArrowPath> output, int launchCount = 1, double launchSpreadDeg = 0.0)
         {
             int first = output.Count;
-            output.Add(ArrowPath.Launch(origin, velocity, acceleration, 0.0, -1, splitCount > 1 ? splitCount : 0));
+            int split = splitCount > 1 ? splitCount : 0;
+            output.Add(ArrowPath.Launch(origin, velocity, acceleration, 0.0, -1, split));
+
+            // Fans (Triple Shot, Multi Arrow): extra launched arrows either side of the aimed one (odd counts).
+            for (int k = 1; k <= (launchCount - 1) / 2; k++)
+            {
+                output.Add(ArrowPath.Launch(origin, velocity.Rotated(launchSpreadDeg * k), acceleration, 0.0, -1, split));
+                output.Add(ArrowPath.Launch(origin, velocity.Rotated(-launchSpreadDeg * k), acceleration, 0.0, -1, split));
+            }
+
             for (int i = first; i < output.Count; i++)
             {
                 ArrowPath path = output[i];

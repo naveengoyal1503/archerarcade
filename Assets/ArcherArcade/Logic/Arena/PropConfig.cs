@@ -21,5 +21,11 @@ namespace ArcherArcade.Logic
 
         /// <summary>A knocked-down shield comes back up this many turns after the knock (the shooter gets a free turn).</summary>
         public int ShieldDownTurns = 2;
+
+        /// <summary>Shield Bearer's shield: centre in front of the feet (along facing) and half size. Covers legs + body, not the head.</summary>
+        public double ShieldForward = 0.55;
+        public double ShieldCenterY = 0.72;
+        public double ShieldHalfWidth = 0.12;
+        public double ShieldHalfHeight = 0.72;
     }
 }

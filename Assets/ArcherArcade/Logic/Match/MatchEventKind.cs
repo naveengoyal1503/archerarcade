@@ -37,6 +37,17 @@ namespace ArcherArcade.Logic
         PlatformMoved,
         FighterDropped,
         Knockback,
-        Stumble
+        Stumble,
+
+        // Archers, abilities, boosters, enemy behaviour (Phase 7)
+        AbilityUsed,
+        AbilityReady,
+        BoosterUsed,
+        ExtraShot,
+        BubbleCast,
+        BubbleAbsorbed,
+        BubblePopped,
+        HelmetSaved,
+        Healed
     }
 }

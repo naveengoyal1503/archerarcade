@@ -27,17 +27,22 @@ namespace ArcherArcade.Tests
         }
 
         /// <summary>Exact shot from the current fighter at the opponent's zone, solved in the match's current wind.</summary>
-        public static ShotInput Aim(MatchState m, HitZone zone, ArrowTip tip = ArrowTip.Normal)
+        public static ShotInput Aim(MatchState m, HitZone zone, ArrowTip tip = ArrowTip.Normal, bool useAbility = false)
         {
             Fighter me = m.CurrentFighter;
             Fighter foe = m.GetFighter(m.ActiveFighter(1 - me.Side));
-            TipDef def = m.Setup.Tips[tip];
+            TipDef arrow = m.BuildShotTip(me, tip, useAbility, me.MultiArrowLeft, new TipDef());
             var req = AimRequest.Create(me.BowPosition(m.Setup.Shot), me.Facing, m.Setup.Body.ZoneCenter(zone, foe.Feet),
-                m.Wind, def.GravityScale);
+                m.Wind, arrow.GravityScale);
+            req.SpeedScale = arrow.SpeedScale;
+            req.WindScale = arrow.WindScale;
+            req.Clock = m.Clock;
             AimSolution sol;
             bool ok = AimSolver.SolveValidated(req, m.Setup.Shot, m.BuildWorld(), m.Setup.Arena, me.Index, foe.Index, zone, out sol);
             NUnit.Framework.Assert.IsTrue(ok, "solver found no shot at " + zone);
-            return sol.ToInput(tip);
+            ShotInput input = sol.ToInput(tip);
+            input.UseAbility = useAbility;
+            return input;
         }
 
         /// <summary>Exact shot from the current fighter that first touches prop <paramref name="prop"/>.</summary>

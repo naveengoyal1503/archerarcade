@@ -17,18 +17,24 @@ namespace ArcherArcade.Logic
             return DetMath.Lerp(cfg.MinSpeed, cfg.MaxSpeed, DetMath.Clamp01(power));
         }
 
-        /// <summary>Launch velocity. <paramref name="facing"/> is +1 (shoots right) or −1 (shoots left).</summary>
-        public static Vec2 LaunchVelocity(double angleDeg, double power, int facing, ShotConfig cfg)
+        /// <summary>
+        /// Launch velocity. <paramref name="facing"/> is +1 (shoots right) or −1 (shoots left);
+        /// <paramref name="speedScale"/> is for fast shots (Crossbow Scout, Storm Bolt).
+        /// </summary>
+        public static Vec2 LaunchVelocity(double angleDeg, double power, int facing, ShotConfig cfg, double speedScale = 1.0)
         {
             double a = DetMath.Clamp(angleDeg, cfg.MinAngleDeg, cfg.MaxAngleDeg);
-            double speed = SpeedFromPower(power, cfg);
+            double speed = SpeedFromPower(power, cfg) * speedScale;
             return new Vec2(facing * speed * DetMath.CosDeg(a), speed * DetMath.SinDeg(a));
         }
 
-        /// <summary>Acceleration from gravity (scaled by the tip) and wind (signed, + blows toward +x).</summary>
-        public static Vec2 Acceleration(double wind, double gravityScale, ShotConfig cfg)
+        /// <summary>
+        /// Acceleration from gravity (scaled by the tip) and wind (signed, + blows toward +x; scaled by
+        /// <paramref name="windScale"/>, 0 for shots that ignore wind).
+        /// </summary>
+        public static Vec2 Acceleration(double wind, double gravityScale, ShotConfig cfg, double windScale = 1.0)
         {
-            return new Vec2(wind * cfg.WindAccelPerUnit, -cfg.Gravity * gravityScale);
+            return new Vec2(wind * windScale * cfg.WindAccelPerUnit, -cfg.Gravity * gravityScale);
         }
 
         /// <summary>Exact constant-acceleration step.</summary>

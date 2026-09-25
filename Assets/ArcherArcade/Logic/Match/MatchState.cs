@@ -21,7 +21,10 @@ namespace ArcherArcade.Logic
         readonly ShotResult _shot = new ShotResult();
         readonly List<MatchEvent> _events = new List<MatchEvent>(32);
         readonly Queue<int> _explosions = new Queue<int>();
+        readonly TipDef _shotTip = new TipDef();
+        readonly List<int> _chained = new List<int>(4);
         int[] _order = new int[16];
+        int _shotsLeft;
 
         // Shot being resolved.
         Fighter _shooter;
@@ -36,17 +39,45 @@ namespace ArcherArcade.Logic
             _rng = new Rng(setup.Seed);
             _solo = !HasFighter(setup, 1);
             _fighters = new Fighter[setup.Fighters.Count];
-            for (int i = 0; i < _fighters.Length; i++) _fighters[i] = new Fighter(i, setup.Fighters[i], setup.Tips, setup.Damage);
-            _props = new Prop[setup.Props.Count];
-            for (int i = 0; i < _props.Length; i++) _props[i] = new Prop(i, setup.Props[i], setup.PropRules);
+            for (int i = 0; i < _fighters.Length; i++)
+                _fighters[i] = new Fighter(i, setup.Fighters[i], setup.Tips, setup.Damage, setup.Boosters, setup.Rules);
+
+            // Level props, then a wooden shield for every Shield Bearer.
+            int shields = 0;
+            for (int i = 0; i < _fighters.Length; i++)
+            {
+                if (_fighters[i].Def.CarriesShield) shields++;
+            }
+            _props = new Prop[setup.Props.Count + shields];
+            for (int i = 0; i < setup.Props.Count; i++) _props[i] = new Prop(i, setup.Props[i], setup.PropRules);
+            int next = setup.Props.Count;
+            for (int i = 0; i < _fighters.Length; i++)
+            {
+                if (!_fighters[i].Def.CarriesShield) continue;
+                _props[next] = new Prop(next, ShieldFor(_fighters[i], setup.PropRules), setup.PropRules);
+                next++;
+            }
 
             Winner = -1;
             int first = setup.FirstTurn == FirstTurnRule.CoinFlip && !_solo ? _rng.NextInt(2) : 0;
             BeginTurn(first);
         }
 
+        static PropSpec ShieldFor(Fighter f, PropConfig pc)
+        {
+            return new PropSpec
+            {
+                Kind = PropKind.Shield,
+                Shape = Shape.Box(new Vec2(f.Facing * pc.ShieldForward, pc.ShieldCenterY), new Vec2(pc.ShieldHalfWidth, pc.ShieldHalfHeight)),
+                ShieldOwner = f.Index
+            };
+        }
+
         public MatchSetup Setup => _setup;
         public MatchPhase Phase { get; private set; }
+
+        /// <summary>Aimed shots left in the current turn (Twin Shooter has 2).</summary>
+        public int ShotsLeftThisTurn => _shotsLeft;
 
         /// <summary>Side whose turn it is (0 or 1).</summary>
         public int CurrentSide { get; private set; }
@@ -149,10 +180,11 @@ namespace ArcherArcade.Logic
             if (Phase != MatchPhase.Aiming) return Reject(ShotRejectReason.MatchOver);
             if (double.IsNaN(input.AngleDeg) || double.IsNaN(input.Power) || (int)input.Tip < 0 || (int)input.Tip >= TipTable.Count)
                 return Reject(ShotRejectReason.InvalidInput);
-            if (input.UseAbility) return Reject(ShotRejectReason.AbilityUnavailable);
 
             Fighter shooter = CurrentFighter;
-            if (!shooter.HasAmmo(input.Tip)) return Reject(ShotRejectReason.NoAmmo);
+            if (input.UseAbility && !shooter.AbilityReady) return Reject(ShotRejectReason.AbilityUnavailable);
+            bool abilityReplacesTip = input.UseAbility && _setup.Abilities[shooter.Def.Ability].Arrow != null;
+            if (!abilityReplacesTip && !shooter.HasAmmo(input.Tip)) return Reject(ShotRejectReason.NoAmmo);
 
             ShotConfig cfg = _setup.Shot;
             input.AngleDeg = DetMath.Clamp(input.AngleDeg, cfg.MinAngleDeg, cfg.MaxAngleDeg);
@@ -163,14 +195,26 @@ namespace ArcherArcade.Logic
             _shot.Wind = Wind;
             _shot.Clock = Clock;
 
-            if (shooter.Ammo[(int)input.Tip] > 0) shooter.Ammo[(int)input.Tip]--;
+            TipDef tip = BuildShotTip(shooter, input.Tip, input.UseAbility, shooter.MultiArrowLeft, _shotTip);
+            if (!abilityReplacesTip && shooter.Ammo[(int)input.Tip] > 0) shooter.Ammo[(int)input.Tip]--;
+            if (input.UseAbility)
+            {
+                shooter.AbilityCharge = 0;
+                shooter.AbilityChargeNeeded = _setup.Rules.AbilityChargeTurns;
+                shooter.AbilityUsedThisTurn = true;
+                Push(MatchEventKind.AbilityUsed, shooter.Index, shooter.Index, (int)shooter.Def.Ability, 0.0, shooter.Feet, -1);
+            }
+            if (shooter.MultiArrowLeft)
+            {
+                shooter.MultiArrowLeft = false;
+                Push(MatchEventKind.BoosterUsed, shooter.Index, shooter.Index, (int)BoosterKind.MultiArrow, 0.0, shooter.Feet, -1);
+            }
 
-            TipDef tip = _setup.Tips[input.Tip];
             Vec2 origin = shooter.BowPosition(cfg);
-            Vec2 velocity = Ballistics.LaunchVelocity(input.AngleDeg, input.Power, shooter.Facing, cfg);
-            Vec2 accel = Ballistics.Acceleration(Wind, tip.GravityScale, cfg);
+            Vec2 velocity = Ballistics.LaunchVelocity(input.AngleDeg, input.Power, shooter.Facing, cfg, tip.SpeedScale);
+            Vec2 accel = Ballistics.Acceleration(Wind, tip.GravityScale, cfg, tip.WindScale);
             FlightSimulator.Simulate(origin, velocity, accel, tip.SplitCount, tip.SplitSpreadDeg, cfg, _setup.PropRules,
-                BuildWorld(), _setup.Arena, shooter.Index, Clock, _shot.Arrows);
+                BuildWorld(), _setup.Arena, shooter.Index, Clock, _shot.Arrows, tip.LaunchCount, tip.LaunchSpreadDeg);
 
             _shooter = shooter;
             _tip = tip;
@@ -188,12 +232,66 @@ namespace ArcherArcade.Logic
             {
                 EndMatch(foeSide, _shot.Duration);
             }
+            else if (--_shotsLeft > 0)
+            {
+                // Twin Shooter: another aimed shot in the same turn, with a fresh timer.
+                TurnTimeLeft = _setup.Rules.TurnSeconds;
+                Push(MatchEventKind.ExtraShot, shooter.Index, -1, _shotsLeft, _shot.Duration, shooter.Feet, -1);
+            }
             else
             {
-                shooter.Status.EndTurn();
+                FinishTurn(shooter);
                 BeginTurn(NextSide());
             }
             return _shot;
+        }
+
+        /// <summary>
+        /// The arrow a shot really fires: the picked tip, or the ability's own arrow, fanned out by Triple Shot /
+        /// Multi Arrow, with the archer's shot style (Crossbow Scout) applied. Writes into <paramref name="into"/>.
+        /// </summary>
+        public TipDef BuildShotTip(Fighter shooter, ArrowTip picked, bool useAbility, bool multiArrow, TipDef into)
+        {
+            AbilityDef ability = useAbility ? _setup.Abilities[shooter.Def.Ability] : null;
+            if (ability != null && ability.Arrow != null)
+            {
+                into.CopyFrom(ability.Arrow);
+            }
+            else
+            {
+                into.CopyFrom(_setup.Tips[picked]);
+                if (ability != null && ability.LaunchCount > 1)
+                {
+                    into.LaunchCount = ability.LaunchCount;
+                    into.LaunchSpreadDeg = ability.LaunchSpreadDeg;
+                    into.Damage *= ability.DamageScale;
+                    into.SplashDamage *= ability.DamageScale;
+                }
+            }
+            if (multiArrow && into.LaunchCount < _setup.Boosters.MultiArrowCount)
+            {
+                BoosterConfig bc = _setup.Boosters;
+                into.LaunchCount = bc.MultiArrowCount;
+                into.LaunchSpreadDeg = bc.MultiArrowSpreadDeg;
+                into.Damage *= bc.MultiArrowDamageScale;
+                into.SplashDamage *= bc.MultiArrowDamageScale;
+            }
+            into.SpeedScale *= shooter.Def.ShotSpeedScale;
+            into.GravityScale *= shooter.Def.ShotGravityScale;
+            return into;
+        }
+
+        /// <summary>End of an archer's turn (shot or timeout): ability charge and status clean-up.</summary>
+        void FinishTurn(Fighter f)
+        {
+            f.Status.EndTurn();
+            if (!f.HasAbility || f.AbilityUsedThisTurn) return;
+            bool wasReady = f.AbilityReady;
+            f.AbilityCharge++;
+            if (f.HeadshotThisTurn && f.AbilityChargeNeeded > _setup.Rules.HeadshotChargeTurns)
+                f.AbilityChargeNeeded = _setup.Rules.HeadshotChargeTurns;
+            if (!wasReady && f.AbilityReady)
+                Push(MatchEventKind.AbilityReady, f.Index, -1, (int)f.Def.Ability, 0.0, f.Feet, -1);
         }
 
         ShotResult Reject(ShotRejectReason reason)
@@ -264,19 +362,41 @@ namespace ArcherArcade.Logic
                 return;
             }
 
+            int chainCount = tip.ChainFraction > 0.0 && tip.ChainCount > 1 ? tip.ChainCount : 1;
+
             if (path.Contact == ContactKind.Fighter && _fighters[path.HitFighter].IsAlive)
             {
                 Fighter target = _fighters[path.HitFighter];
                 directFighter = target.Index;
-                int dmg = Damage.Compute(tip.Damage, def, shooter.Level, dc.ZoneMultiplier(path.Zone), tip.Element, dc);
-                Push(MatchEventKind.Hit, target.Index, shooter.Index, dmg, time, point, arrow, path.Zone);
-                ApplyDamage(target, dmg, time, point, arrow);
-                if (target.IsAlive)
+                bool absorbed = false;
+                if (target.HasBubble)
                 {
-                    ApplyStatuses(target, time, point, arrow);
-                    if (tip.Knockback) Knockback(target, path.EndVelocity.X, time, arrow);
+                    // A shield bubble eats one arrow; Electric pops it and still hits.
+                    target.HasBubble = false;
+                    absorbed = !tip.PopsBubbles;
+                    Push(absorbed ? MatchEventKind.BubbleAbsorbed : MatchEventKind.BubblePopped, target.Index, shooter.Index, 0,
+                        time, point, arrow);
                 }
-                if (chainFraction > 0.0) Chain(point, directFighter, -1, dmg * chainFraction, chainRadius, time, arrow);
+                if (!absorbed)
+                {
+                    HitZone zone = path.Zone;
+                    if (zone == HitZone.Head && target.HelmetLeft)
+                    {
+                        target.HelmetLeft = false;
+                        zone = HitZone.Body;
+                        Push(MatchEventKind.HelmetSaved, target.Index, shooter.Index, 0, time, point, arrow, HitZone.Head);
+                    }
+                    if (zone == HitZone.Head) shooter.HeadshotThisTurn = true;
+                    int dmg = ShotDamage(tip.Damage, dc.ZoneMultiplier(zone));
+                    Push(MatchEventKind.Hit, target.Index, shooter.Index, dmg, time, point, arrow, zone);
+                    ApplyDamage(target, dmg, time, point, arrow);
+                    if (target.IsAlive)
+                    {
+                        ApplyStatuses(target, time, point, arrow);
+                        if (tip.Knockback) Knockback(target, path.EndVelocity.X, time, arrow);
+                    }
+                    if (chainFraction > 0.0) Chain(point, directFighter, -1, dmg * chainFraction, chainRadius, chainCount, time, arrow);
+                }
             }
             else if (path.Contact == ContactKind.Prop && _props[path.HitProp].Alive)
             {
@@ -284,8 +404,8 @@ namespace ArcherArcade.Logic
                 HitProp(_props[directProp], explosive, tip.KnocksShields, true, time, point, arrow);
                 if (chainFraction > 0.0)
                 {
-                    double bodyDamage = Damage.Compute(tip.Damage, def, shooter.Level, dc.BodyMultiplier, tip.Element, dc);
-                    Chain(point, -1, directProp, bodyDamage * chainFraction, chainRadius, time, arrow);
+                    double bodyDamage = ShotDamage(tip.Damage, dc.BodyMultiplier);
+                    Chain(point, -1, directProp, bodyDamage * chainFraction, chainRadius, chainCount, time, arrow);
                 }
             }
             else
@@ -326,49 +446,77 @@ namespace ArcherArcade.Logic
             }
         }
 
-        /// <summary>Sparks jump to the nearest other foe or breakable prop within the radius (foes win ties).</summary>
-        void Chain(Vec2 from, int skipFighter, int skipProp, double damage, double radius, double time, int arrow)
+        /// <summary>Damage of the current shot's arrow (ability arrows carry their own final numbers).</summary>
+        int ShotDamage(double damage, double zoneMultiplier)
         {
-            int bestFighter = -1;
-            int bestProp = -1;
-            double best = double.MaxValue;
-            int foe = ActiveFighter(1 - _shooter.Side);
-            if (foe >= 0 && foe != skipFighter)
-            {
-                double d = DistanceToFighter(_fighters[foe], from);
-                if (d <= radius)
-                {
-                    bestFighter = foe;
-                    best = d;
-                }
-            }
-            double clock = Clock + time;
-            for (int i = 0; i < _props.Length; i++)
-            {
-                if (i == skipProp || !PropPresent(i) || !_props[i].IsBreakable) continue;
-                double d = PropShapeAt(i, clock).DistanceTo(from);
-                if (d <= radius && d < best)
-                {
-                    bestFighter = -1;
-                    bestProp = i;
-                    best = d;
-                }
-            }
+            DamageConfig dc = _setup.Damage;
+            return _tip.AbilityArrow
+                ? Damage.ComputeFixed(damage, _shooter.Level, zoneMultiplier, dc)
+                : Damage.Compute(damage, _shooter.Def, _shooter.Level, zoneMultiplier, _tip.Element, dc);
+        }
 
-            if (bestFighter >= 0)
+        /// <summary>
+        /// Sparks jump <paramref name="jumps"/> times, each to the nearest foe or breakable prop within the radius of
+        /// the last thing hit (foes win ties, nothing is hit twice).
+        /// </summary>
+        void Chain(Vec2 from, int skipFighter, int skipProp, double damage, double radius, int jumps, double time, int arrow)
+        {
+            // Visited ids: fighters as index, props as -(index + 1).
+            _chained.Clear();
+            if (skipFighter >= 0) _chained.Add(skipFighter);
+            if (skipProp >= 0) _chained.Add(-(skipProp + 1));
+            double clock = Clock + time;
+
+            for (int jump = 0; jump < jumps; jump++)
             {
-                int dmg = DetMath.RoundToInt(damage);
-                if (dmg < 1) dmg = 1;
-                Fighter target = _fighters[bestFighter];
-                Vec2 at = _setup.Body.ZoneCenter(HitZone.Body, target.Feet);
-                Push(MatchEventKind.ChainHit, bestFighter, _shooter.Index, dmg, time, at, arrow);
-                ApplyDamage(target, dmg, time, at, arrow);
-            }
-            else if (bestProp >= 0)
-            {
-                Vec2 at = PropShapeAt(bestProp, clock).Center;
-                Push(MatchEventKind.ChainHit, -1, _shooter.Index, 0, time, at, arrow, HitZone.None, bestProp);
-                HitProp(_props[bestProp], false, false, false, time, at, arrow);
+                int bestFighter = -1;
+                int bestProp = -1;
+                double best = double.MaxValue;
+                int foe = ActiveFighter(1 - _shooter.Side);
+                if (foe >= 0 && !_chained.Contains(foe))
+                {
+                    double d = DistanceToFighter(_fighters[foe], from);
+                    if (d <= radius)
+                    {
+                        bestFighter = foe;
+                        best = d;
+                    }
+                }
+                for (int i = 0; i < _props.Length; i++)
+                {
+                    if (_chained.Contains(-(i + 1)) || !PropPresent(i) || !_props[i].IsBreakable) continue;
+                    double d = PropShapeAt(i, clock).DistanceTo(from);
+                    if (d <= radius && d < best)
+                    {
+                        bestFighter = -1;
+                        bestProp = i;
+                        best = d;
+                    }
+                }
+
+                if (bestFighter >= 0)
+                {
+                    int dmg = DetMath.RoundToInt(damage);
+                    if (dmg < 1) dmg = 1;
+                    Fighter target = _fighters[bestFighter];
+                    Vec2 at = _setup.Body.ZoneCenter(HitZone.Body, target.Feet);
+                    Push(MatchEventKind.ChainHit, bestFighter, _shooter.Index, dmg, time, at, arrow);
+                    ApplyDamage(target, dmg, time, at, arrow);
+                    _chained.Add(bestFighter);
+                    from = at;
+                }
+                else if (bestProp >= 0)
+                {
+                    Vec2 at = PropShapeAt(bestProp, clock).Center;
+                    Push(MatchEventKind.ChainHit, -1, _shooter.Index, 0, time, at, arrow, HitZone.None, bestProp);
+                    HitProp(_props[bestProp], false, false, false, time, at, arrow);
+                    _chained.Add(-(bestProp + 1));
+                    from = at;
+                }
+                else
+                {
+                    return;
+                }
             }
         }
 
@@ -379,7 +527,7 @@ namespace ArcherArcade.Logic
             int foe = ActiveFighter(1 - _shooter.Side);
             if (foe >= 0 && foe != directFighter && DistanceToFighter(_fighters[foe], point) <= radius)
             {
-                int dmg = Damage.Compute(damage, _shooter.Def, _shooter.Level, 1.0, _tip.Element, dc);
+                int dmg = ShotDamage(damage, dc.BodyMultiplier);
                 Push(MatchEventKind.SplashHit, foe, _shooter.Index, dmg, time, point, arrow);
                 ApplyDamage(_fighters[foe], dmg, time, point, arrow);
             }
@@ -641,6 +789,7 @@ namespace ArcherArcade.Logic
         void ApplyDamage(Fighter target, int amount, double time, Vec2 point, int arrow)
         {
             if (amount <= 0 || !target.IsAlive) return;
+            if (_tip != null) target.Marks |= Injury.MarkFor(_tip.Element);
             target.Hp -= amount;
             if (target.Hp <= 0)
             {
@@ -666,7 +815,7 @@ namespace ArcherArcade.Logic
             TurnTimeLeft = 0.0;
             Fighter f = CurrentFighter;
             Push(MatchEventKind.TurnTimedOut, f.Index, -1, 0, 0.0, f.Feet, -1);
-            f.Status.EndTurn();
+            FinishTurn(f);
             BeginTurn(NextSide());
             return true;
         }
@@ -711,6 +860,23 @@ namespace ArcherArcade.Logic
                     TurnNumber--;
                     continue;
                 }
+
+                f.OwnTurns++;
+                f.HeadshotThisTurn = false;
+                f.AbilityUsedThisTurn = false;
+                ArcherDef def = f.Def;
+                if (def.HealEveryTurns > 0 && def.HealAmount > 0 && f.OwnTurns % def.HealEveryTurns == 0 && f.Hp < f.MaxHp)
+                {
+                    int healed = f.Hp + def.HealAmount > f.MaxHp ? f.MaxHp - f.Hp : def.HealAmount;
+                    f.Hp += healed;
+                    Push(MatchEventKind.Healed, f.Index, f.Index, healed, 0.0, f.Feet, -1);
+                }
+                if (def.BubbleEveryTurns > 0 && f.OwnTurns % def.BubbleEveryTurns == 0 && !f.HasBubble)
+                {
+                    f.HasBubble = true;
+                    Push(MatchEventKind.BubbleCast, f.Index, f.Index, 0, 0.0, f.Feet, -1);
+                }
+                _shotsLeft = def.ShotsPerTurn > 1 ? def.ShotsPerTurn : 1;
 
                 double stun = f.Status.ConsumeStun();
                 double time = _setup.Rules.TurnSeconds - stun;
@@ -800,6 +966,7 @@ namespace ArcherArcade.Logic
             h = MixDouble(h, TurnTimeLeft);
             h = MixDouble(h, Clock);
             h = Mix(h, _rng.State);
+            h = Mix(h, (ulong)_shotsLeft);
             for (int i = 0; i < _fighters.Length; i++)
             {
                 Fighter f = _fighters[i];
@@ -812,6 +979,11 @@ namespace ArcherArcade.Logic
                 h = Mix(h, (ulong)f.Status.PoisonTurns);
                 h = MixDouble(h, f.Status.PendingStunSeconds);
                 h = MixDouble(h, f.Status.PendingDrawSlow);
+                h = Mix(h, (ulong)f.AbilityCharge);
+                h = Mix(h, (ulong)f.AbilityChargeNeeded);
+                h = Mix(h, (ulong)f.OwnTurns);
+                h = Mix(h, (ulong)((f.HasBubble ? 1 : 0) | (f.HelmetLeft ? 2 : 0) | (f.MultiArrowLeft ? 4 : 0)));
+                h = Mix(h, (ulong)f.Marks);
                 for (int a = 0; a < f.Ammo.Length; a++) h = Mix(h, unchecked((ulong)f.Ammo[a]));
             }
             for (int i = 0; i < _props.Length; i++)

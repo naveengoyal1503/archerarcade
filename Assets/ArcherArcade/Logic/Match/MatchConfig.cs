@@ -10,5 +10,9 @@ namespace ArcherArcade.Logic
 
         /// <summary>Last seconds that tick + pulse (read by the HUD and haptics).</summary>
         public double TimerWarnSeconds = 3.0;
+
+        /// <summary>The ability charges after this many of your turns, or fewer after a headshot (GAME_DESIGN §4).</summary>
+        public int AbilityChargeTurns = 3;
+        public int HeadshotChargeTurns = 2;
     }
 }

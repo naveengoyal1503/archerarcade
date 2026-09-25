@@ -12,6 +12,8 @@ namespace ArcherArcade.Logic
         public BodyConfig Body = new BodyConfig();
         public MatchConfig Rules = new MatchConfig();
         public PropConfig PropRules = new PropConfig();
+        public AbilityTable Abilities = AbilityTable.CreateDefault();
+        public BoosterConfig Boosters = new BoosterConfig();
         public ArenaLayout Arena = new ArenaLayout();
         public WindRange Wind = WindRange.Calm;
         public FirstTurnRule FirstTurn = FirstTurnRule.SideZero;
