@@ -257,10 +257,20 @@ namespace ArcherArcade.Archers
             if (_bandaid) _bandaid.enabled = injury >= InjuryStage.Scratched && injury < InjuryStage.Dizzy;
             if (_bandage) _bandage.enabled = injury >= InjuryStage.Dizzy && injury < InjuryStage.KnockedOut;
             Color tint = poisoned || (marks & ElementMarks.Poisoned) != 0 ? new Color(0.82f, 1f, 0.74f, 1f) : Color.white;
+            tint *= _ambient;
             for (int i = 0; i < _parts.Length; i++) _parts[i].color = i <= (int)RigPart.FootBack ? BackTint * tint : tint;
         }
 
         public void Freeze(float seconds) => _frozenUntil = _t + seconds;
+
+        Color _ambient = Color.white;
+
+        /// <summary>Scene light (dusk / night tint) multiplied into the body parts.</summary>
+        public void SetAmbient(Color c)
+        {
+            _ambient = c;
+            SetLooks(_injury, _marks, _burning, _poisoned, _bubble, _helmet);
+        }
 
         void BuildOverlays()
         {

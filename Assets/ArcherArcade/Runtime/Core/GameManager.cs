@@ -57,6 +57,7 @@ namespace ArcherArcade.Core
 
             GameConfig config = GameConfig.Load();
             ServiceLocator.Config = config;
+            Logic.Campaign.LevelBuilder.Configure = config.Apply;
             var save = new SaveSystem(Application.persistentDataPath);
             ServiceLocator.Save = save;
             var profile = new Profile(save.Load(), config.Economy);

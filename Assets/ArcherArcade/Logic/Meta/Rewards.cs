@@ -30,6 +30,17 @@ namespace ArcherArcade.Logic.Meta
             };
         }
 
+        /// <summary>Survival run: coins per wave cleared (capped) plus headshot coins.</summary>
+        public static CoinBreakdown Survival(int wavesCleared, int headshots, EconomyConfig cfg)
+        {
+            int waves = wavesCleared * cfg.SurvivalCoinsPerWave;
+            return new CoinBreakdown
+            {
+                Clear = waves > cfg.SurvivalCoinsCap ? cfg.SurvivalCoinsCap : (waves < 0 ? 0 : waves),
+                Headshots = HeadshotCoins(headshots, cfg)
+            };
+        }
+
         /// <summary>2-Player gives badge progress only, never coins (so it can't be farmed).</summary>
         public static CoinBreakdown TwoPlayer() => new CoinBreakdown();
 

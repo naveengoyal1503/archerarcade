@@ -3,6 +3,12 @@ namespace ArcherArcade.Logic.Campaign
     /// <summary>Turns a <see cref="LevelDef"/> plus the player's match entry into a <see cref="MatchSetup"/>.</summary>
     public static class LevelBuilder
     {
+        /// <summary>
+        /// Optional hook applied to every built setup (the Runtime puts its tuning config in here). Same config on
+        /// every phone → same matches; tests leave it null (Logic defaults).
+        /// </summary>
+        public static System.Action<MatchSetup> Configure;
+
         public static MatchSetup Build(LevelDef level, FighterSpec player, ulong seed)
         {
             var arena = new LevelArena(level.Opponents);
@@ -48,6 +54,7 @@ namespace ArcherArcade.Logic.Campaign
                     StandOnProp = o.StandOnProp
                 });
             }
+            Configure?.Invoke(setup);
             return setup;
         }
 

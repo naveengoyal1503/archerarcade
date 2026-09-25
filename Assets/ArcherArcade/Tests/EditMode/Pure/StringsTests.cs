@@ -95,16 +95,20 @@ namespace ArcherArcade.Tests
                 Assert.Inconclusive("Runtime sources not found from " + Directory.GetCurrentDirectory());
                 return;
             }
-            var used = new Regex("Loc\\.(?:T|F)\\(\\s*\"([A-Za-z0-9_]+)\"");
+            // Whole literal keys only: Loc.T("key") / Loc.F("key", …); prefixes built at runtime ("tipname_" + tip) are
+            // covered by the enum tests above. Doc comments are skipped.
+            var used = new Regex("Loc\\.(?:T|F)\\(\\s*\"([A-Za-z0-9_]+)\"\\s*[,)]");
+            var docLine = new Regex("^\\s*///.*$", RegexOptions.Multiline);
             var missing = new List<string>();
             int count = 0;
             foreach (string file in Directory.GetFiles(runtime, "*.cs", SearchOption.AllDirectories))
             {
-                foreach (Match m in used.Matches(File.ReadAllText(file)))
+                string code = docLine.Replace(File.ReadAllText(file), "");
+                foreach (Match m in used.Matches(code))
                 {
                     count++;
-                    string key = m.Groups[1].Value;
-                    if (!Strings.Has(key) && !missing.Contains(key)) missing.Add(key + " (" + Path.GetFileName(file) + ")");
+                    string key = m.Groups[1].Value + " (" + Path.GetFileName(file) + ")";
+                    if (!Strings.Has(m.Groups[1].Value) && !missing.Contains(key)) missing.Add(key);
                 }
             }
             Assert.Greater(count, 50, "the scan found the Runtime's Loc calls");

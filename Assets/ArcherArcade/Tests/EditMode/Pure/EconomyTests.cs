@@ -64,6 +64,16 @@ namespace ArcherArcade.Tests
         }
 
         [Test]
+        public void SurvivalRewardsPerWaveAreCapped()
+        {
+            var cfg = new EconomyConfig();
+            Assert.AreEqual(0, Rewards.Survival(0, 0, cfg).Total, "no wave cleared, no coins");
+            Assert.AreEqual(cfg.SurvivalCoinsPerWave * 3, Rewards.Survival(3, 0, cfg).Total);
+            Assert.AreEqual(cfg.SurvivalCoinsCap, Rewards.Survival(99, 0, cfg).Clear, "long runs are capped");
+            Assert.AreEqual(cfg.SurvivalCoinsCap + cfg.HeadshotCoinsCap, Rewards.Survival(99, 50, cfg).Total);
+        }
+
+        [Test]
         public void UpgradeCostsAndLevels()
         {
             var cfg = new EconomyConfig();

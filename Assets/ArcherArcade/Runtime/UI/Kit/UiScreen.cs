@@ -17,6 +17,8 @@ namespace ArcherArcade.UI
         public virtual bool ShowCoins => true;
         /// <summary>A full-screen background of its own (splash, result: radial gradients); null = themed sky.</summary>
         public virtual Texture Background => null;
+        /// <summary>No background at all: the game world shows through (match HUD).</summary>
+        public virtual bool SeeThrough => false;
 
         public abstract void Build(RectTransform root);
         public virtual void OnShow() { }

@@ -18,6 +18,7 @@ namespace ArcherArcade.Logic.Modes
             Distance = distance;
             Wind = wind < -Logic.Wind.MaxBars ? -Logic.Wind.MaxBars : (wind > Logic.Wind.MaxBars ? Logic.Wind.MaxBars : wind);
             var setup = new MatchSetup { Seed = 1UL, FixedWind = Wind };
+            ArcherArcade.Logic.Campaign.LevelBuilder.Configure?.Invoke(setup);
             setup.Rules.TurnSeconds = NoTimerSeconds;
             setup.Arena.Grounds.Add(Shape.BoxFromTop(0, 0, 6, 2));
             setup.Arena.Grounds.Add(Shape.BoxFromTop(distance, 0, 4, 2));

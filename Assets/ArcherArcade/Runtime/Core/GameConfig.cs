@@ -30,16 +30,21 @@ namespace ArcherArcade.Core
             return _loaded;
         }
 
-        /// <summary>Puts this config into a match setup (level builders start from the Logic defaults).</summary>
+        /// <summary>
+        /// Puts copies of this config into a match setup (LevelBuilder.Configure hook): copies, so a mode that tweaks
+        /// its own rules (Training's no-timer) never changes the shared config.
+        /// </summary>
         public void Apply(MatchSetup setup)
         {
-            setup.Shot = Shot;
-            setup.Damage = Damage;
-            setup.Body = Body;
-            setup.Rules = Rules;
-            setup.PropRules = Props;
-            setup.Boosters = Boosters;
+            setup.Shot = Clone(Shot);
+            setup.Damage = Clone(Damage);
+            setup.Body = Clone(Body);
+            setup.Rules = Clone(Rules);
+            setup.PropRules = Clone(Props);
+            setup.Boosters = Clone(Boosters);
         }
+
+        static T Clone<T>(T value) where T : class => JsonUtility.FromJson<T>(JsonUtility.ToJson(value));
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         static void ResetStatics() => _loaded = null;

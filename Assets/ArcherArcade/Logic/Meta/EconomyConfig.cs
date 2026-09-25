@@ -23,6 +23,9 @@ namespace ArcherArcade.Logic.Meta
         public int QuickDuelWinMedium = 15;
         public int QuickDuelWinHard = 25;
         public int QuickDuelLoss = 3;
+        /// <summary>Survival: coins per wave cleared (same scale as a Quick Duel win), capped per run.</summary>
+        public int SurvivalCoinsPerWave = 10;
+        public int SurvivalCoinsCap = 200;
         public int DailyChallenge = 50;
         public int DailyStreakDays = 7;
         public int DailyStreakChestCoins = 300;

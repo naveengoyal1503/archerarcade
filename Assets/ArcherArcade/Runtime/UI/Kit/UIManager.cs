@@ -120,6 +120,7 @@ namespace ArcherArcade.UI
             Palette p = UiKit.P;
             Texture own = Current?.Background;
             _background.texture = own ? own : ShapeSprites.Vertical(p.BgTop, p.BgBottom);
+            _background.enabled = Current == null || !Current.SeeThrough;
         }
 
         // ---------- screens ----------
