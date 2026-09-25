@@ -312,6 +312,7 @@ namespace ArcherArcade.Match
                 if (v && Roster.Visible(i) && M.GetFighter(i).IsAlive) v.Idle();
             }
             ServiceLocator.Audio?.Play(SoundId.TurnStart, 0.7f);
+            UpdateLoops();
             _hud?.OnTurnStarted();
 
             if (Session.IsHuman(side))
@@ -820,6 +821,18 @@ namespace ArcherArcade.Match
 
         public void OnShownHpChanged(int fighter) => _hud?.OnHpChanged(fighter);
 
+        /// <summary>Crackle loop while any archer on screen is burning.</summary>
+        void UpdateLoops()
+        {
+            bool burning = false;
+            for (int i = 0; i < M.FighterCount; i++)
+            {
+                Fighter f = M.GetFighter(i);
+                if (f.IsAlive && Roster.Visible(i) && f.Status.IsBurning) burning = true;
+            }
+            ServiceLocator.Audio?.Burning(burning && !IsOverPhase);
+        }
+
         // ------------------------------------------------------------------ pause
 
         void OnRootBack()
@@ -932,6 +945,7 @@ namespace ArcherArcade.Match
         {
             if (_phase == Phase.Over || _phase == Phase.Result) yield break;
             _phase = Phase.Over;
+            ServiceLocator.Audio?.Burning(false);
             if (_tutorial) FinishTutorial();
             _drag.CancelDrag();
             _preview.Hide();
@@ -1146,6 +1160,7 @@ namespace ArcherArcade.Match
         {
             TimeScaleDriver.ResetAll();
             ServiceLocator.Audio?.Creak(false);
+            ServiceLocator.Audio?.Burning(false);
         }
     }
 }
