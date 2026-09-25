@@ -106,6 +106,22 @@ namespace ArcherArcade.Tests
         }
 
         [Test]
+        public void OldSavesWithFiveModesStillLoad()
+        {
+            SaveData s = SaveCodec.FromJson("{\"version\": 1, \"winsByMode\": [1,2,3,4,5], \"lossesByMode\": [0,1,0,1,0]}");
+            Assert.AreEqual(6, s.WinsByMode.Length);
+            Assert.AreEqual(5, s.WinsByMode[4]);
+            Assert.AreEqual(0, s.WinsByMode[(int)GameMode.Survival]);
+            Assert.AreEqual(0, s.SurvivalBestWave);
+            var p = new Profile(s, new EconomyConfig());
+            p.RecordSurvival(4, "ranger");
+            Assert.AreEqual(4, p.Data.SurvivalBestWave);
+            p.RecordSurvival(2, "ranger");
+            Assert.AreEqual(4, p.Data.SurvivalBestWave, "best is kept");
+            Assert.AreEqual(4, SaveCodec.FromJson(SaveCodec.ToJson(p.Data)).SurvivalBestWave);
+        }
+
+        [Test]
         public void GarbageGivesAFreshSave()
         {
             Assert.AreEqual(0, SaveCodec.FromJson("not json {").Coins);

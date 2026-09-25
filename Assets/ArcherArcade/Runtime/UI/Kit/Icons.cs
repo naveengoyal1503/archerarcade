@@ -8,6 +8,7 @@ namespace ArcherArcade.UI
     {
         public const string AcUnit = "\ueb3b";
         public const string Add = "\ue145";
+        public const string AddCircle = "\ue990";
         public const string Adjust = "\ue39e";
         public const string Air = "\uefd8";
         public const string ArrowBack = "\ue5c4";
@@ -32,6 +33,7 @@ namespace ArcherArcade.UI
         public const string CallSplit = "\ue0b6";
         public const string Cancel = "\ue888";
         public const string CardGiftcard = "\ue8f6";
+        public const string Castle = "\ueab1";
         public const string Celebration = "\uea65";
         public const string Check = "\ue668";
         public const string CheckCircle = "\uf0be";
@@ -43,6 +45,7 @@ namespace ArcherArcade.UI
         public const string Crown = "\uecb3";
         public const string DarkMode = "\ue51c";
         public const string Diamond = "\uead5";
+        public const string DoNotDisturbOn = "\uf08f";
         public const string DomainDisabled = "\ue0ef";
         public const string DoneAll = "\ue877";
         public const string Edit = "\uf097";
@@ -54,6 +57,7 @@ namespace ArcherArcade.UI
         public const string Favorite = "\ue87e";
         public const string FitnessCenter = "\ueb43";
         public const string Flag = "\uf0c6";
+        public const string Flare = "\ue3e4";
         public const string Forest = "\uea99";
         public const string Gesture = "\ue155";
         public const string Group = "\uea21";
@@ -67,6 +71,8 @@ namespace ArcherArcade.UI
         public const string HourglassTop = "\uea5b";
         public const string Info = "\ue88e";
         public const string Inventory2 = "\ue1a1";
+        public const string KeyboardDoubleArrowRight = "\ueac9";
+        public const string Landscape = "\ue564";
         public const string LightMode = "\ue518";
         public const string LocalFireDepartment = "\uef55";
         public const string Lock = "\ue899";
@@ -79,6 +85,7 @@ namespace ArcherArcade.UI
         public const string MotionPhotosOff = "\ue9c0";
         public const string MusicNote = "\ue405";
         public const string Nightlight = "\uf03d";
+        public const string NightsStay = "\uf174";
         public const string Nutrition = "\ue110";
         public const string Palette = "\ue40a";
         public const string Pause = "\ue034";
@@ -88,12 +95,16 @@ namespace ArcherArcade.UI
         public const string PlayArrow = "\ue037";
         public const string PrivacyTip = "\uf0dc";
         public const string Psychology = "\uea4a";
+        public const string PushPin = "\uf10d";
+        public const string RadioButtonChecked = "\ue837";
+        public const string RadioButtonUnchecked = "\ue836";
         public const string Redeem = "\ue8f6";
         public const string Remove = "\ue15b";
         public const string Replay = "\ue042";
         public const string RocketLaunch = "\ueb9b";
         public const string Savings = "\ue2eb";
         public const string Science = "\uea4b";
+        public const string SentimentSatisfied = "\ue813";
         public const string Settings = "\ue8b8";
         public const string Shield = "\ue9e0";
         public const string Shuffle = "\ue043";
@@ -103,6 +114,7 @@ namespace ArcherArcade.UI
         public const string Star = "\uf09a";
         public const string Storefront = "\uea12";
         public const string Straighten = "\ue41c";
+        public const string Sunny = "\ue81a";
         public const string SwapHoriz = "\ue8d4";
         public const string Swords = "\uf889";
         public const string Sync = "\ue627";
@@ -117,9 +129,11 @@ namespace ArcherArcade.UI
         public const string Upgrade = "\uf0fb";
         public const string Vibration = "\uf2cb";
         public const string Visibility = "\ue8f4";
+        public const string VisibilityOff = "\ue8f5";
         public const string VolumeOff = "\ue04f";
         public const string VolumeUp = "\ue050";
         public const string WaterDrop = "\ue798";
+        public const string Waves = "\ue176";
         public const string WbSunny = "\ue430";
         public const string WbTwilight = "\ue1c6";
         public const string Weight = "\ue13d";
@@ -130,6 +144,7 @@ namespace ArcherArcade.UI
         {
             { "ac_unit", AcUnit },
             { "add", Add },
+            { "add_circle", AddCircle },
             { "adjust", Adjust },
             { "air", Air },
             { "arrow_back", ArrowBack },
@@ -154,6 +169,7 @@ namespace ArcherArcade.UI
             { "call_split", CallSplit },
             { "cancel", Cancel },
             { "card_giftcard", CardGiftcard },
+            { "castle", Castle },
             { "celebration", Celebration },
             { "check", Check },
             { "check_circle", CheckCircle },
@@ -165,6 +181,7 @@ namespace ArcherArcade.UI
             { "crown", Crown },
             { "dark_mode", DarkMode },
             { "diamond", Diamond },
+            { "do_not_disturb_on", DoNotDisturbOn },
             { "domain_disabled", DomainDisabled },
             { "done_all", DoneAll },
             { "edit", Edit },
@@ -176,6 +193,7 @@ namespace ArcherArcade.UI
             { "favorite", Favorite },
             { "fitness_center", FitnessCenter },
             { "flag", Flag },
+            { "flare", Flare },
             { "forest", Forest },
             { "gesture", Gesture },
             { "group", Group },
@@ -189,6 +207,8 @@ namespace ArcherArcade.UI
             { "hourglass_top", HourglassTop },
             { "info", Info },
             { "inventory_2", Inventory2 },
+            { "keyboard_double_arrow_right", KeyboardDoubleArrowRight },
+            { "landscape", Landscape },
             { "light_mode", LightMode },
             { "local_fire_department", LocalFireDepartment },
             { "lock", Lock },
@@ -201,6 +221,7 @@ namespace ArcherArcade.UI
             { "motion_photos_off", MotionPhotosOff },
             { "music_note", MusicNote },
             { "nightlight", Nightlight },
+            { "nights_stay", NightsStay },
             { "nutrition", Nutrition },
             { "palette", Palette },
             { "pause", Pause },
@@ -210,12 +231,16 @@ namespace ArcherArcade.UI
             { "play_arrow", PlayArrow },
             { "privacy_tip", PrivacyTip },
             { "psychology", Psychology },
+            { "push_pin", PushPin },
+            { "radio_button_checked", RadioButtonChecked },
+            { "radio_button_unchecked", RadioButtonUnchecked },
             { "redeem", Redeem },
             { "remove", Remove },
             { "replay", Replay },
             { "rocket_launch", RocketLaunch },
             { "savings", Savings },
             { "science", Science },
+            { "sentiment_satisfied", SentimentSatisfied },
             { "settings", Settings },
             { "shield", Shield },
             { "shuffle", Shuffle },
@@ -225,6 +250,7 @@ namespace ArcherArcade.UI
             { "star", Star },
             { "storefront", Storefront },
             { "straighten", Straighten },
+            { "sunny", Sunny },
             { "swap_horiz", SwapHoriz },
             { "swords", Swords },
             { "sync", Sync },
@@ -239,9 +265,11 @@ namespace ArcherArcade.UI
             { "upgrade", Upgrade },
             { "vibration", Vibration },
             { "visibility", Visibility },
+            { "visibility_off", VisibilityOff },
             { "volume_off", VolumeOff },
             { "volume_up", VolumeUp },
             { "water_drop", WaterDrop },
+            { "waves", Waves },
             { "wb_sunny", WbSunny },
             { "wb_twilight", WbTwilight },
             { "weight", Weight },

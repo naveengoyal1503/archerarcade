@@ -11,6 +11,7 @@ namespace ArcherArcade.Core
         PvpSetup,
         TrainingSetup,
         Daily,
-        Chests
+        Chests,
+        Survival
     }
 }

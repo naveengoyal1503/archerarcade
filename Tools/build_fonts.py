@@ -62,7 +62,9 @@ ICONS = sorted(set("""
     savings science settings shield shuffle skull speed sports_score star storefront straighten swap_horiz swords
     target thunderstorm timer touch_app track_changes translate trending_up tune upgrade vibration visibility
     volume_off volume_up water_drop wb_sunny wb_twilight weight workspace_premium zoom_in
-    arrow_right arrow_left sync pets phone_android hourglass_top mood auto_fix_high block cancel
+    arrow_right arrow_left sync pets phone_android hourglass_top mood auto_fix_high block cancel waves
+    keyboard_double_arrow_right push_pin sentiment_satisfied landscape nights_stay flare castle sunny
+    visibility_off radio_button_checked radio_button_unchecked add_circle do_not_disturb_on
 """.split()))
 
 # Plain-text symbols the UI copy uses (from the design) mapped onto icon glyphs, so any label can contain them via

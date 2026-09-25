@@ -77,7 +77,8 @@ namespace ArcherArcade.Logic.Save
                 { "tutorialDone", s.TutorialDone },
                 { "seenCards", Strings(s.SeenCards) },
                 { "pvpName1", s.PvpName1 },
-                { "pvpName2", s.PvpName2 }
+                { "pvpName2", s.PvpName2 },
+                { "survivalBestWave", s.SurvivalBestWave }
             };
             return Json.Write(root);
         }
@@ -110,7 +111,8 @@ namespace ArcherArcade.Logic.Save
                 WardenBestStars = Int(root, "wardenBestStars", 0),
                 TutorialDone = Bool(root, "tutorialDone", false),
                 PvpName1 = Str(root, "pvpName1", "P1"),
-                PvpName2 = Str(root, "pvpName2", "P2")
+                PvpName2 = Str(root, "pvpName2", "P2"),
+                SurvivalBestWave = Math.Max(0, Int(root, "survivalBestWave", 0))
             };
 
             s.ArcherLevels.Clear();

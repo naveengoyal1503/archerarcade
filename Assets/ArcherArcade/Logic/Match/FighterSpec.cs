@@ -20,6 +20,8 @@ namespace ArcherArcade.Logic
         /// <summary>2-Player handicap (0.7–1.3) and Extra Heart booster scale max HP.</summary>
         public double HpScale = 1.0;
         public int BonusHp;
+        /// <summary>Starting HP when it carries over from an earlier match (Survival); 0 = full.</summary>
+        public int StartHp;
 
         /// <summary>Stands on this prop (moving platform), −1 = on the ground at Feet.</summary>
         public int StandOnProp = -1;

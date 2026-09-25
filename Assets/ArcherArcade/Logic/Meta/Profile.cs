@@ -406,6 +406,20 @@ namespace ArcherArcade.Logic.Meta
             return EvaluateBadges();
         }
 
+        /// <summary>End of a Survival run: best wave, wins/losses (a run counts as won when it cleared a wave).</summary>
+        public List<BadgeUpdate> RecordSurvival(int wavesCleared, string archerId)
+        {
+            if (wavesCleared > Data.SurvivalBestWave) Data.SurvivalBestWave = wavesCleared;
+            if (wavesCleared > 0) Data.WinsByMode[(int)GameMode.Survival]++;
+            else Data.LossesByMode[(int)GameMode.Survival]++;
+            if (!string.IsNullOrEmpty(archerId))
+            {
+                Data.ArcherMatches.TryGetValue(archerId, out int n);
+                Data.ArcherMatches[archerId] = n + 1;
+            }
+            return EvaluateBadges();
+        }
+
         public string FavouriteArcher
         {
             get

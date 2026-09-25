@@ -15,10 +15,11 @@ namespace ArcherArcade.Logic.Meta
         public const bool DailyChallenge = true;
         public const bool TrainingRange = true;
         public const bool Boosters = true;
+        /// <summary>Pulled forward from 1.1: it is in the Claude Design modes grid (decision 2026-09-25).</summary>
+        public const bool SurvivalMode = true;
 
         // v1.1 "Sunscorch Desert"
         public const bool World2 = false;
-        public const bool SurvivalMode = false;
         public const bool DailyMissions = false;
         public const bool IceAndPoisonArchers = false;
         public const bool LaserAndSawTips = false;

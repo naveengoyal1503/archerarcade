@@ -35,8 +35,8 @@ namespace ArcherArcade.Logic.Save
 
         public Dictionary<StatKey, long> Stats = new Dictionary<StatKey, long>();
         public double LongestShot;
-        public int[] WinsByMode = new int[5];
-        public int[] LossesByMode = new int[5];
+        public int[] WinsByMode = new int[6];
+        public int[] LossesByMode = new int[6];
         public Dictionary<string, int> ArcherMatches = new Dictionary<string, int>();
         public int WardenBestStars;
 
@@ -50,6 +50,9 @@ namespace ArcherArcade.Logic.Save
 
         public string PvpName1 = "P1";
         public string PvpName2 = "P2";
+
+        /// <summary>Survival mode: best wave reached (added 2026-09-25, default 0).</summary>
+        public int SurvivalBestWave;
 
         public long Stat(StatKey key) => Stats.TryGetValue(key, out long v) ? v : 0L;
 

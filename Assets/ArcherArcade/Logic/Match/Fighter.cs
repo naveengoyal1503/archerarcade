@@ -52,7 +52,7 @@ namespace ArcherArcade.Logic
             MaxHp = DetMath.RoundToInt(baseHp * spec.HpScale) + spec.BonusHp;
             if (HasBooster(BoosterKind.ExtraHeart)) MaxHp += boosters.ExtraHeartHp;
             if (MaxHp < 1) MaxHp = 1;
-            Hp = MaxHp;
+            Hp = spec.StartHp > 0 && spec.StartHp < MaxHp ? spec.StartHp : MaxHp;
             Feet = spec.Feet;
             Ammo[(int)ArrowTip.Normal] = spec.NormalArrows ? -1 : 0;
             for (int i = 0; spec.Tips != null && i < spec.Tips.Length; i++)
